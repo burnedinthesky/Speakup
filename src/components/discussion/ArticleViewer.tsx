@@ -65,7 +65,7 @@ const ArticleViewer = ({ article }: ArticleViewerProps) => {
                 <div className="flex flex-col mt-6 gap-2 text-neutral-700">
                     <h2 className="text-primary-800 text-2xl">延伸閱讀</h2>
                     {article.furtherReading.map((readLink, i) => (
-                        <a href={readLink.link} target="_blank" rel="noopener noreferrer">
+                        <a href={readLink.link} target="_blank" rel="noopener noreferrer" key={i}>
                             <p>{readLink.title}</p>
                         </a>
                     ))}

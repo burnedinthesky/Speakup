@@ -1,6 +1,9 @@
 import Head from "next/head";
 import ArticleViewer from "../../components/discussion/ArticleViewer";
 import { Article } from "../../types/issueTypes";
+import Header from "../../components/appshell/Header";
+import Navbar from "../../components/appshell/Navbar";
+import Footbar from "../../components/appshell/Footbar";
 
 interface DiscussionProps {
     article: Article;
@@ -68,9 +71,13 @@ const DiscussionBoard = (/*{article}: DiscussionProps*/) => {
             <Head>
                 <title>{`Speakup - ${article.title}`}</title>
                 <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+                <link rel="manifest" href="/site.webmanifest" />
             </Head>
 
-            <main className="fixed top-0 left-0 right-0 bottom-0 overflow-x-hidden overflow-y-auto bg-neutral-100 scrollbar-hide pb-16">
+            <main className="fixed top-0 left-0 right-0 bottom-0 overflow-x-hidden overflow-y-auto bg-neutral-100 scrollbar-hide pt-14 pb-16">
+                <Header />
+                <Navbar retractable={true} />
+                <Footbar />
                 <div className="mx-auto w-11/12 max-w-3xl scrollbar-hide lg:px-4">
                     <div className="mt-6 w-full lg:mt-10">
                         <ArticleViewer article={article} />
