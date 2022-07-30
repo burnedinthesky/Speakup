@@ -10,6 +10,58 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model Example {
-    id String @id @default(cuid())
+model User {
+    id           String         @id @default(uuid())
+    username     String         @unique
+    password     String
+    email        String         @unique
+    birthday     String
+    gender       Int
+    role         Role           @default(USER)
+    Articles     Articles[]
+    Comments     Comments[]
+    CommentReply CommentReply[]
+}
+
+model Articles {
+    id          String     @id @default(uuid())
+    h1          String
+    h2          String
+    h3          String
+    spoiler     String     @db.Text
+    content     String     @db.Text
+    tags        String[]
+    createdTime DateTime   @default(now())
+    views       Int
+    author      User       @relation(fields: [authorId], references: [id])
+    authorId    String
+    Comments    Comments[]
+}
+
+model Comments {
+    id           Int            @id @default(autoincrement())
+    content      String         @db.Text
+    owner        User           @relation(fields: [ownerId], references: [id])
+    ownerId      String
+    createdTime  DateTime       @default(now())
+    article      Articles       @relation(fields: [articleId], references: [id])
+    articleId    String
+    CommentReply CommentReply[]
+}
+
+model CommentReply {
+    id              Int      @id @default(autoincrement())
+    content         String   @db.Text
+    owner           User     @relation(fields: [ownerId], references: [id])
+    ownerId         String
+    createdTime     DateTime
+    motherComment   Comments @relation(fields: [motherCommentId], references: [id])
+    motherCommentId Int
+}
+
+enum Role {
+    USER
+    CREATOR
+    SENIORCREATOR
+    ADMIN
 }
