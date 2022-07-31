@@ -30,7 +30,10 @@ module.exports = {
                     900: "#243436",
                 },
             },
+            transitionProperty: {
+                height: "height",
+            },
         },
     },
-    plugins: [],
+    plugins: [require("tailwind-scrollbar-hide")],
 };

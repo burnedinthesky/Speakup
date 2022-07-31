@@ -3,7 +3,9 @@ import Link from "next/link";
 import { Spoiler } from "@mantine/core";
 
 import { BookmarkIcon, FlagIcon, ShareIcon } from "@heroicons/react/outline";
-import { Article, ArticleBlock } from "../../types/issueTypes";
+import { Article, ArticleBlock } from "../../../types/issueTypes";
+import ShareDialog from "./ShareDialog";
+import { useRouter } from "next/router";
 
 interface ArticleViewerProps {
     article: Article;
@@ -38,6 +40,8 @@ const ArticleViewer = ({ article }: ArticleViewerProps) => {
     const [userSaved, setUserSaved] = useState<boolean>(false);
     const [openShareMenu, setOpenShareMenu] = useState<boolean>(false);
     const [openReportMenu, setOpenReportMenu] = useState<boolean>(false);
+
+    const router = useRouter();
 
     return (
         <div>
@@ -81,9 +85,25 @@ const ArticleViewer = ({ article }: ArticleViewerProps) => {
                             className={`h-7 w-7 text-primary-700 transition-colors ${userSaved ? "fill-yellow-300" : "fill-white"}`}
                         />
                     </button>
-                    <button>
+                    <button
+                        onClick={async () => {
+                            if (navigator.share) {
+                                await navigator.share({
+                                    title: "分享這則議題",
+                                    url: `https://speakup.place/${router.pathname}`,
+                                });
+                            } else setOpenShareMenu(true);
+                        }}
+                    >
                         <ShareIcon className="h-7 w-7 text-primary-700" />
                     </button>
+                    <ShareDialog
+                        opened={openShareMenu}
+                        closeFn={() => {
+                            setOpenShareMenu(false);
+                        }}
+                        url={`https://speakup.place/${router.pathname}`}
+                    />
                     <button>
                         <FlagIcon className="h-7 w-7 text-primary-700" />
                     </button>

@@ -9,7 +9,7 @@ import {
     UserCircleIcon as UserCircleIconSolid,
 } from "@heroicons/react/solid";
 import { useRouter } from "next/router";
-import AccountOptions from "../account/AccountOptions";
+import AccountOptions from "../Account/AccountOptions";
 // import MobileNotifications from './header/MobileNotificationHandler';
 
 const Footbar = () => {
@@ -45,7 +45,13 @@ const Footbar = () => {
                 </a>
             </Link>
             <Link href="/collections">
-                <a>{pageUrl == "collections" ? <BookmarkIconSolid className="h-8 w-8" /> : <BookmarkIcon className="h-8 w-8" />}</a>
+                <a>
+                    {pageUrl == "collections" ? (
+                        <BookmarkIconSolid className="h-8 w-8" />
+                    ) : (
+                        <BookmarkIcon className="h-8 w-8" />
+                    )}
+                </a>
             </Link>
             {/* <MobileNotifications /> */}
             {/* <Link href="/aboutuser">

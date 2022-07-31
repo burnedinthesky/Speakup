@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 import { SearchIcon } from "@heroicons/react/outline";
 
 // import DesktopNotifications from "./header/DesktopNotificationHandler";
-import AccountOptions from "../account/AccountOptions";
+import AccountOptions from "../Account/AccountOptions";
 
 const Header = () => {
     const [searchKeyword, setSearchKeyword] = useState<string>("");

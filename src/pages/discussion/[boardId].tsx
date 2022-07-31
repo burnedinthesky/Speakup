@@ -1,9 +1,10 @@
 import Head from "next/head";
-import ArticleViewer from "../../components/discussion/ArticleViewer";
+import ArticleViewer from "../../components/Discussion/Article/ArticleViewer";
 import { Article } from "../../types/issueTypes";
-import Header from "../../components/appshell/Header";
-import Navbar from "../../components/appshell/Navbar";
-import Footbar from "../../components/appshell/Footbar";
+import Header from "../../components/AppShell/Header";
+import Navbar from "../../components/AppShell/Navbar";
+import Footbar from "../../components/AppShell/Footbar";
+import CommentField from "../../components/Discussion/Comments/CommentField";
 
 interface DiscussionProps {
     article: Article;
@@ -18,6 +19,16 @@ const DiscussionBoard = (/*{article}: DiscussionProps*/) => {
             {
                 type: "h1",
                 content: "Heading 1",
+            },
+            {
+                type: "p",
+                content:
+                    "Reprehenderit cillum in est in. Cupidatat consequat sint dolore dolor et laboris est qui minim dolore est velit commodo. Non amet eiusmod sit consequat esse voluptate minim commodo eiusmod esse in aute.",
+            },
+            {
+                type: "p",
+                content:
+                    "Reprehenderit cillum in est in. Cupidatat consequat sint dolore dolor et laboris est qui minim dolore est velit commodo. Non amet eiusmod sit consequat esse voluptate minim commodo eiusmod esse in aute.",
             },
             {
                 type: "p",
@@ -81,6 +92,8 @@ const DiscussionBoard = (/*{article}: DiscussionProps*/) => {
                 <div className="mx-auto w-11/12 max-w-3xl scrollbar-hide lg:px-4">
                     <div className="mt-6 w-full lg:mt-10">
                         <ArticleViewer article={article} />
+                        <div className="h-10" />
+                        <CommentField boardId={article.id} onSide="both" sortMethod={0} />
                     </div>
                 </div>
             </main>
