@@ -2,9 +2,10 @@ import React, { ReactElement } from "react";
 import Link from "next/link";
 
 import { HomeIcon, TrendingUpIcon, BookmarkIcon } from "@heroicons/react/outline";
+import { ArticleTagValues } from "../../types/issueTypes";
 
 //prettier-ignore
-const tags = ["娛樂","環境","司法","國家發展","經濟","少數族群","媒體","醫藥","道德","政治","教育","家庭","女性","自由","宗教","科技","社會政策","社會運動","體育"];
+const tags = ArticleTagValues;
 
 interface NavbarSectionProps {
     retractable: boolean;
@@ -39,7 +40,12 @@ const Navbar = ({ retractable }: { retractable: boolean }) => {
         >
             <div className="h-44 w-full">
                 <ul className="mx-auto pl-7 text-primary-900">
-                    <NavbarSection retractable={retractable} link="/home" icon={<HomeIcon className="w-7 flex-shrink-0" />} text="首頁" />
+                    <NavbarSection
+                        retractable={retractable}
+                        link="/home"
+                        icon={<HomeIcon className="w-7 flex-shrink-0" />}
+                        text="首頁"
+                    />
                     <NavbarSection
                         retractable={retractable}
                         link="/search/results?searchterm=@熱門議題"

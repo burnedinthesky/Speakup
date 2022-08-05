@@ -6,77 +6,13 @@ import Navbar from "../../components/AppShell/Navbar";
 import Footbar from "../../components/AppShell/Footbar";
 import CommentField from "../../components/Discussion/Comments/CommentField";
 
+import { SampleArticle } from "../../templateData/issues";
+
 interface DiscussionProps {
     article: Article;
 }
 
-const DiscussionBoard = (/*{article}: DiscussionProps*/) => {
-    const article: Article = {
-        id: "1234",
-        title: "Sth",
-        tags: ["stg"],
-        content: [
-            {
-                type: "h1",
-                content: "Heading 1",
-            },
-            {
-                type: "p",
-                content:
-                    "Reprehenderit cillum in est in. Cupidatat consequat sint dolore dolor et laboris est qui minim dolore est velit commodo. Non amet eiusmod sit consequat esse voluptate minim commodo eiusmod esse in aute.",
-            },
-            {
-                type: "p",
-                content:
-                    "Reprehenderit cillum in est in. Cupidatat consequat sint dolore dolor et laboris est qui minim dolore est velit commodo. Non amet eiusmod sit consequat esse voluptate minim commodo eiusmod esse in aute.",
-            },
-            {
-                type: "p",
-                content:
-                    "Reprehenderit cillum in est in. Cupidatat consequat sint dolore dolor et laboris est qui minim dolore est velit commodo. Non amet eiusmod sit consequat esse voluptate minim commodo eiusmod esse in aute.",
-            },
-            {
-                type: "h2",
-                content: "Heading 2",
-            },
-            {
-                type: "p",
-                content:
-                    "Reprehenderit cillum in est in. Cupidatat consequat sint dolore dolor et laboris est qui minim dolore est velit commodo. Non amet eiusmod sit consequat esse voluptate minim commodo eiusmod esse in aute.",
-            },
-            {
-                type: "h3",
-                content: "Heading 3",
-            },
-            {
-                type: "p",
-                content:
-                    "Reprehenderit cillum in est in. Cupidatat consequat sint dolore dolor et laboris est qui minim dolore est velit commodo. Non amet eiusmod sit consequat esse voluptate minim commodo eiusmod esse in aute.",
-            },
-            {
-                type: "p",
-                content:
-                    "Reprehenderit cillum in est in. Cupidatat consequat sint dolore dolor et laboris est qui minim dolore est velit commodo. Non amet eiusmod sit consequat esse voluptate minim commodo eiusmod esse in aute.",
-            },
-            {
-                type: "spoiler",
-                spoilerTitle: "Hello",
-                content:
-                    "Reprehenderit cillum in est in. Cupidatat consequat sint dolore dolor et laboris est qui minim dolore est velit commodo. Non amet eiusmod sit consequat esse voluptate minim commodo eiusmod esse in aute.",
-            },
-        ],
-        views: 0,
-        author: {
-            username: "Hello",
-            pfp: "sjkldf",
-        },
-        furtherReading: [
-            { title: "Google", link: "https://www.google.com" },
-            { title: "Google", link: "https://www.google.com" },
-            { title: "Google", link: "https://www.google.com" },
-        ],
-    };
-
+const DiscussionBoard = ({ article }: DiscussionProps) => {
     return (
         <>
             <Head>
@@ -102,3 +38,12 @@ const DiscussionBoard = (/*{article}: DiscussionProps*/) => {
 };
 
 export default DiscussionBoard;
+
+export async function getServerSideProps() {
+    // const res = await fetch(
+    //     `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/home`
+    // );
+    // const data = await res.json();
+
+    return { props: { article: SampleArticle } };
+}
