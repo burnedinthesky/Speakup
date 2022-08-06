@@ -26,7 +26,7 @@ const NewComment = ({ addComment }: NewCommentProps) => {
     return (
         <div className="flex w-full items-center justify-end">
             <div
-                className={`relative mt-2 mb-4 flex flex-grow-0 items-center border border-primary-800 px-3 transition-width ${
+                className={`relative mt-2 mb-4 flex flex-grow-0 items-center border border-primary-800 px-3 transition-width duration-300 ${
                     enteringComment ? "w-full rounded-2xl" : "h-9 w-9 rounded-full"
                 } `}
             >

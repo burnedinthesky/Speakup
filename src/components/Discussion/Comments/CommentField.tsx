@@ -13,7 +13,7 @@ import { Comment, Stances } from "../../../types/commentTypes";
 interface CommentFieldProps {
     boardId: string;
     onSide: "sup" | "agn" | "both";
-    sortMethod: number;
+    sortMethod: "default" | "time" | "replies";
 }
 
 const CommentField = ({ boardId, onSide, sortMethod }: CommentFieldProps) => {
@@ -141,7 +141,7 @@ const CommentField = ({ boardId, onSide, sortMethod }: CommentFieldProps) => {
 
     return (
         <div className="bg-neutral-50">
-            <div className="mx-auto mb-4 flex flex-col divide-y divide-neutral-300 px-9 lg:py-3 ">
+            <div className="mx-auto mb-4 flex flex-col divide-y divide-neutral-300 px-9 lg:py-3 pb-6 ">
                 {true /*!cmtQueryLoading*/ && (
                     <>
                         <NewComment

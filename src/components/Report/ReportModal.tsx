@@ -129,7 +129,14 @@ const ReportModal = ({ open, closeFunction, title, options, allowOther, submitFu
 
     return (
         <>
-            <Modal opened={open} onClose={closeFunction} withCloseButton={false} centered size="sm">
+            <Modal
+                opened={open}
+                onClose={closeFunction}
+                withCloseButton={false}
+                centered
+                size="sm"
+                classNames={{ modal: "bg-neutral-50" }}
+            >
                 <div
                     className="w-full relative overflow-hidden transition-height duration-300 "
                     style={{
