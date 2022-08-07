@@ -15,8 +15,8 @@ model User {
     username     String         @unique
     password     String
     email        String         @unique
-    birthday     String
-    gender       Int
+    birthday     String?
+    gender       Int?
     role         Role           @default(USER)
     Articles     Articles[]
     Comments     Comments[]
@@ -32,7 +32,6 @@ model Articles {
     content     String     @db.Text
     tags        String[]
     createdTime DateTime   @default(now())
-    views       Int
     author      User       @relation(fields: [authorId], references: [id])
     authorId    String
     Comments    Comments[]
@@ -46,6 +45,8 @@ model Comments {
     createdTime  DateTime       @default(now())
     article      Articles       @relation(fields: [articleId], references: [id])
     articleId    String
+    viewsCount   Int
+    commentCount Int
     CommentReply CommentReply[]
 }
 
