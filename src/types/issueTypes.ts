@@ -29,5 +29,6 @@ export type Article = {
     content: ArticleBlock[];
     furtherReading: FurtherReadingLink[];
     author: ArticleAuthor;
-    views: number;
+    viewCount: number;
+    commentCount: number;
 };
