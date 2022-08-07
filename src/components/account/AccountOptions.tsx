@@ -84,12 +84,19 @@ const AccountOptions = () => {
                     target="_blank"
                     rel="norefferer noopener"
                 >
-                    <Menu.Item className="text-primary-900" icon={<InformationCircleIcon className="h-7 w-7" />}>
+                    <Menu.Item
+                        className="text-primary-900"
+                        icon={<InformationCircleIcon className="h-7 w-7" />}
+                    >
                         關於
                     </Menu.Item>
                 </a>
 
-                <Menu.Item className="text-primary-900" icon={<LogoutIcon className="h-7 w-7" />} onClick={logout}>
+                <Menu.Item
+                    className="text-primary-900"
+                    icon={<LogoutIcon className="h-7 w-7" />}
+                    onClick={logout}
+                >
                     登出
                 </Menu.Item>
                 <Menu.Label>Speakup Indev 0.0.1</Menu.Label>

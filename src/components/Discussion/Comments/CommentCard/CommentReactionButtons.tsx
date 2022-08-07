@@ -16,7 +16,11 @@ export function LikeIcon({ status, enableAnim, styles }: InteractionIconProps) {
             viewBox="0 0 25.149 25.501"
         >
             <path
-                className={`${status ? "fill-primary-600 stroke-primary-600" : "fill-transparent stroke-neutral-500"}`}
+                className={`${
+                    status
+                        ? "fill-primary-600 stroke-primary-600"
+                        : "fill-transparent stroke-neutral-500"
+                }`}
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth="2.5"
@@ -27,7 +31,11 @@ export function LikeIcon({ status, enableAnim, styles }: InteractionIconProps) {
     );
 }
 
-export function DislikeIcon({ status, enableAnim, styles }: InteractionIconProps) {
+export function DislikeIcon({
+    status,
+    enableAnim,
+    styles,
+}: InteractionIconProps) {
     return (
         <svg
             className={`mr-1 inline h-7 w-7 p-[3.5px] text-neutral-500 ${
@@ -39,7 +47,11 @@ export function DislikeIcon({ status, enableAnim, styles }: InteractionIconProps
             viewBox="0 0 22.934 23.251"
         >
             <path
-                className={`${status ? "fill-primary-600 stroke-primary-600" : "fill-transparent stroke-neutral-500"}`}
+                className={`${
+                    status
+                        ? "fill-primary-600 stroke-primary-600"
+                        : "fill-transparent stroke-neutral-500"
+                }`}
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth="2.5"

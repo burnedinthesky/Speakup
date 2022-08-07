@@ -1,7 +1,11 @@
 import { Menu } from "@mantine/core";
 
 import { FlagIcon, XIcon } from "@heroicons/react/solid";
-import { TrashIcon, ReplyIcon, DotsVerticalIcon } from "@heroicons/react/outline";
+import {
+    TrashIcon,
+    ReplyIcon,
+    DotsVerticalIcon,
+} from "@heroicons/react/outline";
 
 import { Comment } from "../../../../types/commentTypes";
 
@@ -25,7 +29,7 @@ const ExtendedMenu = ({
     return (
         <Menu position="bottom-end">
             <Menu.Target>
-                <DotsVerticalIcon className="h-6 w-6 text-neutral-500 cursor-pointer" />
+                <DotsVerticalIcon className="h-6 w-6 cursor-pointer text-neutral-500" />
             </Menu.Target>
             <Menu.Dropdown>
                 <Menu.Item
@@ -33,7 +37,9 @@ const ExtendedMenu = ({
                         setShowReportMenu(true);
                     }}
                     className="text-primary-800"
-                    icon={<FlagIcon className="inline h-6 w-6 text-primary-800" />}
+                    icon={
+                        <FlagIcon className="inline h-6 w-6 text-primary-800" />
+                    }
                 >
                     檢舉
                 </Menu.Item>
@@ -43,7 +49,9 @@ const ExtendedMenu = ({
                             deleteFunction(cmtData.id);
                         }}
                         className="text-primary-800"
-                        icon={<TrashIcon className="inline h-6 w-6 text-primary-800" />}
+                        icon={
+                            <TrashIcon className="inline h-6 w-6 text-primary-800" />
+                        }
                     >
                         刪除
                     </Menu.Item>

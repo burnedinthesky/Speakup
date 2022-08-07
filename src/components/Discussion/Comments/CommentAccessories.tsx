@@ -14,7 +14,10 @@ const NewComment = ({ addComment }: NewCommentProps) => {
     const [contentEditable, setContentEditable] = useState(true);
 
     const postComment = async (cmtSide: Stances) => {
-        if (commentDiv.current?.innerText == undefined || commentDiv.current?.innerText == "") {
+        if (
+            commentDiv.current?.innerText == undefined ||
+            commentDiv.current?.innerText == ""
+        ) {
             throw new Error("Comment is undefined or empty");
         }
         addComment(commentDiv?.current?.innerText, cmtSide);
@@ -26,8 +29,10 @@ const NewComment = ({ addComment }: NewCommentProps) => {
     return (
         <div className="flex w-full items-center justify-end">
             <div
-                className={`relative mt-2 mb-4 flex flex-grow-0 items-center border border-primary-800 px-3 transition-width duration-300 ${
-                    enteringComment ? "w-full rounded-2xl" : "h-9 w-9 rounded-full"
+                className={`transition-width relative mt-2 mb-4 flex flex-grow-0 items-center border border-primary-800 px-3 duration-300 ${
+                    enteringComment
+                        ? "w-full rounded-2xl"
+                        : "h-9 w-9 rounded-full"
                 } `}
             >
                 {enteringComment && (
@@ -38,7 +43,10 @@ const NewComment = ({ addComment }: NewCommentProps) => {
                         onKeyPress={(e) => {
                             if (e.key === "Enter") {
                                 e.preventDefault();
-                                if (commentDiv.current?.innerText !== "" && !choosingSide) {
+                                if (
+                                    commentDiv.current?.innerText !== "" &&
+                                    !choosingSide
+                                ) {
                                     setContentEditable(false);
                                     setChoosingSide(true);
                                 }
@@ -62,7 +70,9 @@ const NewComment = ({ addComment }: NewCommentProps) => {
                             <PaperAirplaneIcon className="h-6 w-6" />
                         </button>
                         <button
-                            className={`h-6 w-6 flex-shrink-0 text-primary-800 ${choosingSide ? "hidden" : "block"} `}
+                            className={`h-6 w-6 flex-shrink-0 text-primary-800 ${
+                                choosingSide ? "hidden" : "block"
+                            } `}
                             onClick={() => {
                                 setEnteringComment(!enteringComment);
                             }}
@@ -120,7 +130,10 @@ const NewComment = ({ addComment }: NewCommentProps) => {
                             setContentEditable(true);
                         }}
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 fill-primary-800">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-6 w-6 fill-primary-800"
+                        >
                             <path d="M4 14a1 1 0 0 1 .3-.7l11-11a1 1 0 0 1 1.4 0l3 3a1 1 0 0 1 0 1.4l-11 11a1 1 0 0 1-.7.3H5a1 1 0 0 1-1-1v-3z" />
                             <rect width="20" height="2" x="2" y="20" rx="1" />
                         </svg>

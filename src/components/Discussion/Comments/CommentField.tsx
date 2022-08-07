@@ -7,7 +7,11 @@ import { showNotification } from "@mantine/notifications";
 import { cloneDeep } from "lodash";
 
 import CommentGroup from "./CommentGroup";
-import { NewComment, NoCommentsDisplay, LoadingSkeleton } from "./CommentAccessories";
+import {
+    NewComment,
+    NoCommentsDisplay,
+    LoadingSkeleton,
+} from "./CommentAccessories";
 import { Comment, Stances } from "../../../types/commentTypes";
 
 interface CommentFieldProps {
@@ -141,11 +145,14 @@ const CommentField = ({ boardId, onSide, sortMethod }: CommentFieldProps) => {
 
     return (
         <div className="bg-neutral-50">
-            <div className="mx-auto mb-4 flex flex-col divide-y divide-neutral-300 px-9 lg:py-3 pb-6 ">
+            <div className="mx-auto mb-4 flex flex-col divide-y divide-neutral-300 px-9 pb-6 lg:py-3 ">
                 {true /*!cmtQueryLoading*/ && (
                     <>
                         <NewComment
-                            addComment={(cmtContent: string, cmtSide: Stances) => {
+                            addComment={(
+                                cmtContent: string,
+                                cmtSide: Stances
+                            ) => {
                                 // addComment.mutate({
                                 //     content: commentContent,
                                 //     side: side,
@@ -153,23 +160,29 @@ const CommentField = ({ boardId, onSide, sortMethod }: CommentFieldProps) => {
                             }}
                         />
                         <div className="flex w-full flex-col gap-2 pt-4">
-                            {userComments.concat(cmtQueryData).map((data, i, arr) => {
-                                // return data.totalComments !== undefined ? (
-                                //     <div key={i}></div>
-                                // ) : (
-                                return (
-                                    <CommentGroup
-                                        key={i}
-                                        boardId={boardId}
-                                        comment={data}
-                                        deleteComment={(cmtId) => {
-                                            // delComment.mutate(cmtId);
-                                        }}
-                                        ref={i === arr.length - 1 ? lastCardRef : undefined}
-                                    />
-                                );
-                                // );
-                            })}
+                            {userComments
+                                .concat(cmtQueryData)
+                                .map((data, i, arr) => {
+                                    // return data.totalComments !== undefined ? (
+                                    //     <div key={i}></div>
+                                    // ) : (
+                                    return (
+                                        <CommentGroup
+                                            key={i}
+                                            boardId={boardId}
+                                            comment={data}
+                                            deleteComment={(cmtId) => {
+                                                // delComment.mutate(cmtId);
+                                            }}
+                                            ref={
+                                                i === arr.length - 1
+                                                    ? lastCardRef
+                                                    : undefined
+                                            }
+                                        />
+                                    );
+                                    // );
+                                })}
                         </div>
 
                         {/* {userComments.length === 0 &&

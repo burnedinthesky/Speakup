@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { HomeIcon, SearchIcon, BookmarkIcon, BellIcon, UserCircleIcon } from "@heroicons/react/outline";
+import {
+    HomeIcon,
+    SearchIcon,
+    BookmarkIcon,
+    BellIcon,
+    UserCircleIcon,
+} from "@heroicons/react/outline";
 
 import {
     HomeIcon as HomeIconSolid,
@@ -30,10 +36,16 @@ const Footbar = () => {
 
     return (
         <nav
-            className={`fixed left-0 bottom-0 z-20 h-16 flex w-full items-center justify-around border-t border-gray-400 bg-neutral-50 px-5 text-primary-900 lg:hidden`}
+            className={`fixed left-0 bottom-0 z-20 flex h-16 w-full items-center justify-around border-t border-gray-400 bg-neutral-50 px-5 text-primary-900 lg:hidden`}
         >
             <Link href="/home">
-                <a>{pageUrl == "home" ? <HomeIconSolid className="h-8 w-8" /> : <HomeIcon className="h-8 w-8" />}</a>
+                <a>
+                    {pageUrl == "home" ? (
+                        <HomeIconSolid className="h-8 w-8" />
+                    ) : (
+                        <HomeIcon className="h-8 w-8" />
+                    )}
+                </a>
             </Link>
             <Link href="/search">
                 <a>

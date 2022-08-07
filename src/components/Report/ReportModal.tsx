@@ -11,17 +11,29 @@ interface ReportModalProps {
         text: string;
     }[];
     allowOther: boolean;
-    submitFunction: (value: string, content?: string) => Promise<"success" | "failed">;
+    submitFunction: (
+        value: string,
+        content?: string
+    ) => Promise<"success" | "failed">;
 }
 
-const ReportModal = ({ open, closeFunction, title, options, allowOther, submitFunction }: ReportModalProps) => {
+const ReportModal = ({
+    open,
+    closeFunction,
+    title,
+    options,
+    allowOther,
+    submitFunction,
+}: ReportModalProps) => {
     const [selectedReason, setSelectedReason] = useState<string>("");
     const [otherReason, setOtherReason] = useState<string>("");
 
     const [radioGroupError, setRadioGroupError] = useState<string>("");
     const [otherInputError, setOtherInputError] = useState<string>("");
 
-    const [submittionStatus, setSubmittionStatus] = useState<"" | "loading" | "success" | "failed">("");
+    const [submittionStatus, setSubmittionStatus] = useState<
+        "" | "loading" | "success" | "failed"
+    >("");
 
     const ReportMenuRef = useRef<HTMLDivElement>(null);
     const ReportResultRef = useRef<HTMLDivElement>(null);
@@ -62,25 +74,38 @@ const ReportModal = ({ open, closeFunction, title, options, allowOther, submitFu
     const ReportMenu = () => {
         return (
             <div ref={ReportMenuRef}>
-                <h3 className="text-xl text-neutral-800 mb-3">{title}</h3>
-                {radioGroupError.length > 0 && <p className="text-base text-red-500 mb-3">{radioGroupError}</p>}
+                <h3 className="mb-3 text-xl text-neutral-800">{title}</h3>
+                {radioGroupError.length > 0 && (
+                    <p className="mb-3 text-base text-red-500">
+                        {radioGroupError}
+                    </p>
+                )}
                 <Radio.Group
                     value={selectedReason}
                     onChange={(value: string) => {
-                        if (value !== "other" && otherReason !== "") setOtherReason("");
+                        if (value !== "other" && otherReason !== "")
+                            setOtherReason("");
                         setSelectedReason(value);
                     }}
                     size="md"
                     orientation="vertical"
                 >
                     {options.map((data, i) => (
-                        <Radio key={i} value={data.key} label={data.text} classNames={{ inner: "text-neutral-700" }} />
+                        <Radio
+                            key={i}
+                            value={data.key}
+                            label={data.text}
+                            classNames={{ inner: "text-neutral-700" }}
+                        />
                     ))}
                     {allowOther && (
-                        <div className="flex gap-2 w-full">
+                        <div className="flex w-full gap-2">
                             <Radio value="other" />
                             <TextInput
-                                classNames={{ root: "flex-grow", input: "border-0 border-b-[1px]" }}
+                                classNames={{
+                                    root: "flex-grow",
+                                    input: "border-0 border-b-[1px]",
+                                }}
                                 placeholder="其他"
                                 value={otherReason}
                                 error={otherInputError}
@@ -94,14 +119,15 @@ const ReportModal = ({ open, closeFunction, title, options, allowOther, submitFu
                         </div>
                     )}
                 </Radio.Group>
-                <div className="w-full flex mt-4 justify-end">
+                <div className="mt-4 flex w-full justify-end">
                     <Button
                         className="ml-auto bg-primary-700 hover:bg-primary-800"
                         loading={submittionStatus === "loading"}
                         disabled={
                             selectedReason !== "" &&
                             selectedReason == "other" &&
-                            (otherReason.length == 0 || otherReason.length > 200)
+                            (otherReason.length == 0 ||
+                                otherReason.length > 200)
                         }
                         onClick={submitResponse}
                     >
@@ -115,11 +141,16 @@ const ReportModal = ({ open, closeFunction, title, options, allowOther, submitFu
     const ReportResult = () => {
         return (
             <div ref={ReportResultRef}>
-                <h3 className="text-xl text-neutral-800 mb-3">
-                    {submittionStatus == "success" ? "我們已經收到您的檢舉" : "發生錯誤，請再次一次"}
+                <h3 className="mb-3 text-xl text-neutral-800">
+                    {submittionStatus == "success"
+                        ? "我們已經收到您的檢舉"
+                        : "發生錯誤，請再次一次"}
                 </h3>
-                <div className="w-full flex mt-4 justify-end">
-                    <Button className="ml-auto bg-primary-700 hover:bg-primary-800" onClick={closeFunction}>
+                <div className="mt-4 flex w-full justify-end">
+                    <Button
+                        className="ml-auto bg-primary-700 hover:bg-primary-800"
+                        onClick={closeFunction}
+                    >
                         關閉檢舉介面
                     </Button>
                 </div>
@@ -138,25 +169,30 @@ const ReportModal = ({ open, closeFunction, title, options, allowOther, submitFu
                 classNames={{ modal: "bg-neutral-50" }}
             >
                 <div
-                    className="w-full relative overflow-hidden transition-height duration-300 "
+                    className="relative w-full overflow-hidden transition-height duration-300 "
                     style={{
                         height:
-                            submittionStatus == "success" || submittionStatus == "failed"
+                            submittionStatus == "success" ||
+                            submittionStatus == "failed"
                                 ? ReportResultRef.current?.offsetHeight
                                 : ReportMenuRef.current?.offsetHeight,
                     }}
                 >
                     <div
                         className={`w-full ${
-                            submittionStatus == "success" || submittionStatus == "failed" ? "-translate-x-full" : ""
+                            submittionStatus == "success" ||
+                            submittionStatus == "failed"
+                                ? "-translate-x-full"
+                                : ""
                         } transition-transform duration-300 `}
                     >
                         <ReportMenu />
                     </div>
 
                     <div
-                        className={`absolute w-full top-0 ${
-                            submittionStatus == "success" || submittionStatus == "failed"
+                        className={`absolute top-0 w-full ${
+                            submittionStatus == "success" ||
+                            submittionStatus == "failed"
                                 ? "translate-x-0"
                                 : "translate-x-full"
                         } transition-transform duration-300 `}

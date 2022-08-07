@@ -46,15 +46,26 @@ const ArticleViewer = ({ article }: ArticleViewerProps) => {
     return (
         <div>
             <div className="mx-auto w-full bg-neutral-50 py-6 px-9">
-                <h1 className="pb-2 text-3xl text-primary-900">{article.title}</h1>
+                <h1 className="pb-2 text-3xl text-primary-900">
+                    {article.title}
+                </h1>
                 <div className="flex items-center pb-3">
-                    <img className="mr-3 h-5 w-5 " src={article.author.pfp} alt="" />
-                    <p className="text-sm text-neutral-500">{article.author.username}</p>
+                    <img
+                        className="mr-3 h-5 w-5 "
+                        src={article.author.pfp}
+                        alt=""
+                    />
+                    <p className="text-sm text-neutral-500">
+                        {article.author.username}
+                    </p>
                     <div className="w-4" />
                 </div>
                 <div className="flex flex-wrap justify-start gap-4">
                     {article.tags.map((tag, i) => (
-                        <Link href={`/search/results?searchterm=@${tag}`} key={i}>
+                        <Link
+                            href={`/search/results?searchterm=@${tag}`}
+                            key={i}
+                        >
                             <div className="flex h-8 flex-shrink-0 cursor-pointer items-center rounded-2xl border-[1.5px] border-neutral-400 px-4">
                                 <p className="text-center text-sm text-neutral-500">{`#${tag}`}</p>
                             </div>
@@ -66,10 +77,15 @@ const ArticleViewer = ({ article }: ArticleViewerProps) => {
                         <ArticleBlock key={i} {...contentBlock} />
                     ))}
                 </article>
-                <div className="flex flex-col mt-6 gap-2 text-neutral-700">
-                    <h2 className="text-primary-800 text-2xl">延伸閱讀</h2>
+                <div className="mt-6 flex flex-col gap-2 text-neutral-700">
+                    <h2 className="text-2xl text-primary-800">延伸閱讀</h2>
                     {article.furtherReading.map((readLink, i) => (
-                        <a href={readLink.link} target="_blank" rel="noopener noreferrer" key={i}>
+                        <a
+                            href={readLink.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            key={i}
+                        >
                             <p>{readLink.title}</p>
                         </a>
                     ))}
@@ -82,7 +98,9 @@ const ArticleViewer = ({ article }: ArticleViewerProps) => {
                         }}
                     >
                         <BookmarkIcon
-                            className={`h-7 w-7 text-primary-700 transition-colors ${userSaved ? "fill-yellow-300" : "fill-white"}`}
+                            className={`h-7 w-7 text-primary-700 transition-colors ${
+                                userSaved ? "fill-yellow-300" : "fill-white"
+                            }`}
                         />
                     </button>
                     <button

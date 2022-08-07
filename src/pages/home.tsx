@@ -107,7 +107,9 @@ const UserHome = () => {
                         <Header />
                         <Navbar retractable={false} />
                         <div className="ml-64 mt-16 pl-20 pt-16">
-                            <h1 className="text-4xl text-primary-800">歡迎回來Speakup</h1>
+                            <h1 className="text-4xl text-primary-800">
+                                歡迎回來Speakup
+                            </h1>
                             <div className="mt-12 flex gap-8">
                                 <div className="h-36 w-96 animate-pulse rounded-xl bg-neutral-200" />
                                 <div className="h-36 w-96 animate-pulse rounded-xl bg-neutral-200" />
@@ -122,18 +124,28 @@ const UserHome = () => {
         <>
             <Head>
                 <title>{`Speakup - 首頁`}</title>
-                <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+                <meta
+                    name="viewport"
+                    content="initial-scale=1.0, width=device-width"
+                />
                 <link rel="manifest" href="/site.webmanifest" />
             </Head>
             {homeVer == "mob" ? (
                 <div className="fixed top-0 left-0 h-screen w-screen bg-neutral-50 xl:hidden">
                     <Footbar />
                     <div className="absolute top-0 left-0 right-0 h-[30vh] min-h-[208px] bg-primary-600 pt-12">
-                        <img className="mx-auto w-20" src="/assets/logo-mic.svg" />
-                        <h1 className="mt-4 text-center text-2xl text-white">歡迎回來Speakup</h1>
+                        <img
+                            className="mx-auto w-20"
+                            src="/assets/logo-mic.svg"
+                        />
+                        <h1 className="mt-4 text-center text-2xl text-white">
+                            歡迎回來Speakup
+                        </h1>
                     </div>
                     <div className="mt-[calc(max(30vh,208px))] mb-16 flex h-[calc(100vh-max(30vh,208px)-64px)] w-full flex-col gap-4 overflow-y-scroll px-12">
-                        <h2 className="pt-6 text-xl">{data?.recommended?.title}</h2>
+                        <h2 className="pt-6 text-xl">
+                            {data?.recommended?.title}
+                        </h2>
                         <div className="flex flex-col gap-4 md:grid md:grid-cols-2 lg:grid-cols-3">
                             {data?.recommended?.cards?.map((card, i) => (
                                 <HomeNavCard key={i} cardContent={card} />
@@ -162,12 +174,19 @@ const UserHome = () => {
                         <div className="mt-6 flex w-full flex-col gap-9">
                             {Object.entries(data).map((entry, i) => (
                                 <div key={i}>
-                                    <h2 className="text-2xl text-primary-800">{entry[1]?.title}</h2>
+                                    <h2 className="text-2xl text-primary-800">
+                                        {entry[1]?.title}
+                                    </h2>
                                     <div className="flex ">
-                                        <div className="mt-6 flex gap-9 overflow-x-auto pb-3.5 scrollbar-thin scrollbar-track-neutral-100 scrollbar-thumb-neutral-500">
+                                        <div className="scrollbar-thin scrollbar-track-neutral-100 scrollbar-thumb-neutral-500 mt-6 flex gap-9 overflow-x-auto pb-3.5">
                                             {entry[1].cards.map((card, i) => (
-                                                <div className="w-96 flex-shrink-0 " key={i}>
-                                                    <HomeNavCard cardContent={card} />
+                                                <div
+                                                    className="w-96 flex-shrink-0 "
+                                                    key={i}
+                                                >
+                                                    <HomeNavCard
+                                                        cardContent={card}
+                                                    />
                                                 </div>
                                             ))}
                                         </div>

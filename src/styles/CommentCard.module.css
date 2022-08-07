@@ -1,13 +1,16 @@
 .filter-blue {
-    filter: invert(26%) sepia(96%) saturate(2158%) hue-rotate(216deg) brightness(95%) contrast(93%);
+    filter: invert(26%) sepia(96%) saturate(2158%) hue-rotate(216deg)
+        brightness(95%) contrast(93%);
 }
 
 .filter-green {
-    filter: invert(76%) sepia(10%) saturate(2784%) hue-rotate(104deg) brightness(92%) contrast(87%);
+    filter: invert(76%) sepia(10%) saturate(2784%) hue-rotate(104deg)
+        brightness(92%) contrast(87%);
 }
 
 .filter-red {
-    filter: invert(33%) sepia(81%) saturate(4298%) hue-rotate(343deg) brightness(117%) contrast(89%);
+    filter: invert(33%) sepia(81%) saturate(4298%) hue-rotate(343deg)
+        brightness(117%) contrast(89%);
 }
 
 @keyframes flyup {

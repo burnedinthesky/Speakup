@@ -62,7 +62,9 @@ const CommentCard = forwardRef<HTMLDivElement, CommentCardProps>(
             firstRender.current = false;
         }, []);
 
-        const updateUserStatus = (updatevar: "liked" | "supported" | "disliked") => {
+        const updateUserStatus = (
+            updatevar: "liked" | "supported" | "disliked"
+        ) => {
             if (!enableAnim) setEnableAnim(true);
             if (updatevar === "supported") {
                 setSupported(!supported);
@@ -100,8 +102,12 @@ const CommentCard = forwardRef<HTMLDivElement, CommentCardProps>(
                         alt="Profile"
                     />
                     <div className="flex-grow">
-                        <h3 className="text-base text-primary-800">{data.author.username}</h3>
-                        <p className="mt-2 mb-3 text-base text-neutral-700">{data.message}</p>
+                        <h3 className="text-base text-primary-800">
+                            {data.author.username}
+                        </h3>
+                        <p className="mt-2 mb-3 text-base text-neutral-700">
+                            {data.message}
+                        </p>
 
                         <div className="mb-2 flex items-center justify-between">
                             <div className="flex h-6">
@@ -112,7 +118,11 @@ const CommentCard = forwardRef<HTMLDivElement, CommentCardProps>(
                                                 updateUserStatus("liked");
                                             }}
                                         >
-                                            <LikeIcon status={liked} enableAnim={enableAnim} styles={styles} />
+                                            <LikeIcon
+                                                status={liked}
+                                                enableAnim={enableAnim}
+                                                styles={styles}
+                                            />
                                         </button>
                                         <p className="inline text-sm text-neutral-500">
                                             {data.likes + (liked ? 1 : 0)}
@@ -131,7 +141,11 @@ const CommentCard = forwardRef<HTMLDivElement, CommentCardProps>(
                                                     supported
                                                         ? "border-primary-600 fill-primary-600 stroke-neutral-50"
                                                         : "text-neutral-500"
-                                                } ${supported && enableAnim && styles.animateFlyUp}`}
+                                                } ${
+                                                    supported &&
+                                                    enableAnim &&
+                                                    styles.animateFlyUp
+                                                }`}
                                             />
                                         </button>
                                         <p className="inline text-sm text-neutral-500">
@@ -145,9 +159,14 @@ const CommentCard = forwardRef<HTMLDivElement, CommentCardProps>(
                                                 updateUserStatus("disliked");
                                             }}
                                         >
-                                            <DislikeIcon status={disliked} enableAnim={enableAnim} styles={styles} />
+                                            <DislikeIcon
+                                                status={disliked}
+                                                enableAnim={enableAnim}
+                                                styles={styles}
+                                            />
                                             <p className="inline text-sm text-neutral-500">
-                                                {data.dislikes + (disliked ? 1 : 0)}
+                                                {data.dislikes +
+                                                    (disliked ? 1 : 0)}
                                             </p>
                                         </button>
                                     </div>
@@ -182,7 +201,12 @@ const CommentCard = forwardRef<HTMLDivElement, CommentCardProps>(
                         </div>
                     </div>
                 </div>
-                {showReplyBox && <ReplyTextField addReply={addReply} setShowReplyBox={setShowReplyBox} />}
+                {showReplyBox && (
+                    <ReplyTextField
+                        addReply={addReply}
+                        setShowReplyBox={setShowReplyBox}
+                    />
+                )}
 
                 <ReportModal
                     key={reportModalKey}

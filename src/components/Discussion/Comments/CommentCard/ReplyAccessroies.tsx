@@ -30,14 +30,21 @@ export function ReplyTextField({ addReply, setShowReplyBox }: ReplyTextField) {
                 }}
                 ref={replyFieldRef}
             />
-            <button className={`relative right-8 -bottom-1 pb-2`} onClick={postReply}>
+            <button
+                className={`relative right-8 -bottom-1 pb-2`}
+                onClick={postReply}
+            >
                 <ReplyIcon className="h-5 w-5 text-primary-800" />
             </button>
         </div>
     );
 }
 
-export function ShowRepliesButton({ fetchReplies }: { fetchReplies: () => void }) {
+export function ShowRepliesButton({
+    fetchReplies,
+}: {
+    fetchReplies: () => void;
+}) {
     const [isClicked, setIsClicked] = useState(false);
 
     return (
@@ -50,7 +57,9 @@ export function ShowRepliesButton({ fetchReplies }: { fetchReplies: () => void }
             disabled={isClicked}
         >
             <ReplyIcon className="inline h-5 w-5 rotate-180" />
-            <p className="inline text-sm">{isClicked ? "載入中" : "查看回覆"}</p>
+            <p className="inline text-sm">
+                {isClicked ? "載入中" : "查看回覆"}
+            </p>
         </button>
     );
 }

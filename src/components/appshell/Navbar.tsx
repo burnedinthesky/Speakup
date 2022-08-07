@@ -1,7 +1,11 @@
 import React, { ReactElement } from "react";
 import Link from "next/link";
 
-import { HomeIcon, TrendingUpIcon, BookmarkIcon } from "@heroicons/react/outline";
+import {
+    HomeIcon,
+    TrendingUpIcon,
+    BookmarkIcon,
+} from "@heroicons/react/outline";
 import { ArticleTagValues } from "../../types/issueTypes";
 
 //prettier-ignore
@@ -14,14 +18,21 @@ interface NavbarSectionProps {
     text: string;
 }
 
-const NavbarSection = ({ retractable, link, icon, text }: NavbarSectionProps) => {
+const NavbarSection = ({
+    retractable,
+    link,
+    icon,
+    text,
+}: NavbarSectionProps) => {
     return (
         <Link href={link}>
             <li className="flex cursor-pointer list-none gap-4 py-3">
                 {icon}
                 <p
                     className={`whitespace-nowrap text-xl leading-8 ${
-                        retractable ? "text-transparent group-hover:text-primary-900" : "text-primary-900"
+                        retractable
+                            ? "text-transparent group-hover:text-primary-900"
+                            : "text-primary-900"
                     } `}
                 >
                     {text}
@@ -34,8 +45,10 @@ const NavbarSection = ({ retractable, link, icon, text }: NavbarSectionProps) =>
 const Navbar = ({ retractable }: { retractable: boolean }) => {
     return (
         <nav
-            className={`group fixed top-14 z-10 left-0 hidden h-[calc(100vh-56px)] flex-shrink-0 flex-col overflow-hidden overflow-x-hidden rounded-r-[32px] bg-neutral-50 pt-6 transition-width duration-500 ease-out lg:flex ${
-                retractable ? "w-20 hover:w-64 hover:drop-shadow-xl lg:flex" : "w-64"
+            className={`transition-width group fixed top-14 left-0 z-10 hidden h-[calc(100vh-56px)] flex-shrink-0 flex-col overflow-hidden overflow-x-hidden rounded-r-[32px] bg-neutral-50 pt-6 duration-500 ease-out lg:flex ${
+                retractable
+                    ? "w-20 hover:w-64 hover:drop-shadow-xl lg:flex"
+                    : "w-64"
             }`}
         >
             <div className="h-44 w-full">
@@ -63,11 +76,21 @@ const Navbar = ({ retractable }: { retractable: boolean }) => {
 
             <hr className="my-3 mx-auto w-5/6 border-t-2 border-gray-300" />
 
-            <div className={`flex-grow overflow-y-auto pb-6 ${retractable ? "hidden group-hover:block" : "block"}`}>
+            <div
+                className={`flex-grow overflow-y-auto pb-6 ${
+                    retractable ? "hidden group-hover:block" : "block"
+                }`}
+            >
                 <ul className="h-full list-none overflow-x-hidden pl-20">
                     {tags.map((tag, i) => (
-                        <Link href={`/search/results?searchterm=@${tag}`} key={`link${i}`}>
-                            <li key={i} className="cursor-pointer whitespace-nowrap py-2 text-lg text-primary-900 ">
+                        <Link
+                            href={`/search/results?searchterm=@${tag}`}
+                            key={`link${i}`}
+                        >
+                            <li
+                                key={i}
+                                className="cursor-pointer whitespace-nowrap py-2 text-lg text-primary-900 "
+                            >
                                 {tag}
                             </li>
                         </Link>
