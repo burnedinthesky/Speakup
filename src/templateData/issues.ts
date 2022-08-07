@@ -64,4 +64,5 @@ export const SampleArticle: Article = {
         { title: "Google", link: "https://www.google.com" },
         { title: "Google", link: "https://www.google.com" },
     ],
+    commentCount: 0,
 };
