@@ -9,6 +9,7 @@ import Navbar from "../../components/AppShell/Navbar";
 import Footbar from "../../components/AppShell/Footbar";
 import NavCard from "../../components/Navigation/NavCard";
 import { SampleSearchResults } from "../../templateData/navigation";
+import Head from "next/head";
 // import Pagebar from "../../components/navbar/Pagebar";
 
 const SearchResults = () => {
@@ -57,12 +58,32 @@ const SearchResults = () => {
         }
     }, [router.query /*, session*/]);
 
-    if (isIdle || isLoading) {
+    const AppShell = () => {
         return (
-            <div className="fixed top-0 left-0 h-screen w-screen overflow-x-hidden bg-neutral-100 scrollbar-hide">
+            <>
+                <Head>
+                    <title>{`Speakup搜尋 ${
+                        router.query.searchterm
+                            ? "- " + router.query.searchterm
+                            : ""
+                    }`}</title>
+                    <meta
+                        name="viewport"
+                        content="initial-scale=1.0, width=device-width"
+                    />
+                    <link rel="manifest" href="/site.webmanifest" />
+                </Head>
                 <Header />
                 <Navbar retractable={false} />
                 <Footbar />
+            </>
+        );
+    };
+
+    if (isIdle || isLoading) {
+        return (
+            <div className="fixed top-0 left-0 h-screen w-screen overflow-x-hidden bg-neutral-100 scrollbar-hide">
+                <AppShell />
                 <div className="flex h-screen w-full flex-col items-center pt-14 lg:ml-64 lg:w-[calc(100%-16rem)]">
                     <div className="mt-10 w-[calc(100%-56px)] max-w-3xl md:mt-16 md:w-[calc(100%-160px)] ">
                         <div className="h-10 w-96 animate-pulse rounded-xl bg-neutral-200" />
@@ -82,18 +103,14 @@ const SearchResults = () => {
         });
         return (
             <div className="fixed top-0 left-0 h-screen w-screen overflow-x-hidden bg-neutral-100 scrollbar-hide">
-                <Header />
-                <Navbar retractable={false} />
-                <Footbar />
+                <AppShell />
             </div>
         );
     }
 
     return (
         <div className="fixed top-0 left-0 h-screen w-screen overflow-x-hidden bg-neutral-100 scrollbar-hide">
-            <Header />
-            <Navbar retractable={false} />
-            <Footbar />
+            <AppShell />
             <div className="flex h-screen w-full flex-col items-center pt-14 lg:ml-64 lg:w-[calc(100%-16rem)]">
                 <div className="mt-10 w-[calc(100%-56px)] max-w-3xl md:mt-16 md:w-[calc(100%-160px)] ">
                     <h1 className="text-2xl text-primary-800 md:text-3xl">

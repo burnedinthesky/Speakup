@@ -4,8 +4,8 @@ import Header from "../../components/AppShell/Header";
 import Navbar from "../../components/AppShell/Navbar";
 import Footbar from "../../components/AppShell/Footbar";
 import { ArticleTagValues } from "../../types/issueTypes";
-import { EduTagIcon } from "../../components/TagIcons";
 import { TextInput } from "@mantine/core";
+import Head from "next/head";
 
 const SearchMenu = () => {
     const [searchText, setSearchText] = useState("");
@@ -28,6 +28,14 @@ const SearchMenu = () => {
 
     return (
         <div className="fixed left-0 top-0 h-screen w-screen bg-neutral-50 lg:bg-neutral-100">
+            <Head>
+                <title>{`Speakup - 搜尋`}</title>
+                <meta
+                    name="viewport"
+                    content="initial-scale=1.0, width=device-width"
+                />
+                <link rel="manifest" href="/site.webmanifest" />
+            </Head>
             <Header />
             <Navbar retractable={false} />
             <Footbar />
