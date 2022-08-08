@@ -38,16 +38,19 @@ model Articles {
 }
 
 model Comments {
-    id           Int            @id @default(autoincrement())
-    content      String         @db.Text
-    owner        User           @relation(fields: [ownerId], references: [id])
-    ownerId      String
-    createdTime  DateTime       @default(now())
-    article      Articles       @relation(fields: [articleId], references: [id])
-    articleId    String
-    viewsCount   Int
-    commentCount Int
-    CommentReply CommentReply[]
+    id             Int            @id @default(autoincrement())
+    content        String         @db.Text
+    owner          User           @relation(fields: [ownerId], references: [id])
+    ownerId        String
+    createdTime    DateTime       @default(now())
+    article        Articles       @relation(fields: [articleId], references: [id])
+    articleId      String
+    onside         String
+    likedCount     Int            @default(0)
+    supportedCount Int            @default(0)
+    dislikedCount  Int            @default(0)
+    commentCount   Int            @default(0)
+    CommentReply   CommentReply[]
 }
 
 model CommentReply {
