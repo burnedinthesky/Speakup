@@ -81,8 +81,8 @@ const AccountOptions = () => {
                 </Menu.Item>
                 <a
                     href="https://speakup-team.notion.site/Speakup-ff4943ac425a430ebc06e74982d18968"
+                    rel="noreferrer noopener"
                     target="_blank"
-                    rel="norefferer noopener"
                 >
                     <Menu.Item
                         className="text-primary-900"

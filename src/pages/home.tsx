@@ -143,7 +143,7 @@ const UserHome = () => {
                         </h1>
                     </div>
                     <div className="mt-[calc(max(30vh,208px))] mb-16 flex h-[calc(100vh-max(30vh,208px)-64px)] w-full flex-col gap-4 overflow-y-scroll px-12">
-                        <h2 className="pt-6 text-xl">
+                        <h2 className="pt-6 text-xl text-primary-800">
                             {data?.recommended?.title}
                         </h2>
                         <div className="flex flex-col gap-4 md:grid md:grid-cols-2 lg:grid-cols-3">

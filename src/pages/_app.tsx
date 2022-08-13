@@ -1,6 +1,6 @@
 // src/pages/_app.tsx
 import { MantineProvider } from "@mantine/core";
-import type { AppRouter } from "../server/router";
+import type { AppRouter } from "../server/router/app.router";
 import superjson from "superjson";
 import { withTRPC } from "@trpc/next";
 import type { AppType } from "next/dist/shared/lib/utils";

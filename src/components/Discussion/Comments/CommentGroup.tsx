@@ -142,4 +142,6 @@ const CommentGroup = forwardRef<HTMLDivElement, CommandGroupProps>(
     }
 );
 
+CommentGroup.displayName = "CommentGroup";
+
 export default CommentGroup;

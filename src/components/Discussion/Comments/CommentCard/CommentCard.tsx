@@ -239,4 +239,6 @@ const CommentCard = forwardRef<HTMLDivElement, CommentCardProps>(
     }
 );
 
+CommentCard.displayName = "CommentCard";
+
 export default CommentCard;

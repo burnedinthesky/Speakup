@@ -36,7 +36,7 @@ const NavCard = ({ cardContent, showDetails }: NavCardProps) => {
                     </div>
                     <div className="flex items-center">
                         <EyeIcon className="mr-2 h-6 w-6 flex-shrink-0" />
-                        <p className="text-xs">{cardContent.views}</p>
+                        <p className="text-xs">{cardContent.viewCount}</p>
                     </div>
                     <div className="flex items-center">
                         <ChatAlt2Icon className="mr-2 h-6 w-6 flex-shrink-0" />

@@ -54,7 +54,7 @@ export const SampleArticle: Article = {
                 "Reprehenderit cillum in est in. Cupidatat consequat sint dolore dolor et laboris est qui minim dolore est velit commodo. Non amet eiusmod sit consequat esse voluptate minim commodo eiusmod esse in aute.",
         },
     ],
-    views: 0,
+    viewCount: 0,
     author: {
         username: "Hello",
         pfp: "sjkldf",
