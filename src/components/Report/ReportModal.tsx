@@ -1,6 +1,5 @@
 import { useRef, useState } from "react";
-import { Button, Modal, Radio, TextInput } from "@mantine/core";
-import { CSSTransition } from "react-transition-group";
+import { Button, Modal, Checkbox, TextInput } from "@mantine/core";
 
 interface ReportModalProps {
     open: boolean;
@@ -11,21 +10,23 @@ interface ReportModalProps {
         text: string;
     }[];
     allowOther: boolean;
+    maxReasons: number;
     submitFunction: (
-        value: string,
+        value: string[],
         content?: string
     ) => Promise<"success" | "failed">;
 }
 
-const ReportModal = ({
+function ReportModal({
     open,
     closeFunction,
     title,
     options,
     allowOther,
+    maxReasons,
     submitFunction,
-}: ReportModalProps) => {
-    const [selectedReason, setSelectedReason] = useState<string>("");
+}: ReportModalProps) {
+    const [selectedReasons, setSelectedReasons] = useState<string[]>([]);
     const [otherReason, setOtherReason] = useState<string>("");
 
     const [radioGroupError, setRadioGroupError] = useState<string>("");
@@ -37,18 +38,20 @@ const ReportModal = ({
 
     const ReportMenuRef = useRef<HTMLDivElement>(null);
     const ReportResultRef = useRef<HTMLDivElement>(null);
+    const OtherReasonRef = useRef<HTMLInputElement>(null);
 
     const submitResponse = async () => {
         setRadioGroupError("");
         setOtherInputError("");
-        if (selectedReason == "other") {
+
+        if (selectedReasons.includes("other")) {
             if (otherReason == "") {
                 setOtherInputError("請輸入理由");
             } else if (otherReason.length > 200) {
                 setOtherInputError("請在200字內描述");
             } else {
                 setSubmittionStatus("loading");
-                submitFunction(selectedReason, otherReason)
+                submitFunction(selectedReasons, otherReason)
                     .then((res) => {
                         setSubmittionStatus("success");
                     })
@@ -57,12 +60,12 @@ const ReportModal = ({
                     });
             }
             return;
-        } else if (selectedReason === "") {
+        } else if (selectedReasons.length == 0) {
             setRadioGroupError("請選擇檢舉原因");
             return;
         }
         setSubmittionStatus("loading");
-        submitFunction(selectedReason)
+        submitFunction(selectedReasons)
             .then((res) => {
                 setSubmittionStatus("success");
             })
@@ -80,55 +83,81 @@ const ReportModal = ({
                         {radioGroupError}
                     </p>
                 )}
-                <Radio.Group
-                    value={selectedReason}
-                    onChange={(value: string) => {
-                        if (value !== "other" && otherReason !== "")
+                <Checkbox.Group
+                    value={selectedReasons}
+                    onChange={(value: string[]) => {
+                        if (!value.includes("other") && otherReason !== "") {
                             setOtherReason("");
-                        setSelectedReason(value);
+                        }
+
+                        setSelectedReasons(value);
                     }}
                     size="md"
                     orientation="vertical"
                 >
                     {options.map((data, i) => (
-                        <Radio
+                        <Checkbox
                             key={i}
                             value={data.key}
                             label={data.text}
-                            classNames={{ inner: "text-neutral-700" }}
+                            classNames={{
+                                label: "text-neutral-700",
+                                input: "bg-neutral-50",
+                            }}
+                            className="text-neutral-700"
+                            disabled={
+                                selectedReasons.includes(data.key)
+                                    ? false
+                                    : selectedReasons.length >= maxReasons
+                            }
                         />
                     ))}
                     {allowOther && (
                         <div className="flex w-full gap-2">
-                            <Radio value="other" />
+                            <Checkbox
+                                value="other"
+                                classNames={{ input: "bg-neutral-50" }}
+                                disabled={
+                                    selectedReasons.includes("other")
+                                        ? false
+                                        : selectedReasons.length >= maxReasons
+                                }
+                            />
                             <TextInput
                                 classNames={{
                                     root: "flex-grow",
-                                    input: "border-0 border-b-[1px]",
+                                    input: "border-0 border-b-[1px] bg-neutral-50",
                                 }}
                                 placeholder="其他"
                                 value={otherReason}
-                                error={otherInputError}
                                 onChange={(e) => {
                                     setOtherReason(e.currentTarget.value);
+                                    setTimeout(() => {
+                                        OtherReasonRef.current?.focus();
+                                    }, 10);
                                 }}
+                                error={otherInputError}
+                                ref={OtherReasonRef}
+                                disabled={
+                                    selectedReasons.includes("other")
+                                        ? false
+                                        : selectedReasons.length >= maxReasons
+                                }
                                 onFocus={() => {
-                                    setSelectedReason("other");
+                                    if (!selectedReasons.includes("other"))
+                                        setSelectedReasons(
+                                            ["other"].concat(selectedReasons)
+                                        );
                                 }}
                             />
                         </div>
                     )}
-                </Radio.Group>
+                </Checkbox.Group>
                 <div className="mt-4 flex w-full justify-end">
                     <Button
-                        className="ml-auto bg-primary-700 hover:bg-primary-800"
+                        className="ml-auto bg-primary-700 enabled:hover:bg-primary-800"
                         loading={submittionStatus === "loading"}
-                        disabled={
-                            selectedReason !== "" &&
-                            selectedReason == "other" &&
-                            (otherReason.length == 0 ||
-                                otherReason.length > 200)
-                        }
+                        disabled={selectedReasons.length == 0}
                         onClick={submitResponse}
                     >
                         提交此檢舉
@@ -169,7 +198,7 @@ const ReportModal = ({
                 classNames={{ modal: "bg-neutral-50" }}
             >
                 <div
-                    className="relative w-full overflow-hidden transition-height duration-300 "
+                    className="relative w-full overflow-y-auto overflow-x-hidden transition-height duration-300 "
                     style={{
                         height:
                             submittionStatus == "success" ||
@@ -203,6 +232,6 @@ const ReportModal = ({
             </Modal>
         </>
     );
-};
+}
 
 export default ReportModal;
