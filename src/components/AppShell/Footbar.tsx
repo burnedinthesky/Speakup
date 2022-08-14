@@ -36,32 +36,32 @@ const Footbar = () => {
 
     return (
         <nav
-            className={`fixed left-0 bottom-0 z-20 flex h-16 w-full items-center justify-around border-t border-gray-400 bg-neutral-50 px-5 text-primary-900 lg:hidden`}
+            className={`fixed left-0 bottom-0 z-20 flex h-12 w-full items-center justify-around border-t border-gray-400 bg-neutral-50 px-5 text-primary-900 lg:hidden`}
         >
             <Link href="/home">
                 <a>
                     {pageUrl == "home" ? (
-                        <HomeIconSolid className="h-8 w-8" />
+                        <HomeIconSolid className="h-7" />
                     ) : (
-                        <HomeIcon className="h-8 w-8" />
+                        <HomeIcon className="h-7" />
                     )}
                 </a>
             </Link>
             <Link href="/search">
                 <a>
                     {pageUrl == "search" || pageUrl == "results" ? (
-                        <SearchIconSolid className="h-8 w-8" />
+                        <SearchIconSolid className="h-7" />
                     ) : (
-                        <SearchIcon className="h-8 w-8" />
+                        <SearchIcon className="h-7" />
                     )}
                 </a>
             </Link>
             <Link href="/collections">
                 <a>
                     {pageUrl == "collections" ? (
-                        <BookmarkIconSolid className="h-8 w-8" />
+                        <BookmarkIconSolid className="h-7" />
                     ) : (
-                        <BookmarkIcon className="h-8 w-8" />
+                        <BookmarkIcon className="h-7" />
                     )}
                 </a>
             </Link>
@@ -69,9 +69,9 @@ const Footbar = () => {
             {/* <Link href="/aboutuser">
                 <a>
                     {pageUrl == 'aboutuser' ? (
-                        <UserCircleIconSolid className="h-8 w-8" />
+                        <UserCircleIconSolid className="h-7" />
                     ) : (
-                        <UserCircleIcon className="h-8 w-8" />
+                        <UserCircleIcon className="h-7" />
                     )}
                 </a>
             </Link> */}

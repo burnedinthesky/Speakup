@@ -89,6 +89,7 @@ const DiscussionBoard = ({ article }: DiscussionProps) => {
                                                     dropdown:
                                                         "bg-neutral-50 shadow-lg",
                                                 }}
+                                                position="bottom-end"
                                             >
                                                 <Menu.Target>
                                                     <ActionIcon className="my-[12px] mr-4">
@@ -128,6 +129,7 @@ const DiscussionBoard = ({ article }: DiscussionProps) => {
                                     classNames={{
                                         dropdown: "bg-neutral-50 shadow-lg",
                                     }}
+                                    position="bottom-end"
                                 >
                                     <Menu.Target>
                                         <button className="flex h-[42px] items-center gap-2 rounded-full bg-neutral-50 px-4">

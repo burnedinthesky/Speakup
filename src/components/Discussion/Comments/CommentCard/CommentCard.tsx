@@ -226,7 +226,11 @@ const CommentCard = forwardRef<HTMLDivElement, CommentCardProps>(
                         { key: "terrorism", text: "散播恐怖主義" },
                     ]}
                     allowOther
-                    submitFunction={async (value: string, content?: string) => {
+                    maxReasons={3}
+                    submitFunction={async (
+                        value: string[],
+                        content?: string
+                    ) => {
                         return new Promise(function (resolve, reject) {
                             setTimeout(() => {
                                 resolve("success");

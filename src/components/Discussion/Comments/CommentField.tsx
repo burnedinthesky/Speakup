@@ -122,14 +122,14 @@ const CommentField = ({ boardId, onSide, sortMethod }: CommentFieldProps) => {
         */
 
     const cmtQueryData: Comment[] = [
-        {
+        /*{
             id: 123,
             author: {
                 id: "asjdkfl",
                 username: "test",
                 pfp: "http://www.google.com",
             },
-            isOwner: true,
+            isOwner: false,
             message:
                 "Esse adipisicing pariatur deserunt excepteur aute officia laboris deserunt. Ex commodo adipisicing deserunt aliqua qui aliqua dolor duis nostrud. Veniam ullamco exercitation Lorem qui aliqua esse pariatur laborum esse exercitation dolor esse quis et. Proident culpa nostrud esse aliquip. Est sint elit quis cillum commodo Lorem ex incididunt sint eiusmod dolore.",
             stance: "sup",
@@ -140,12 +140,12 @@ const CommentField = ({ boardId, onSide, sortMethod }: CommentFieldProps) => {
             userSupported: false,
             dislikes: 0,
             userDisliked: false,
-        },
+        },*/
     ];
 
     return (
         <div className="bg-neutral-50">
-            <div className="mx-auto mb-4 flex flex-col divide-y divide-neutral-300 px-9 pb-6 lg:py-3 ">
+            <div className="mx-auto mb-4 flex flex-col px-9 pb-6 lg:py-3 ">
                 {true /*!cmtQueryLoading*/ && (
                     <>
                         <NewComment
@@ -159,7 +159,7 @@ const CommentField = ({ boardId, onSide, sortMethod }: CommentFieldProps) => {
                                 // });
                             }}
                         />
-                        <div className="flex w-full flex-col gap-2 pt-4">
+                        <div className="flex w-full flex-col gap-2 divide-y divide-neutral-300 pt-4">
                             {userComments
                                 .concat(cmtQueryData)
                                 .map((data, i, arr) => {
@@ -184,12 +184,11 @@ const CommentField = ({ boardId, onSide, sortMethod }: CommentFieldProps) => {
                                     // );
                                 })}
                         </div>
-
-                        {/* {userComments.length === 0 &&
-                            cmtQueryData?.pages[0][0].totalComments === 0 &&
-                            !cmtQueryLoading && <NoCommentsDisplay />} */}
                     </>
                 )}
+                {userComments.length === 0 &&
+                    cmtQueryData.length === 0 &&
+                    !false /*cmtQueryLoading*/ && <NoCommentsDisplay />}
                 {/* {(cmtQueryLoading || cmtQueryFetching) && <LoadingSkeleton />} */}
             </div>
         </div>
