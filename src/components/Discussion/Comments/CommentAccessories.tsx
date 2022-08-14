@@ -159,7 +159,7 @@ const NoCommentsDisplay = () => {
                     r="57.5"
                     fill="#F2FBFC"
                     stroke="#D8E8EA"
-                    stroke-width="5"
+                    strokeWidth="5"
                 />
                 <rect x="60" width="107" height="107" fill="#F2FBFC" />
                 <path
