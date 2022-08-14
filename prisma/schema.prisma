@@ -11,16 +11,19 @@ datasource db {
 }
 
 model User {
-    id           String         @id @unique @default(uuid())
-    username     String         @unique
-    password     String
-    email        String         @unique
-    birthday     String?
-    gender       Int?
-    role         Role           @default(USER)
-    Articles     Articles[]
-    Comments     Comments[]
-    CommentReply CommentReply[]
+    id                String                     @id @unique @default(uuid())
+    username          String                     @unique
+    password          String
+    email             String                     @unique
+    birthday          String?
+    gender            Int?
+    role              Role                       @default(USER)
+    Articles          Articles[]
+    Comments          Comments[]
+    CommentReply      CommentReply[]
+    likedComments     LikedUsersOnComments[]
+    dislikedComments  DislikedUsersOnComments[]
+    supportedComments SupportedUsersOnComments[]
 }
 
 model Articles {
@@ -38,19 +41,45 @@ model Articles {
 }
 
 model Comments {
-    id             Int            @id @default(autoincrement())
-    content        String         @db.Text
-    owner          User           @relation(fields: [ownerId], references: [id])
+    id             Int                        @id @default(autoincrement())
+    content        String                     @db.Text
+    owner          User                       @relation(fields: [ownerId], references: [id])
     ownerId        String
-    createdTime    DateTime       @default(now())
-    article        Articles       @relation(fields: [articleId], references: [id])
+    createdTime    DateTime                   @default(now())
+    article        Articles                   @relation(fields: [articleId], references: [id])
     articleId      String
     onside         String
-    likedCount     Int            @default(0)
-    supportedCount Int            @default(0)
-    dislikedCount  Int            @default(0)
-    commentCount   Int            @default(0)
+    likedUsers     LikedUsersOnComments[]
+    dislikedUsers  DislikedUsersOnComments[]
+    supportedUsers SupportedUsersOnComments[]
     CommentReply   CommentReply[]
+}
+
+model LikedUsersOnComments {
+    User       User     @relation(fields: [userId], references: [id])
+    userId     String
+    comment    Comments @relation(fields: [commentsId], references: [id])
+    commentsId Int
+
+    @@id([commentsId, userId])
+}
+
+model DislikedUsersOnComments {
+    User       User     @relation(fields: [userId], references: [id])
+    userId     String
+    Comments   Comments @relation(fields: [commentsId], references: [id])
+    commentsId Int
+
+    @@id([commentsId, userId])
+}
+
+model SupportedUsersOnComments {
+    User       User     @relation(fields: [userId], references: [id])
+    userId     String
+    Comments   Comments @relation(fields: [commentsId], references: [id])
+    commentsId Int
+
+    @@id([commentsId, userId])
 }
 
 model CommentReply {
