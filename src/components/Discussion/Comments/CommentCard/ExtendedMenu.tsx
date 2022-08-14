@@ -1,6 +1,7 @@
 import { Menu } from "@mantine/core";
 
-import { FlagIcon, XIcon } from "@heroicons/react/solid";
+import { XIcon } from "@heroicons/react/solid";
+import { FlagIcon } from "@heroicons/react/outline";
 import {
     TrashIcon,
     ReplyIcon,
@@ -32,17 +33,19 @@ const ExtendedMenu = ({
                 <DotsVerticalIcon className="h-6 w-6 cursor-pointer text-neutral-500" />
             </Menu.Target>
             <Menu.Dropdown>
-                <Menu.Item
-                    onClick={() => {
-                        setShowReportMenu(true);
-                    }}
-                    className="text-primary-800"
-                    icon={
-                        <FlagIcon className="inline h-6 w-6 text-primary-800" />
-                    }
-                >
-                    檢舉
-                </Menu.Item>
+                {!cmtData.isOwner && (
+                    <Menu.Item
+                        onClick={() => {
+                            setShowReportMenu(true);
+                        }}
+                        className="text-primary-800"
+                        icon={
+                            <FlagIcon className="inline h-6 w-6 text-primary-800" />
+                        }
+                    >
+                        檢舉
+                    </Menu.Item>
+                )}
                 {cmtData.isOwner && (
                     <Menu.Item
                         onClick={() => {
