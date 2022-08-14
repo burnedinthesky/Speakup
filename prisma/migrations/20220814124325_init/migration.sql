@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "CommentReply" ALTER COLUMN "createdTime" SET DEFAULT CURRENT_TIMESTAMP;

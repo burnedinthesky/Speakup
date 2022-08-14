@@ -87,7 +87,7 @@ model CommentReply {
     content         String   @db.Text
     owner           User     @relation(fields: [ownerId], references: [id])
     ownerId         String
-    createdTime     DateTime
+    createdTime     DateTime @default(now())
     motherComment   Comments @relation(fields: [motherCommentId], references: [id])
     motherCommentId Int
 }
