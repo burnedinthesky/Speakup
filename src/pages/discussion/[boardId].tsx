@@ -1,6 +1,6 @@
 import { MouseEvent, useEffect, useState } from "react";
 import { GetServerSideProps } from "next";
-import { supabase } from "../../utils/supabaseClient";
+import { prisma } from "../../utils/prisma";
 
 import Head from "next/head";
 
@@ -100,27 +100,31 @@ export default DiscussionBoard;
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const boardId = context?.params?.boardId as string;
 
-    const { data, error } = await supabase
-        .from("Articles")
-        .select(
-            ` 
-        author (
-            id
-        )`
-        )
-        .eq("id", boardId)
-        // .limit(1)
-        .single();
-    if (data?.length == 0) {
-        return {
-            notFound: true,
-        };
+    const data = await prisma.articles.findUnique({
+        where: {
+            id: boardId,
+        },
+        select: {
+            title: true,
+            tags: true,
+            content: true,
+            references: true,
+            threadId: true,
+            viewCount: true,
+            author: {
+                select: {
+                    username: true,
+                    profileImg: true,
+                },
+            },
+        },
+    });
+
+    if (!data) {
+        return { notFound: true };
     }
 
-    console.log("Data");
-    console.log(data);
-
     return {
-        props: { article: SampleArticle },
+        props: { article: data },
     };
 };

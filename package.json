@@ -19,7 +19,7 @@
     "@mantine/hooks": "^5.0.0",
     "@mantine/next": "^5.0.0",
     "@mantine/notifications": "^5.0.0",
-    "@prisma/client": "^4.2.1",
+    "@prisma/client": "^4.3.0",
     "@trpc/client": "^9.26.2",
     "@trpc/next": "^9.26.2",
     "@trpc/react": "^9.26.2",
@@ -48,7 +48,7 @@
     "postcss": "^8.4.14",
     "prettier": "^2.7.1",
     "prettier-plugin-tailwindcss": "^0.1.13",
-    "prisma": "^4.2.1",
+    "prisma": "^4.3.0",
     "tailwindcss": "^3.1.6",
     "typescript": "4.7.4"
   }

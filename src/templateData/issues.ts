@@ -57,9 +57,9 @@ export const SampleArticle: Article = {
     viewCount: 0,
     author: {
         username: "Hello",
-        pfp: "sjkldf",
+        pfp: "https://hello.com",
     },
-    furtherReading: [
+    references: [
         { title: "Google", link: "https://www.google.com" },
         { title: "Google", link: "https://www.google.com" },
         { title: "Google", link: "https://www.google.com" },

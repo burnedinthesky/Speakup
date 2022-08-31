@@ -52,7 +52,7 @@ const ArticleViewer = ({ article }: ArticleViewerProps) => {
                 <div className="flex items-center pb-3">
                     <img
                         className="mr-3 h-5 w-5 "
-                        src={article.author.pfp}
+                        src={article.author.profileImg}
                         alt=""
                     />
                     <p className="text-sm text-neutral-500">
@@ -79,7 +79,7 @@ const ArticleViewer = ({ article }: ArticleViewerProps) => {
                 </article>
                 <div className="mt-6 flex flex-col gap-2 text-neutral-700">
                     <h2 className="text-2xl text-primary-800">延伸閱讀</h2>
-                    {article.furtherReading.map((readLink, i) => (
+                    {article.references.map((readLink, i) => (
                         <a
                             href={readLink.link}
                             target="_blank"

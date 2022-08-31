@@ -58,10 +58,7 @@ const DesktopDropdown = () => {
                                 <button
                                     key={i}
                                     onClick={() => {
-                                        console.log("yoo");
                                         window.location.href = `/search/results?searchterm=@${tag}`;
-
-                                        console.log("hello");
                                     }}
                                 >
                                     #{tag}

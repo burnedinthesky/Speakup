@@ -15,29 +15,35 @@ model User {
     username          String                     @unique
     password          String
     email             String                     @unique
+    profileImg        String                     @default("")
     birthday          String?
     gender            Int?
     role              Role                       @default(USER)
     Articles          Articles[]
     Comments          Comments[]
-    CommentReply      CommentReply[]
     likedComments     LikedUsersOnComments[]
     dislikedComments  DislikedUsersOnComments[]
     supportedComments SupportedUsersOnComments[]
 }
 
 model Articles {
-    id          String     @id @default(uuid())
-    h1          String
-    h2          String
-    h3          String
-    spoiler     String     @db.Text
-    content     String     @db.Text
+    id          String   @id @default(cuid())
+    title       String   @unique
     tags        String[]
-    createdTime DateTime   @default(now())
-    author      User       @relation(fields: [authorId], references: [id])
+    createdTime DateTime @default(now())
+    author      User     @relation(fields: [authorId], references: [id])
     authorId    String
-    Comments    Comments[]
+    viewCount   Int      @default(0)
+    content     Json
+    references  Json
+    thread      Threads  @relation(fields: [threadId], references: [id])
+    threadId    Int      @unique
+}
+
+model Threads {
+    id       Int        @id @default(autoincrement())
+    comments Comments[]
+    article  Articles?
 }
 
 model Comments {
@@ -46,14 +52,21 @@ model Comments {
     owner          User                       @relation(fields: [ownerId], references: [id])
     ownerId        String
     createdTime    DateTime                   @default(now())
-    article        Articles                   @relation(fields: [articleId], references: [id])
-    articleId      String
-    onside         String
+    thread         Threads[]
+    stance         String                     @db.VarChar(3)
     likedUsers     LikedUsersOnComments[]
     dislikedUsers  DislikedUsersOnComments[]
     supportedUsers SupportedUsersOnComments[]
-    CommentReply   CommentReply[]
 }
+
+// model ThreadsOnComments {
+//     thread    Threads  @relation(fields: [threadId], references: [id])
+//     threadId  Int
+//     comments  Comments @relation(fields: [commentId], references: [id])
+//     commentId Int
+
+//     @@unique([threadId, commentId])
+// }
 
 model LikedUsersOnComments {
     User       User     @relation(fields: [userId], references: [id])
@@ -80,16 +93,6 @@ model SupportedUsersOnComments {
     commentsId Int
 
     @@id([commentsId, userId])
-}
-
-model CommentReply {
-    id              Int      @id @default(autoincrement())
-    content         String   @db.Text
-    owner           User     @relation(fields: [ownerId], references: [id])
-    ownerId         String
-    createdTime     DateTime @default(now())
-    motherComment   Comments @relation(fields: [motherCommentId], references: [id])
-    motherCommentId Int
 }
 
 enum Role {

@@ -17,7 +17,7 @@ export type ArticleAuthor = {
     pfp: string;
 };
 
-export type FurtherReadingLink = {
+export type ReferencesLink = {
     title: string;
     link: string;
 };
@@ -27,7 +27,7 @@ export type Article = {
     title: string;
     tags: ArticleTags[];
     content: ArticleBlock[];
-    furtherReading: FurtherReadingLink[];
+    references: ReferencesLink[];
     author: ArticleAuthor;
     viewCount: number;
     commentCount: number;

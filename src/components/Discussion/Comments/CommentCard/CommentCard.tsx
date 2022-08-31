@@ -98,7 +98,7 @@ const CommentCard = forwardRef<HTMLDivElement, CommentCardProps>(
                                     : "border-red-400"
                                 : "border-neutral-300"
                         } overflow-hidden rounded-full`}
-                        src={data.author.pfp}
+                        src={data.author.profileImg}
                         alt="Profile"
                     />
                     <div className="flex-grow">
