@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { Article } from "../../types/issueTypes";
+import { Article } from "../../schema/article.schema";
 
 const HomeNavCard = ({ cardContent }: { cardContent: Article }) => {
     return (

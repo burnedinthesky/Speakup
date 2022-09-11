@@ -3,7 +3,7 @@ import { ClipboardCopyIcon, SearchIcon } from "@heroicons/react/outline";
 import Header from "../../components/AppShell/Header";
 import Navbar from "../../components/AppShell/Navbar";
 import Footbar from "../../components/AppShell/Footbar";
-import { ArticleTagValues } from "../../types/issueTypes";
+import { ArticleTagValues } from "../../schema/article.schema";
 import { TextInput } from "@mantine/core";
 import Head from "next/head";
 

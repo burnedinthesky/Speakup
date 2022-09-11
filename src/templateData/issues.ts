@@ -1,4 +1,4 @@
-import { Article } from "../types/issueTypes";
+import { Article } from "../schema/article.schema";
 
 export const SampleArticle: Article = {
     id: "1234",
@@ -55,9 +55,10 @@ export const SampleArticle: Article = {
         },
     ],
     viewCount: 0,
+    threadId: 1,
     author: {
         username: "Hello",
-        pfp: "https://hello.com",
+        profileImg: "https://hello.com",
     },
     references: [
         { title: "Google", link: "https://www.google.com" },

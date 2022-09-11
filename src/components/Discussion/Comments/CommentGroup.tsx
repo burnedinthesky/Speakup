@@ -3,7 +3,7 @@ import { useInfiniteQuery, useMutation } from "react-query";
 // import { useSession } from "next-auth/react";
 import { cloneDeep } from "lodash";
 
-import { Comment } from "../../../types/commentTypes";
+import { Comment } from "../../../schema/comments.schema";
 // import { deleteReply, getCommentReplies, postCommentReply } from "../../lib/commentFuncs";
 
 import { ReplyIcon } from "@heroicons/react/solid";

@@ -12,7 +12,7 @@ import { ReplyTextField } from "./ReplyAccessroies";
 
 import ReportModal from "../../../Report/ReportModal";
 
-import { Comment } from "../../../../types/commentTypes";
+import { Comment } from "../../../../schema/comments.schema";
 
 interface CommentCardProps {
     data: Comment;
@@ -23,8 +23,6 @@ interface CommentCardProps {
 
 const CommentCard = forwardRef<HTMLDivElement, CommentCardProps>(
     ({ data, motherComment, addReply, deleteFunction }, ref) => {
-        // const { data: session } = useSession();
-
         const [supported, setSupported] = useState<boolean>(data.userSupported);
         const [liked, setLiked] = useState<boolean>(data.userLiked);
         const [disliked, setDisliked] = useState<boolean>(data.userDisliked);

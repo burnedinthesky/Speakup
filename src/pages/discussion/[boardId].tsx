@@ -11,9 +11,7 @@ import CommentField from "../../components/Discussion/Comments/CommentField";
 import StanceSelector from "../../components/Discussion/Selectors/StanceSelector";
 import SortSelector from "../../components/Discussion/Selectors/SortSelector";
 
-import { Article } from "../../types/issueTypes";
-import { Stances } from "../../types/commentTypes";
-import { SampleArticle } from "../../templateData/issues";
+import { Article } from "../../schema/article.schema";
 
 interface DiscussionProps {
     article: Article;
@@ -84,7 +82,7 @@ const DiscussionBoard = ({ article }: DiscussionProps) => {
                         </div>
                         <CommentField
                             key={viewingStance + sortMethod}
-                            boardId={article.id}
+                            threadGroupId={article.threadGroupId}
                             onSide={viewingStance as "sup" | "agn" | "both"}
                             sortMethod={sortMethod}
                         />
@@ -109,7 +107,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
             tags: true,
             content: true,
             references: true,
-            threadId: true,
+            threadGroupId: true,
             viewCount: true,
             author: {
                 select: {

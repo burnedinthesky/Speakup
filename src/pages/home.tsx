@@ -12,7 +12,7 @@ import Navbar from "../components/AppShell/Navbar";
 import HomeNavCard from "../components/Navigation/HomeNavCard";
 
 // import { useSession } from "next-auth/react";
-import { HomeRecommendations } from "../types/navigationTypes";
+import { HomeRecommendations } from "../schema/navigation.schema";
 import Head from "next/head";
 import { SampleArticle } from "../templateData/issues";
 

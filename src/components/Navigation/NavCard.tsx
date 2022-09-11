@@ -5,7 +5,7 @@ import {
     EyeIcon,
     UserCircleIcon,
 } from "@heroicons/react/outline";
-import { Article } from "../../types/issueTypes";
+import { Article } from "../../schema/article.schema";
 
 interface NavCardProps {
     cardContent: Article;

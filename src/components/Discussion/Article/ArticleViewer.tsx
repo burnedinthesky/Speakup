@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { Spoiler } from "@mantine/core";
 
 import { BookmarkIcon, FlagIcon, ShareIcon } from "@heroicons/react/outline";
-import { Article, ArticleBlock } from "../../../types/issueTypes";
+import { Article, ArticleBlock } from "../../../schema/article.schema";
 import ShareDialog from "./ShareDialog";
 import { useRouter } from "next/router";
 

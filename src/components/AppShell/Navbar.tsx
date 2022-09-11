@@ -6,7 +6,7 @@ import {
     TrendingUpIcon,
     BookmarkIcon,
 } from "@heroicons/react/outline";
-import { ArticleTagValues } from "../../types/issueTypes";
+import { ArticleTagValues } from "../../schema/article.schema";
 
 //prettier-ignore
 const tags = ArticleTagValues;

@@ -1,4 +1,4 @@
-import { Article } from "./issueTypes";
+import { Article } from "./article.schema";
 
 export type HomeRecommendation = {
     title: string;

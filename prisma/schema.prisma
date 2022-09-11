@@ -27,23 +27,34 @@ model User {
 }
 
 model Articles {
-    id          String   @id @default(cuid())
-    title       String   @unique
-    tags        String[]
-    createdTime DateTime @default(now())
-    author      User     @relation(fields: [authorId], references: [id])
-    authorId    String
-    viewCount   Int      @default(0)
-    content     Json
-    references  Json
-    thread      Threads  @relation(fields: [threadId], references: [id])
-    threadId    Int      @unique
+    id            String      @id @default(cuid())
+    title         String      @unique
+    tags          String[]
+    createdTime   DateTime    @default(now())
+    author        User        @relation(fields: [authorId], references: [id])
+    authorId      String
+    viewCount     Int         @default(0)
+    content       Json
+    references    Json
+    threadGroup   ThreadGroup @relation(fields: [threadGroupId], references: [id])
+    threadGroupId Int         @unique
+}
+
+model ThreadGroup {
+    id       Int       @id @default(autoincrement())
+    threads  Threads[]
+    Articles Articles?
 }
 
 model Threads {
-    id       Int        @id @default(autoincrement())
-    comments Comments[]
-    article  Articles?
+    id                Int         @id @default(autoincrement())
+    threadGroup       ThreadGroup @relation(fields: [threadGroupId], references: [id])
+    threadGroupId     Int
+    pagnationSequence Int         @unique
+
+    leadComment   Comments   @relation(name: "leadingThread", fields: [leadCommentId], references: [id])
+    leadCommentId Int        @unique
+    comments      Comments[]
 }
 
 model Comments {
@@ -52,21 +63,15 @@ model Comments {
     owner          User                       @relation(fields: [ownerId], references: [id])
     ownerId        String
     createdTime    DateTime                   @default(now())
-    thread         Threads[]
     stance         String                     @db.VarChar(3)
     likedUsers     LikedUsersOnComments[]
     dislikedUsers  DislikedUsersOnComments[]
     supportedUsers SupportedUsersOnComments[]
+
+    leadingThread Threads? @relation(name: "leadingThread")
+    threads       Threads? @relation(fields: [threadsId], references: [id], onDelete: Cascade)
+    threadsId     Int?
 }
-
-// model ThreadsOnComments {
-//     thread    Threads  @relation(fields: [threadId], references: [id])
-//     threadId  Int
-//     comments  Comments @relation(fields: [commentId], references: [id])
-//     commentId Int
-
-//     @@unique([threadId, commentId])
-// }
 
 model LikedUsersOnComments {
     User       User     @relation(fields: [userId], references: [id])

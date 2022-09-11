@@ -158,4 +158,6 @@ const ReportMenu = forwardRef<HTMLDivElement, ReportMenuProps>(
     }
 );
 
+ReportMenu.displayName = "ReportMenu";
+
 export default ReportMenu;

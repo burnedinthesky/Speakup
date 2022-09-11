@@ -1,7 +1,7 @@
 import React from "react";
 import { ReplyIcon } from "@heroicons/react/outline";
 import CommentCard from "./CommentCard/CommentCard";
-import { Comment } from "../../../types/commentTypes";
+import { Comment } from "../../../schema/comments.schema";
 
 interface CommentResponseFieldProps {
     commentId: number;

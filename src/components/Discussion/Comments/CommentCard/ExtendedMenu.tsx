@@ -8,7 +8,7 @@ import {
     DotsVerticalIcon,
 } from "@heroicons/react/outline";
 
-import { Comment } from "../../../../types/commentTypes";
+import { Comment } from "../../../../schema/comments.schema";
 
 interface ExtendedMenuProps {
     cmtData: Comment;

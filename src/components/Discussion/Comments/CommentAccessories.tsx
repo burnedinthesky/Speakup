@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import { PaperAirplaneIcon, XIcon } from "@heroicons/react/outline";
-import { Stances } from "../../../types/commentTypes";
+import { Stances } from "../../../schema/comments.schema";
 
 interface NewCommentProps {
     addComment: (cmtContent: string, cmtSide: Stances) => void;

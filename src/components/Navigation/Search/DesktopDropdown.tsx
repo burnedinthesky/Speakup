@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import { Popover } from "@mantine/core";
 
 import { SearchIcon } from "@heroicons/react/outline";
-import { ArticleTagValues } from "../../../types/issueTypes";
+import { ArticleTagValues } from "../../../schema/article.schema";
 
 const DesktopDropdown = () => {
     const [opened, setOpened] = useState(false);
