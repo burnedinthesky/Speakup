@@ -1,10 +1,7 @@
-import React, { useState, useEffect, forwardRef } from "react";
-import { useInfiniteQuery, useMutation } from "react-query";
-// import { useSession } from "next-auth/react";
+import { useState, useEffect, forwardRef } from "react";
 import { cloneDeep } from "lodash";
 
-import { Comment } from "../../../schema/comments.schema";
-// import { deleteReply, getCommentReplies, postCommentReply } from "../../lib/commentFuncs";
+import { Comment, Stances, ThreadData } from "../../../schema/comments.schema";
 
 import { ReplyIcon } from "@heroicons/react/solid";
 
@@ -12,14 +9,14 @@ import CommentCard from "./CommentCard/CommentCard";
 import CommentResponseField from "./CommentResponseField";
 import { ShowRepliesButton } from "./CommentCard/ReplyAccessroies";
 
-interface CommandGroupProps {
-    boardId: string;
-    comment: Comment;
+export interface CommandGroupProps {
+    threadGroupId: number;
+    data: ThreadData;
     deleteComment: (commentId: number, motherComment?: number) => void;
 }
 
-const CommentGroup = forwardRef<HTMLDivElement, CommandGroupProps>(
-    ({ boardId, comment, deleteComment }, ref) => {
+const ThreadDisplay = forwardRef<HTMLDivElement, CommandGroupProps>(
+    ({ threadGroupId, data, deleteComment }, ref) => {
         const [userReplies, setUserReplies] = useState<Comment[]>([]);
         // const { data: session } = useSession();
 
@@ -119,7 +116,7 @@ const CommentGroup = forwardRef<HTMLDivElement, CommandGroupProps>(
         return (
             <div className="w-full" ref={ref}>
                 <CommentCard
-                    data={comment}
+                    data={data.leadComment}
                     addReply={(content) => {
                         // addReplyMutation.mutate(content);
                     }}
@@ -127,7 +124,7 @@ const CommentGroup = forwardRef<HTMLDivElement, CommandGroupProps>(
                 />
                 <div className="mt-2">
                     <CommentResponseField
-                        commentId={comment.id}
+                        commentId={data.id}
                         commentData={replyQueryData.concat(userReplies)}
                         deleteReply={(replyId) => {
                             // deleteReplyMutation.mutate(replyId);
@@ -142,6 +139,6 @@ const CommentGroup = forwardRef<HTMLDivElement, CommandGroupProps>(
     }
 );
 
-CommentGroup.displayName = "CommentGroup";
+ThreadDisplay.displayName = "ThreadDisplay";
 
-export default CommentGroup;
+export default ThreadDisplay;

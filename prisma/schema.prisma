@@ -36,7 +36,7 @@ model Articles {
     viewCount     Int         @default(0)
     content       Json
     references    Json
-    threadGroup   ThreadGroup @relation(fields: [threadGroupId], references: [id])
+    threadGroup   ThreadGroup @relation(fields: [threadGroupId], references: [id], onDelete: Cascade)
     threadGroupId Int         @unique
 }
 
@@ -50,7 +50,7 @@ model Threads {
     id                Int         @id @default(autoincrement())
     threadGroup       ThreadGroup @relation(fields: [threadGroupId], references: [id])
     threadGroupId     Int
-    pagnationSequence Int         @unique
+    pagnationSequence Int         @unique @default(autoincrement())
 
     leadComment   Comments   @relation(name: "leadingThread", fields: [leadCommentId], references: [id])
     leadCommentId Int        @unique

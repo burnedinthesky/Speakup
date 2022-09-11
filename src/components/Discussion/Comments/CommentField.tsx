@@ -1,16 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 
-import CommentGroup from "./CommentGroup";
+import ThreadDisplay from "./ThreadDisplay";
 import {
     NewComment,
     NoCommentsDisplay,
     LoadingSkeleton,
 } from "./CommentAccessories";
-import { Comment, Stances } from "../../../schema/comments.schema";
+import { Stances, ThreadData } from "../../../schema/comments.schema";
 import { trpc } from "../../../utils/trpc";
-
-import { cmtQueryData } from "../../../templateData/comments";
+import { showNotification } from "@mantine/notifications";
 
 interface CommentFieldProps {
     threadGroupId: number;
@@ -23,7 +22,7 @@ const CommentField = ({
     onSide,
     sortMethod,
 }: CommentFieldProps) => {
-    const [userComments, setUserComments] = useState<Comment[]>([]);
+    const [userComments, setUserComments] = useState<ThreadData[]>([]);
     const { ref: lastCardRef, inView: lastCardInView, entry } = useInView();
 
     const {
@@ -49,18 +48,31 @@ const CommentField = ({
         }
     );
 
+    useEffect(() => {
+        if (entry !== undefined) {
+            if (entry.isIntersecting && hasNextPage && !isLoading) {
+                fetchNextPage();
+            }
+        }
+    }, [lastCardInView]);
+
+    const addThreadMutation = trpc.useMutation("threads.addComment", {
+        onSuccess: (data) => {
+            setUserComments(userComments.concat(data));
+        },
+        onError: (error, variables) => {
+            showNotification({
+                title: "留言失敗",
+                message: "請再試一次",
+            });
+        },
+    });
+
     /*
     useEffect(() => {
         if (session) cmtQueryRefetch({ refetchPage: () => true });
     }, [onSide, sortMethod, session]);
 
-    useEffect(() => {
-        if (entry !== undefined) {
-            if (entry.isIntersecting && cmtQueryHasNextPage && !cmtQueryLoading) {
-                cmtQueryFetchNextPage();
-            }
-        }
-    }, [lastCardInView]); 
 
     if (cmtQueryError)
         return (
@@ -77,31 +89,33 @@ const CommentField = ({
     return (
         <div className="bg-neutral-50">
             <div className="mx-auto mb-4 flex flex-col px-9 pb-6 lg:py-3 ">
-                {true /*!cmtQueryLoading*/ && (
+                {data && (
                     <>
                         <NewComment
-                            addComment={(
-                                cmtContent: string,
-                                cmtSide: Stances
-                            ) => {
-                                // addComment.mutate({
-                                //     content: commentContent,
-                                //     side: side,
-                                // });
+                            addComment={(content: string, stance: Stances) => {
+                                addThreadMutation.mutate({
+                                    threadGroupId: threadGroupId,
+                                    content: content,
+                                    stance: stance,
+                                });
                             }}
                         />
                         <div className="flex w-full flex-col gap-2 divide-y divide-neutral-300 pt-4">
                             {userComments
-                                .concat(cmtQueryData)
+                                .concat(
+                                    data.pages
+                                        .flat()
+                                        .flatMap(
+                                            (element) =>
+                                                element.retData as ThreadData[]
+                                        )
+                                )
                                 .map((data, i, arr) => {
-                                    // return data.totalComments !== undefined ? (
-                                    //     <div key={i}></div>
-                                    // ) : (
                                     return (
-                                        <CommentGroup
+                                        <ThreadDisplay
                                             key={i}
-                                            boardId={"1"}
-                                            comment={data}
+                                            threadGroupId={threadGroupId}
+                                            data={data}
                                             deleteComment={(cmtId) => {
                                                 // delComment.mutate(cmtId);
                                             }}
@@ -112,15 +126,16 @@ const CommentField = ({
                                             }
                                         />
                                     );
-                                    // );
                                 })}
                         </div>
                     </>
                 )}
                 {userComments.length === 0 &&
-                    cmtQueryData.length === 0 &&
+                    data?.pages.length === 0 &&
                     !(isLoading || isFetching) && <NoCommentsDisplay />}
-                {(isLoading || isFetching) && <LoadingSkeleton />}
+                {(isLoading || isFetching) &&
+                    !lastCardInView &&
+                    data?.pages.length == 0 && <LoadingSkeleton />}
             </div>
         </div>
     );
