@@ -52,7 +52,7 @@ model Threads {
     threadGroupId     Int
     pagnationSequence Int         @unique @default(autoincrement())
 
-    leadComment   Comments   @relation(name: "leadingThread", fields: [leadCommentId], references: [id])
+    leadComment   Comments   @relation(name: "leadingThread", fields: [leadCommentId], references: [id], onDelete: Cascade)
     leadCommentId Int        @unique
     comments      Comments[]
 }
@@ -69,8 +69,8 @@ model Comments {
     supportedUsers SupportedUsersOnComments[]
 
     leadingThread Threads? @relation(name: "leadingThread")
-    threads       Threads? @relation(fields: [threadsId], references: [id], onDelete: Cascade)
-    threadsId     Int?
+    inThread      Threads? @relation(fields: [inThreadId], references: [id], onDelete: Cascade)
+    inThreadId    Int?
 }
 
 model LikedUsersOnComments {
