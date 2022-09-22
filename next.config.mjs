@@ -13,5 +13,6 @@ function defineNextConfig(config) {
 }
 
 export default defineNextConfig({
+    swcMinify: true,
     reactStrictMode: true,
 });
