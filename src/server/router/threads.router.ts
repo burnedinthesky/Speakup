@@ -1,126 +1,17 @@
 import { createRouter } from "../createRouter";
 import {
-    createCommentsSchema,
-    fetchTGFirstComment,
+    Comment,
+    createThreadSchema,
+    fetchThreadCommentsSchema,
     Stances,
 } from "../../schema/comments.schema";
-
-const reqUser = {
-    id: "123",
-};
+import { SampleUser } from "../../templateData/users";
 
 export const threadsRouter = createRouter()
-    .query("tg.firstComment", {
-        input: fetchTGFirstComment,
+    .mutation("createThread", {
+        input: createThreadSchema,
         async resolve({ input, ctx }) {
-            const allowedStance = [];
-            if (input.stance == "sup" || input.stance == "both")
-                allowedStance.push("sup");
-            if (input.stance == "agn" || input.stance == "both")
-                allowedStance.push("agn");
-
-            const data = await ctx.prisma.threads.findMany({
-                where: {
-                    threadGroupId: input.TGID,
-                    leadComment: {
-                        stance: {
-                            in: allowedStance,
-                        },
-                    },
-                },
-                select: {
-                    leadComment: {
-                        select: {
-                            id: true,
-                            content: true,
-                            owner: {
-                                select: {
-                                    id: true,
-                                    username: true,
-                                    profileImg: true,
-                                },
-                            },
-                            stance: true,
-                            _count: {
-                                select: {
-                                    likedUsers: true,
-                                    supportedUsers: true,
-                                    dislikedUsers: true,
-                                },
-                            },
-                            likedUsers: {
-                                where: {
-                                    userId: reqUser.id,
-                                },
-                            },
-                            supportedUsers: {
-                                where: {
-                                    userId: reqUser.id,
-                                },
-                            },
-                            dislikedUsers: {
-                                where: {
-                                    userId: reqUser.id,
-                                },
-                            },
-                        },
-                    },
-                    id: true,
-                    pagnationSequence: true,
-                    _count: {
-                        select: {
-                            comments: true,
-                        },
-                    },
-                },
-                orderBy: {
-                    pagnationSequence: "asc",
-                },
-                cursor: input.cursor
-                    ? { pagnationSequence: input.cursor }
-                    : undefined,
-                take: input.limit + 1,
-            });
-            let nextCursor: number | undefined = undefined;
-            if (data.length == input.limit + 1) {
-                const lastItem = data.pop();
-                nextCursor = lastItem?.pagnationSequence;
-            }
-
-            const retData = data.map((element) => {
-                const newObj = {
-                    id: element.id,
-                    leadComment: {
-                        id: element.leadComment.id,
-                        author: element.leadComment.owner,
-                        isOwner: true,
-                        message: element.leadComment.content,
-                        stance: element.leadComment.stance as Stances,
-                        leadsThread: element._count.comments > 0,
-                        likes: element.leadComment._count.likedUsers,
-                        userLiked: element.leadComment.likedUsers.length == 1,
-                        support: element.leadComment._count.supportedUsers,
-                        userSupported:
-                            element.leadComment.supportedUsers.length == 1,
-                        dislikes: element.leadComment._count.dislikedUsers,
-                        userDisliked:
-                            element.leadComment.dislikedUsers.length == 1,
-                    },
-                };
-
-                return newObj;
-            });
-
-            return {
-                retData,
-                nextCursor,
-            };
-        },
-    })
-    .mutation("addComment", {
-        input: createCommentsSchema,
-        async resolve({ input, ctx }) {
-            const createdComment = await ctx.prisma.threads.create({
+            const createdThread = await ctx.prisma.threads.create({
                 data: {
                     leadComment: {
                         create: {
@@ -128,7 +19,7 @@ export const threadsRouter = createRouter()
                             stance: input.stance,
                             owner: {
                                 connect: {
-                                    id: "0eed0262-564b-4b8a-997d-65c2026a5b0b",
+                                    id: SampleUser.id,
                                 },
                             },
                         },
@@ -161,17 +52,17 @@ export const threadsRouter = createRouter()
                             },
                             likedUsers: {
                                 where: {
-                                    userId: reqUser.id,
+                                    userId: SampleUser.id,
                                 },
                             },
                             supportedUsers: {
                                 where: {
-                                    userId: reqUser.id,
+                                    userId: SampleUser.id,
                                 },
                             },
                             dislikedUsers: {
                                 where: {
-                                    userId: reqUser.id,
+                                    userId: SampleUser.id,
                                 },
                             },
                         },
@@ -187,24 +78,119 @@ export const threadsRouter = createRouter()
             });
 
             return {
-                id: createdComment.id,
+                id: createdThread.id,
                 leadComment: {
-                    id: createdComment.leadComment.id,
-                    author: createdComment.leadComment.owner,
+                    id: createdThread.leadComment.id,
+                    author: createdThread.leadComment.owner,
                     isOwner: true,
-                    message: createdComment.leadComment.content,
-                    stance: createdComment.leadComment.stance as Stances,
-                    leadsThread: createdComment._count.comments > 0,
-                    likes: createdComment.leadComment._count.likedUsers,
-                    userLiked:
-                        createdComment.leadComment.likedUsers.length == 1,
-                    support: createdComment.leadComment._count.supportedUsers,
+                    message: createdThread.leadComment.content,
+                    stance: createdThread.leadComment.stance as Stances,
+                    leadsThread: createdThread.id,
+                    threadReplies: createdThread._count.comments,
+                    likes: createdThread.leadComment._count.likedUsers,
+                    userLiked: createdThread.leadComment.likedUsers.length == 1,
+                    support: createdThread.leadComment._count.supportedUsers,
                     userSupported:
-                        createdComment.leadComment.supportedUsers.length == 1,
-                    dislikes: createdComment.leadComment._count.dislikedUsers,
+                        createdThread.leadComment.supportedUsers.length == 1,
+                    dislikes: createdThread.leadComment._count.dislikedUsers,
                     userDisliked:
-                        createdComment.leadComment.dislikedUsers.length == 1,
+                        createdThread.leadComment.dislikedUsers.length == 1,
                 },
+            };
+        },
+    })
+    .query("getThreadComments", {
+        input: fetchThreadCommentsSchema,
+        async resolve({ input, ctx }) {
+            const data = await ctx.prisma.threads.findUniqueOrThrow({
+                where: {
+                    id: input.threadId,
+                },
+                select: {
+                    comments: {
+                        select: {
+                            id: true,
+                            content: true,
+                            owner: {
+                                select: {
+                                    id: true,
+                                    username: true,
+                                    profileImg: true,
+                                },
+                            },
+                            stance: true,
+                            _count: {
+                                select: {
+                                    likedUsers: true,
+                                    supportedUsers: true,
+                                    dislikedUsers: true,
+                                },
+                            },
+                            likedUsers: {
+                                where: {
+                                    userId: SampleUser.id,
+                                },
+                            },
+                            supportedUsers: {
+                                where: {
+                                    userId: SampleUser.id,
+                                },
+                            },
+                            dislikedUsers: {
+                                where: {
+                                    userId: SampleUser.id,
+                                },
+                            },
+                            leadingThread: {
+                                select: {
+                                    id: true,
+                                    _count: {
+                                        select: {
+                                            comments: true,
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                        orderBy: {
+                            createdTime: "asc",
+                        },
+                        cursor: input.cursor ? { id: input.cursor } : undefined,
+                        take: input.limit + 1,
+                    },
+                },
+            });
+            let nextCursor: number | undefined = undefined;
+            const comments = data.comments;
+            if (comments.length == input.limit + 1) {
+                const lastItem = comments.pop();
+                nextCursor = lastItem?.id;
+            }
+
+            const retData: Comment[] = comments.map((comment) => {
+                const leadThread = comment.leadingThread?.id;
+
+                const obj: Comment = {
+                    id: comment.id,
+                    author: comment.owner,
+                    isOwner: comment.owner.id == SampleUser.id,
+                    message: comment.content,
+                    stance: comment.stance as Stances,
+                    leadsThread: leadThread,
+                    threadReplies: comment.leadingThread?._count.comments,
+                    likes: comment._count.likedUsers,
+                    userLiked: comment.likedUsers.length == 1,
+                    support: comment._count.supportedUsers,
+                    userSupported: comment.supportedUsers.length == 1,
+                    dislikes: comment._count.dislikedUsers,
+                    userDisliked: comment.dislikedUsers.length == 1,
+                };
+                return obj;
+            });
+
+            return {
+                retData,
+                nextCursor,
             };
         },
     });

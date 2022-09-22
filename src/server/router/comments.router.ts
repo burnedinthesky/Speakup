@@ -1,82 +1,88 @@
 import { createRouter } from "../createRouter";
-import * as trpc from "@trpc/server";
 import {
-    createCommentsSchema,
-    getComments,
-    createCommentsActionSchema,
+    createCommentSchema,
+    deleteCommentSchema,
+    Stances,
 } from "../../schema/comments.schema";
+import { SampleUser } from "../../templateData/users";
+import * as trpc from "@trpc/server";
 
-export const commentsRouter = createRouter();
-// .mutation("create-comment", {
-//     input: createCommentsSchema,
-//     async resolve({ ctx, input }) {
-//         if (!ctx.user) {
-//             new trpc.TRPCError({
-//                 code: "FORBIDDEN",
-//                 message: "Cannot comment while logged out",
-//             });
-//         }
-//         const comment = await ctx.prisma.comments.create({
-//             data: {
-//                 ...input,
-//                 owner: {
-//                     connect: {
-//                         id: ctx.user?.id,
-//                     },
-//                 },
-//             },
-//         });
-//         return comment;
-//     },
-// })
-// .query("article-comments", {
-//     input: getComments,
-//     resolve({ input, ctx }) {
-//         return ctx.prisma.comments.findMany({
-//             where: {
-//                 articleId: input.articleId,
-//                 onside: input.onside,
-//             },
-//         });
-//     },
-// });
-// .mutation('comment-action', {
-//     input: createCommentsActionSchema,
-//     async resolve({ ctx, input }){
-//         if(!ctx.user){
-//             new trpc.TRPCError({
-//                 code: "FORBIDDEN",
-//                 message: "User is logged out."
-//             })
-//         }
-//         let likes: number = ctx.user.likedComments.length
-//         let dislikes: number = ctx.user.dislikedComments.length
-//         let supported: number = ctx.user.supportedComments.length
-//         if (likes + dislikes + supported > 1){
-//             return new trpc.TRPCError({
-//                 code: "BAD_REQUEST",
-//                 message: "Can only select one action in Supported/Liked/Disliked."
-//             })
-//         }
-//         const comment = await ctx.prisma.comments.findUnique({
-//             where: {
-//                 id: input.commentId,
-//             }
-//         })
-//         if(comment == null){
-//             return new trpc.TRPCError({
-//                 code: "NOT_FOUND",
-//                 message: "Comment not found"
-//             })
-//         }
-//         const updateCommentData = await ctx.prisma.comments.update({
-//             where:{
-//                 id: input.commentId
-//             },
-//             data:{
-//                 likedUsers: comment.likedUsers.push(ctx.user)
-//             }
-//         })
-//         return updateCommentData
-//     }
-// })
+export const commentsRouter = createRouter()
+    .mutation("createComment", {
+        input: createCommentSchema,
+        async resolve({ input, ctx }) {
+            const comment = await ctx.prisma.comments.create({
+                data: {
+                    content: input.content,
+                    owner: {
+                        connect: {
+                            id: SampleUser.id,
+                        },
+                    },
+                    stance: input.stance,
+                },
+                select: {
+                    id: true,
+                    content: true,
+                    owner: {
+                        select: {
+                            id: true,
+                            username: true,
+                            profileImg: true,
+                        },
+                    },
+                    stance: true,
+                    _count: {
+                        select: {
+                            likedUsers: true,
+                            supportedUsers: true,
+                            dislikedUsers: true,
+                        },
+                    },
+                    likedUsers: {
+                        where: {
+                            userId: SampleUser.id,
+                        },
+                    },
+                    supportedUsers: {
+                        where: {
+                            userId: SampleUser.id,
+                        },
+                    },
+                    dislikedUsers: {
+                        where: {
+                            userId: SampleUser.id,
+                        },
+                    },
+                },
+            });
+
+            return {
+                id: comment.id,
+                author: comment.owner,
+                isOwner: true,
+                message: comment.content,
+                stance: comment.stance as Stances,
+                leadsThread: undefined,
+                threadReplies: undefined,
+                likes: comment._count.likedUsers,
+                userLiked: comment.likedUsers.length == 1,
+                support: comment._count.supportedUsers,
+                userSupported: comment.supportedUsers.length == 1,
+                dislikes: comment._count.dislikedUsers,
+                userDisliked: comment.dislikedUsers.length == 1,
+            };
+        },
+    })
+    .mutation("deleteComment", {
+        input: deleteCommentSchema,
+        async resolve({ input, ctx }) {
+            await ctx.prisma.comments.delete({
+                where: {
+                    id: input.id,
+                },
+            });
+
+            return;
+        },
+    });

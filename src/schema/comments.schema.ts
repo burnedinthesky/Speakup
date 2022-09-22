@@ -14,7 +14,8 @@ export type Comment = {
     isOwner: boolean;
     message: string;
     stance: Stances;
-    leadsThread: boolean;
+    leadsThread: number | undefined;
+    threadReplies: number | undefined;
     likes: number;
     userLiked: boolean;
     support: number;
@@ -44,24 +45,24 @@ export const fetchCommentsSchema = z.object({
     cursor: z.number().nullish(),
 });
 
-export type fetchCommentsInput = z.TypeOf<typeof fetchCommentsSchema>;
-
-export const createCommentsSchema = z.object({
+export const createThreadSchema = z.object({
     content: z.string(),
     threadGroupId: z.number(),
     stance: z.string().length(3),
 });
 
-export type createCommentsInput = z.TypeOf<typeof createCommentsSchema>;
-
-export const getComments = z.object({
-    articleId: z.string().uuid(),
-    onside: z.string(),
+export const createCommentSchema = z.object({
+    content: z.string(),
+    threadId: z.number(),
+    stance: z.string().length(3),
 });
 
-export const createCommentsActionSchema = z.object({
-    commentId: z.number(),
-    action: z.string(),
+export const fetchThreadCommentsSchema = z.object({
+    threadId: z.number(),
+    limit: z.number(),
+    cursor: z.number().nullish(),
 });
 
-export type putCommentAction = z.TypeOf<typeof createCommentsActionSchema>;
+export const deleteCommentSchema = z.object({
+    id: z.number(),
+});
