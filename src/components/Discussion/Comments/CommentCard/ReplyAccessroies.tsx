@@ -1,8 +1,9 @@
 import { useState, useRef } from "react";
 import { ReplyIcon } from "@heroicons/react/outline";
+import { Stances } from "../../../../schema/comments.schema";
 
 interface ReplyTextField {
-    addReply?: (content: string) => void;
+    addReply?: (content: string, stance: Stances) => void;
     setShowReplyBox: (value: boolean) => void;
 }
 
@@ -11,7 +12,7 @@ export function ReplyTextField({ addReply, setShowReplyBox }: ReplyTextField) {
 
     const postReply = () => {
         if (replyFieldRef.current && addReply) {
-            addReply(replyFieldRef.current.innerText);
+            addReply(replyFieldRef.current.innerText, "sup");
             replyFieldRef.current.innerText = "";
         }
         setShowReplyBox(false);
@@ -40,25 +41,26 @@ export function ReplyTextField({ addReply, setShowReplyBox }: ReplyTextField) {
     );
 }
 
+interface ShowRepliesButtonProps {
+    fetchReplies: () => void;
+    isLoading: boolean;
+}
+
 export function ShowRepliesButton({
     fetchReplies,
-}: {
-    fetchReplies: () => void;
-}) {
-    const [isClicked, setIsClicked] = useState(false);
-
+    isLoading,
+}: ShowRepliesButtonProps) {
     return (
         <button
             className="flex items-start gap-1 text-neutral-500"
             onClick={() => {
-                setIsClicked(true);
                 fetchReplies();
             }}
-            disabled={isClicked}
+            disabled={isLoading}
         >
             <ReplyIcon className="inline h-5 w-5 rotate-180" />
             <p className="inline text-sm">
-                {isClicked ? "載入中" : "查看回覆"}
+                {isLoading ? "載入中" : "查看回覆"}
             </p>
         </button>
     );

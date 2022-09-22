@@ -32,6 +32,7 @@ module.exports = {
             },
             transitionProperty: {
                 height: "height",
+                width: "width",
             },
         },
     },

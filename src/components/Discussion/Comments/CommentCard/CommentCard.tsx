@@ -12,12 +12,12 @@ import { ReplyTextField } from "./ReplyAccessroies";
 
 import ReportModal from "../../../Report/ReportModal";
 
-import { Comment } from "../../../../schema/comments.schema";
+import { Comment, Stances } from "../../../../schema/comments.schema";
 
 interface CommentCardProps {
     data: Comment;
     motherComment?: number;
-    addReply?: (content: string) => void;
+    addReply?: (content: string, stance: Stances) => void;
     deleteFunction: (commentId: number, motherComment?: number) => void;
 }
 
@@ -93,7 +93,9 @@ const CommentCard = forwardRef<HTMLDivElement, CommentCardProps>(
                             !motherComment
                                 ? data.stance === "sup"
                                     ? "border-green-300"
-                                    : "border-red-400"
+                                    : data.stance === "agn"
+                                    ? "border-red-400"
+                                    : "border-neutral-300"
                                 : "border-neutral-300"
                         } overflow-hidden rounded-full`}
                         src={data.author.profileImg}

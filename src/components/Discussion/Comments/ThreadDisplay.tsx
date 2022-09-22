@@ -1,13 +1,12 @@
 import { useState, useEffect, forwardRef } from "react";
-import { cloneDeep } from "lodash";
 
 import { Comment, Stances, ThreadData } from "../../../schema/comments.schema";
-
-import { ReplyIcon } from "@heroicons/react/solid";
 
 import CommentCard from "./CommentCard/CommentCard";
 import CommentResponseField from "./CommentResponseField";
 import { ShowRepliesButton } from "./CommentCard/ReplyAccessroies";
+import { trpc } from "../../../utils/trpc";
+import { showNotification } from "@mantine/notifications";
 
 export interface CommandGroupProps {
     threadGroupId: number;
@@ -18,122 +17,122 @@ export interface CommandGroupProps {
 const ThreadDisplay = forwardRef<HTMLDivElement, CommandGroupProps>(
     ({ threadGroupId, data, deleteComment }, ref) => {
         const [userReplies, setUserReplies] = useState<Comment[]>([]);
-        // const { data: session } = useSession();
+        const [excludedIDs, setExcludedIDs] = useState<number[]>([]);
 
-        // const {
-        //     data: replyQueryData,
-        //     error: replyQueryError,
-        //     isLoading: replyQueryLoading,
-        //     fetchNextPage: replyQueryFetchNextPage,
-        //     hasNextPage: replyQueryHasNextPage,
-        //     isFetching: replyQueryFetching,
-        //     refetch: replyQueryRefetch,
-        // } = useInfiniteQuery(
-        //     `reply-${cmtdata.id}`,
-        //     ({ pageParam = 0 }) => {
-        //         return getCommentReplies({
-        //             auth: `Token ${session.authToken}`,
-        //             boardId,
-        //             commentId: cmtdata.id,
-        //             onpage: pageParam,
-        //         });
-        //     },
-        //     {
-        //         getNextPageParam: (lastPage, pages) => (Math.ceil(lastPage[0].totalComments / 10) > pages.length ? pages.length : undefined),
-        //         enabled: false,
-        //     }
-        // );
+        const {
+            data: tcQueryData,
+            error,
+            isLoading,
+            fetchNextPage,
+            hasNextPage,
+            refetch,
+            isFetched,
+        } = trpc.useInfiniteQuery(
+            [
+                "threads.getThreadComments",
+                {
+                    threadId: data.id,
+                    limit: 20,
+                },
+            ],
+            {
+                getNextPageParam: (lastPage) => lastPage.nextCursor,
+                enabled: false,
+            }
+        );
 
-        // const addReplyMutation = useMutation(
-        //     (newReply) => {
-        //         return postCommentReply({
-        //             auth: `Token ${session.authToken}`,
-        //             boardId,
-        //             commentid: cmtdata.id,
-        //             cmtcontent: newReply,
-        //         });
-        //     },
-        //     {
-        //         onSuccess: (data) => {
-        //             setUserReplies(userReplies.concat(data));
-        //         },
-        //     }
-        // );
+        console.log(
+            data.leadComment.threadReplies !== undefined &&
+                data.leadComment.threadReplies > 0 &&
+                (isFetched ? hasNextPage : true)
+        );
 
-        // const deleteReplyMutation = useMutation(
-        //     (replyId) =>
-        //         deleteReply({
-        //             auth: `Token ${session.authToken}`,
-        //             boardId,
-        //             commentId: cmtdata.id,
-        //             replyId,
-        //         }),
-        //     {
-        //         onSuccess: (data, variables) => {
-        //             let replyId = variables;
-        //             let newReplies;
-        //             if (userReplies.some((element) => element.id === replyId)) {
-        //                 newReplies = cloneDeep(userReplies);
-        //                 setUserReplies(newReplies.filter((element) => element.id !== replyId));
-        //             } else {
-        //                 replyQueryRefetch({
-        //                     refetchPage: (page, index) => page.some((cmt) => cmt.id === replyId),
-        //                 });
-        //             }
-        //         },
-        //     }
-        // );
+        useEffect(() => {
+            if (tcQueryData) {
+                let filteredIds = tcQueryData.pages
+                    .flat()
+                    .flatMap((element) => element.retData)
+                    .map((item) => item.id);
+                setUserReplies(
+                    userReplies.filter(
+                        (element) => !filteredIds.includes(element.id)
+                    )
+                );
+            }
+        }, [tcQueryData]);
 
-        // useEffect(() => {
-        //     if (replyQueryData) {
-        //         let newUserCmts = cloneDeep(userReplies);
-        //         replyQueryData.pages[replyQueryData.pages.length - 1].forEach((item) => {
-        //             newUserCmts = newUserCmts.filter((cmt) => cmt.id !== item.id);
-        //         });
-        //         setUserReplies(newUserCmts);
-        //     }
-        // }, [replyQueryData]);
+        const addReplyMutation = trpc.useMutation("comments.createComment", {
+            onSuccess: (data) => {
+                setUserReplies((userReplies) => userReplies.concat([data]));
+            },
+            onError: () => {
+                showNotification({
+                    title: "發生未知錯誤",
+                    message: "留言失敗，請再試一次",
+                });
+            },
+        });
 
-        // const FetchRepliesBtn = () => {
-        //     if ((!replyQueryHasNextPage && replyQueryData) || !cmtdata.cmtReplies) return <div></div>;
-
-        //     return (
-        //         <button
-        //             className="flex items-start gap-1 text-neutral-500"
-        //             onClick={() => {
-        //                 replyQueryFetchNextPage();
-        //             }}
-        //             disabled={replyQueryLoading || replyQueryFetching}
-        //         >
-        //             <ReplyIcon className="inline h-5 w-5 rotate-180" />
-        //             <p className="inline text-sm">{replyQueryLoading || replyQueryFetching ? "載入中" : "查看回覆"}</p>
-        //         </button>
-        //     );
-        // };
-
-        const replyQueryData: Comment[] = [];
+        const deleteCommentMutation = trpc.useMutation(
+            "comments.deleteComment",
+            {
+                onSuccess: (data, variables) => {
+                    setExcludedIDs(excludedIDs.concat([variables.id]));
+                },
+                onError: () => {
+                    showNotification({
+                        title: "發生未知錯誤",
+                        message: "留言刪除失敗，請再試一次",
+                    });
+                },
+            }
+        );
 
         return (
             <div className="w-full" ref={ref}>
                 <CommentCard
                     data={data.leadComment}
-                    addReply={(content) => {
-                        // addReplyMutation.mutate(content);
+                    addReply={(content, stance) => {
+                        addReplyMutation.mutate({
+                            content: content,
+                            stance: stance,
+                            threadId: data.id,
+                        });
                     }}
                     deleteFunction={deleteComment}
                 />
-                <div className="mt-2">
-                    <CommentResponseField
-                        commentId={data.id}
-                        commentData={replyQueryData.concat(userReplies)}
-                        deleteReply={(replyId) => {
-                            // deleteReplyMutation.mutate(replyId);
-                        }}
-                    />
-                    <div className="pl-10">
-                        <ShowRepliesButton fetchReplies={() => {}} />
+                {tcQueryData && (
+                    <div className="mt-2">
+                        <CommentResponseField
+                            commentId={data.id}
+                            commentData={tcQueryData?.pages
+                                .flat()
+                                .flatMap((element) => element.retData)
+                                .concat(userReplies)
+                                .filter(
+                                    (element) =>
+                                        !excludedIDs.includes(element.id)
+                                )}
+                            deleteReply={(id) => {
+                                deleteCommentMutation.mutate({
+                                    id: id,
+                                });
+                            }}
+                        />
                     </div>
-                </div>
+                )}
+                {data.leadComment.threadReplies !== undefined &&
+                    data.leadComment.threadReplies > 0 &&
+                    (isFetched ? hasNextPage : true) && (
+                        <div className="pl-10">
+                            <ShowRepliesButton
+                                fetchReplies={() => {
+                                    fetchNextPage();
+                                }}
+                                isLoading={isLoading}
+                            />
+                        </div>
+                    )}
             </div>
         );
     }

@@ -5,6 +5,7 @@ import superjson from "superjson";
 import { withTRPC } from "@trpc/next";
 import type { AppType } from "next/dist/shared/lib/utils";
 import "../styles/globals.css";
+import { NotificationsProvider } from "@mantine/notifications";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
     return (
@@ -40,7 +41,9 @@ const MyApp: AppType = ({ Component, pageProps }) => {
                 primaryShade: 6,
             }}
         >
-            <Component {...pageProps} />;
+            <NotificationsProvider>
+                <Component {...pageProps} />;
+            </NotificationsProvider>
         </MantineProvider>
     );
 };
