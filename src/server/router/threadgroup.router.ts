@@ -80,6 +80,8 @@ export const threadGroupsRouter = createRouter().query("wFirstComment", {
             nextCursor = lastItem?.pagnationSequence;
         }
 
+        console.log(data);
+
         const retData = data.map((element) => {
             if (element.leadComment == null)
                 throw new Error("Error: lead comment is null");

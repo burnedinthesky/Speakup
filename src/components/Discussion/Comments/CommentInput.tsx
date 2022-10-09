@@ -23,12 +23,6 @@ const CommentInput = ({
 
     useEffect(() => {
         const checker = setInterval(() => {
-            console.log(
-                `TF ${
-                    commentDiv.current?.innerText.trim() == "" ||
-                    selectedStance == null
-                }`
-            );
             setDisableSubmit(
                 commentDiv.current?.innerText.trim() == "" ||
                     selectedStance == null
@@ -223,4 +217,20 @@ const NewThreadInput = ({ addComment }: NewThreadInputProps) => {
     );
 };
 
-export { CommentInput, NewThreadInput };
+interface NewReplyInputProps {
+    addReply: (cmtContent: string, stance: Stances) => void;
+    setShowReplyBox: (value: boolean) => void;
+}
+
+const NewReplyInput = ({ addReply, setShowReplyBox }: NewReplyInputProps) => {
+    return (
+        <div className="ml-10 mb-2 flex w-11/12 items-center overflow-x-hidden pt-1">
+            <CommentInput
+                addComment={addReply}
+                setCommentEnterStatus={setShowReplyBox}
+            />
+        </div>
+    );
+};
+
+export { CommentInput, NewThreadInput, NewReplyInput };

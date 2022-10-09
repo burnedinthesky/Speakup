@@ -7,15 +7,15 @@ import CommentResponseField from "./CommentResponseField";
 import { ShowRepliesButton } from "./CommentCard/ReplyAccessroies";
 import { trpc } from "../../../utils/trpc";
 import { showNotification } from "@mantine/notifications";
+import ThreadRepliesDisplay from "./ThreadRepliesDisplay";
 
 export interface CommandGroupProps {
-    threadGroupId: number;
     data: ThreadData;
     deleteComment: (commentId: number, motherComment?: number) => void;
 }
 
 const ThreadDisplay = forwardRef<HTMLDivElement, CommandGroupProps>(
-    ({ threadGroupId, data, deleteComment }, ref) => {
+    ({ data, deleteComment }, ref) => {
         const [userReplies, setUserReplies] = useState<Comment[]>([]);
         const [excludedIDs, setExcludedIDs] = useState<number[]>([]);
 
@@ -41,11 +41,10 @@ const ThreadDisplay = forwardRef<HTMLDivElement, CommandGroupProps>(
             }
         );
 
-        console.log(
+        let tmp =
             data.leadComment.threadReplies !== undefined &&
-                data.leadComment.threadReplies > 0 &&
-                (isFetched ? hasNextPage : true)
-        );
+            data.leadComment.threadReplies > 0;
+        // console.log(data.leadComment);
 
         useEffect(() => {
             if (tcQueryData) {
@@ -63,9 +62,11 @@ const ThreadDisplay = forwardRef<HTMLDivElement, CommandGroupProps>(
 
         const addReplyMutation = trpc.useMutation("comments.createComment", {
             onSuccess: (data) => {
+                console.log(data);
                 setUserReplies((userReplies) => userReplies.concat([data]));
             },
-            onError: () => {
+            onError: (error) => {
+                console.log(error);
                 showNotification({
                     title: "發生未知錯誤",
                     message: "留言失敗，請再試一次",
@@ -101,23 +102,20 @@ const ThreadDisplay = forwardRef<HTMLDivElement, CommandGroupProps>(
                     }}
                     deleteFunction={deleteComment}
                 />
-                {tcQueryData && (
+                {(tcQueryData || userReplies.length > 0) && (
                     <div className="mt-2">
-                        <CommentResponseField
-                            commentId={data.id}
-                            commentData={tcQueryData?.pages
-                                .flat()
-                                .flatMap((element) => element.retData)
+                        <ThreadRepliesDisplay
+                            data={(tcQueryData
+                                ? tcQueryData.pages
+                                      .flat()
+                                      .flatMap((element) => element.retData)
+                                : []
+                            )
                                 .concat(userReplies)
                                 .filter(
                                     (element) =>
                                         !excludedIDs.includes(element.id)
                                 )}
-                            deleteReply={(id) => {
-                                deleteCommentMutation.mutate({
-                                    id: id,
-                                });
-                            }}
                         />
                     </div>
                 )}

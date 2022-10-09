@@ -8,16 +8,16 @@ import styles from "../../../../styles/CommentCard.module.css";
 // import ReportInterface from '../common/ReportInterface';
 import ExtendedMenu from "./ExtendedMenu";
 import { LikeIcon, DislikeIcon } from "./CommentReactionButtons";
-import { ReplyTextField } from "./ReplyAccessroies";
 
 import ReportModal from "../../../Report/ReportModal";
 
 import { Comment, Stances } from "../../../../schema/comments.schema";
+import { NewReplyInput } from "../CommentInput";
 
 interface CommentCardProps {
     data: Comment;
     motherComment?: number;
-    addReply?: (content: string, stance: Stances) => void;
+    addReply: (content: string, stance: Stances) => void;
     deleteFunction: (commentId: number, motherComment?: number) => void;
 }
 
@@ -202,7 +202,7 @@ const CommentCard = forwardRef<HTMLDivElement, CommentCardProps>(
                     </div>
                 </div>
                 {showReplyBox && (
-                    <ReplyTextField
+                    <NewReplyInput
                         addReply={addReply}
                         setShowReplyBox={setShowReplyBox}
                     />

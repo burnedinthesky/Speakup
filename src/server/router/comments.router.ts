@@ -19,6 +19,11 @@ export const commentsRouter = createRouter()
                             id: SampleUser.id,
                         },
                     },
+                    inThread: {
+                        connect: {
+                            id: input.threadId,
+                        },
+                    },
                     stance: input.stance,
                 },
                 select: {

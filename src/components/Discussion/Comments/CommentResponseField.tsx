@@ -1,5 +1,3 @@
-import React from "react";
-import { ReplyIcon } from "@heroicons/react/outline";
 import CommentCard from "./CommentCard/CommentCard";
 import { Comment } from "../../../schema/comments.schema";
 
@@ -22,7 +20,6 @@ const CommentResponseField = ({
                     <CommentCard
                         key={`${commentId}${i}`}
                         data={cmt}
-                        motherComment={commentId}
                         deleteFunction={deleteReply}
                     />
                 );
