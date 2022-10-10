@@ -1,20 +1,19 @@
 import { useState, useEffect, forwardRef } from "react";
-
-import { Comment, Stances, ThreadData } from "../../../schema/comments.schema";
-
-import CommentCard from "./CommentCard/CommentCard";
-import CommentResponseField from "./CommentResponseField";
-import { ShowRepliesButton } from "./CommentCard/ReplyAccessroies";
 import { trpc } from "../../../utils/trpc";
 import { showNotification } from "@mantine/notifications";
-import ThreadRepliesDisplay from "./ThreadRepliesDisplay";
 
-export interface CommandGroupProps {
-    data: ThreadData;
+import ArgumentCard from "./OpDisplays/ArgumentCard";
+import { ShowRepliesButton } from "./OpDisplays/ReplyAccessroies";
+import ArgumentComments from "./ArgumentComments";
+
+import { Argument, Comment } from "../../../schema/comments.schema";
+
+export interface ArgumentDisplay {
+    data: Argument;
     deleteComment: (commentId: number, motherComment?: number) => void;
 }
 
-const ThreadDisplay = forwardRef<HTMLDivElement, CommandGroupProps>(
+const ArgumentDisplay = forwardRef<HTMLDivElement, ArgumentDisplay>(
     ({ data, deleteComment }, ref) => {
         const [userReplies, setUserReplies] = useState<Comment[]>([]);
         const [excludedIDs, setExcludedIDs] = useState<number[]>([]);
@@ -29,10 +28,12 @@ const ThreadDisplay = forwardRef<HTMLDivElement, CommandGroupProps>(
             isFetched,
         } = trpc.useInfiniteQuery(
             [
-                "threads.getThreadComments",
+                "comments.getArgumentComments",
                 {
-                    threadId: data.id,
+                    argumentId: data.id,
                     limit: 20,
+                    sort: "",
+                    stance: "both",
                 },
             ],
             {
@@ -40,11 +41,6 @@ const ThreadDisplay = forwardRef<HTMLDivElement, CommandGroupProps>(
                 enabled: false,
             }
         );
-
-        let tmp =
-            data.leadComment.threadReplies !== undefined &&
-            data.leadComment.threadReplies > 0;
-        // console.log(data.leadComment);
 
         useEffect(() => {
             if (tcQueryData) {
@@ -60,9 +56,8 @@ const ThreadDisplay = forwardRef<HTMLDivElement, CommandGroupProps>(
             }
         }, [tcQueryData]);
 
-        const addReplyMutation = trpc.useMutation("comments.createComment", {
+        const addCommentMutation = trpc.useMutation("comments.createComment", {
             onSuccess: (data) => {
-                console.log(data);
                 setUserReplies((userReplies) => userReplies.concat([data]));
             },
             onError: (error) => {
@@ -74,37 +69,23 @@ const ThreadDisplay = forwardRef<HTMLDivElement, CommandGroupProps>(
             },
         });
 
-        const deleteCommentMutation = trpc.useMutation(
-            "comments.deleteComment",
-            {
-                onSuccess: (data, variables) => {
-                    setExcludedIDs(excludedIDs.concat([variables.id]));
-                },
-                onError: () => {
-                    showNotification({
-                        title: "發生未知錯誤",
-                        message: "留言刪除失敗，請再試一次",
-                    });
-                },
-            }
-        );
-
         return (
             <div className="w-full" ref={ref}>
-                <CommentCard
-                    data={data.leadComment}
+                <ArgumentCard
+                    data={data}
                     addReply={(content, stance) => {
-                        addReplyMutation.mutate({
+                        addCommentMutation.mutate({
                             content: content,
                             stance: stance,
-                            threadId: data.id,
+                            argument: data.id,
+                            thread: null,
                         });
                     }}
                     deleteFunction={deleteComment}
                 />
                 {(tcQueryData || userReplies.length > 0) && (
                     <div className="mt-2">
-                        <ThreadRepliesDisplay
+                        <ArgumentComments
                             data={(tcQueryData
                                 ? tcQueryData.pages
                                       .flat()
@@ -119,23 +100,21 @@ const ThreadDisplay = forwardRef<HTMLDivElement, CommandGroupProps>(
                         />
                     </div>
                 )}
-                {data.leadComment.threadReplies !== undefined &&
-                    data.leadComment.threadReplies > 0 &&
-                    (isFetched ? hasNextPage : true) && (
-                        <div className="pl-10">
-                            <ShowRepliesButton
-                                fetchReplies={() => {
-                                    fetchNextPage();
-                                }}
-                                isLoading={isLoading}
-                            />
-                        </div>
-                    )}
+                {data.hasComments && (isFetched ? hasNextPage : true) && (
+                    <div className="pl-10">
+                        <ShowRepliesButton
+                            fetchReplies={() => {
+                                fetchNextPage();
+                            }}
+                            isLoading={isLoading}
+                        />
+                    </div>
+                )}
             </div>
         );
     }
 );
 
-ThreadDisplay.displayName = "ThreadDisplay";
+ArgumentDisplay.displayName = "ArgumentDisplay";
 
-export default ThreadDisplay;
+export default ArgumentDisplay;

@@ -82,7 +82,7 @@ const DiscussionBoard = ({ article }: DiscussionProps) => {
                         </div>
                         <CommentField
                             key={viewingStance + sortMethod}
-                            threadGroupId={article.threadGroupId}
+                            articleId={article.id}
                             onSide={viewingStance as "sup" | "agn" | "both"}
                             sortMethod={sortMethod}
                         />
@@ -103,11 +103,11 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
             id: boardId,
         },
         select: {
+            id: true,
             title: true,
             tags: true,
             content: true,
             references: true,
-            threadGroupId: true,
             viewCount: true,
             author: {
                 select: {

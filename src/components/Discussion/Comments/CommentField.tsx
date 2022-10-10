@@ -1,27 +1,25 @@
 import { useState, useEffect, Fragment } from "react";
 import { useInView } from "react-intersection-observer";
-
-import ThreadDisplay from "./ThreadDisplay";
-import { NoCommentsDisplay, LoadingSkeleton } from "./CommentAccessories";
-import { Stances, ThreadData } from "../../../schema/comments.schema";
-import { trpc } from "../../../utils/trpc";
 import { showNotification } from "@mantine/notifications";
+import { trpc } from "../../../utils/trpc";
+
 import { XIcon } from "@heroicons/react/outline";
+
+import ArgumentDisplay from "./ArgumentDisplay";
 import { NewThreadInput } from "./CommentInput";
+import { NoCommentsDisplay, LoadingSkeleton } from "./CommentAccessories";
+
+import { Argument, Stances } from "../../../schema/comments.schema";
 
 interface CommentFieldProps {
-    threadGroupId: number;
+    articleId: string;
     onSide: "sup" | "agn" | "both";
     sortMethod: "default" | "time" | "replies";
 }
 
-const CommentField = ({
-    threadGroupId,
-    onSide,
-    sortMethod,
-}: CommentFieldProps) => {
-    const [userComments, setUserComments] = useState<ThreadData[]>([]);
-    const [excludedThreads, setExcludedThreads] = useState<number[]>([]);
+const CommentField = ({ articleId, onSide, sortMethod }: CommentFieldProps) => {
+    const [userArguments, setUserArguments] = useState<Argument[]>([]);
+    const [excludedArguments, setExcludedArguments] = useState<number[]>([]);
     const { ref: lastCardRef, inView: lastCardInView, entry } = useInView();
 
     const {
@@ -34,9 +32,9 @@ const CommentField = ({
         refetch,
     } = trpc.useInfiniteQuery(
         [
-            "threadgroups.wFirstComment",
+            "arguments.getArticleArguments",
             {
-                TGID: threadGroupId,
+                articleId: articleId,
                 stance: onSide,
                 sort: "",
                 limit: 20,
@@ -55,9 +53,9 @@ const CommentField = ({
         }
     }, [lastCardInView]);
 
-    const addThreadMutation = trpc.useMutation("threads.createThread", {
+    const addArgumentMutation = trpc.useMutation("arguments.createArgument", {
         onSuccess: (data) => {
-            setUserComments(userComments.concat(data));
+            setUserArguments(userArguments.concat(data));
         },
         onError: (error, variables) => {
             console.log(error);
@@ -70,17 +68,29 @@ const CommentField = ({
         },
     });
 
-    const deleteCommentMutation = trpc.useMutation("comments.deleteComment", {
-        onSuccess: (data, variables) => {
-            setExcludedThreads(excludedThreads.concat([variables.id]));
-        },
-        onError: () => {
-            showNotification({
-                title: "發生未知錯誤",
-                message: "留言刪除失敗，請再試一次",
-            });
-        },
-    });
+    const deleteArgumentMutation = trpc.useMutation(
+        "arguments.deleteArgument",
+        {
+            onSuccess: (data, variables) => {
+                setExcludedArguments(excludedArguments.concat([variables.id]));
+            },
+            onError: () => {
+                showNotification({
+                    title: "發生未知錯誤",
+                    message: "留言刪除失敗，請再試一次",
+                });
+            },
+        }
+    );
+
+    const hasComments =
+        userArguments.length === 0 &&
+        (data
+            ? data.pages[0]?.retData.filter(
+                  (element) => !excludedArguments.includes(element.id)
+              ).length === 0
+            : true) &&
+        !(isLoading || isFetching);
 
     if (error)
         return (
@@ -101,37 +111,35 @@ const CommentField = ({
                     <>
                         <NewThreadInput
                             addComment={(content: string, stance: Stances) => {
-                                addThreadMutation.mutate({
-                                    threadGroupId: threadGroupId,
+                                addArgumentMutation.mutate({
+                                    articleId: articleId,
                                     content: content,
                                     stance: stance,
                                 });
                             }}
                         />
                         <div className="flex w-full flex-col gap-3 pt-4">
-                            {userComments
+                            {userArguments
                                 .concat(
                                     data.pages
                                         .flat()
                                         .flatMap(
                                             (element) =>
-                                                element.retData as ThreadData[]
+                                                element.retData as Argument[]
                                         )
                                 )
                                 .map((data, i, arr) => {
-                                    if (excludedThreads.includes(data.id))
+                                    if (excludedArguments.includes(data.id))
                                         return;
                                     return (
                                         <Fragment key={i}>
-                                            <ThreadDisplay
-                                                threadGroupId={threadGroupId}
+                                            <ArgumentDisplay
                                                 data={data}
                                                 deleteComment={() => {
                                                     refetch();
-                                                    deleteCommentMutation.mutate(
+                                                    deleteArgumentMutation.mutate(
                                                         {
-                                                            id: data.leadComment
-                                                                .id,
+                                                            id: data.id,
                                                         }
                                                     );
                                                 }}
@@ -150,9 +158,7 @@ const CommentField = ({
                         </div>
                     </>
                 )}
-                {userComments.length === 0 &&
-                    data?.pages.length === 0 &&
-                    !(isLoading || isFetching) && <NoCommentsDisplay />}
+                {hasComments && <NoCommentsDisplay />}
                 {(isLoading || isFetching) &&
                     !lastCardInView &&
                     data?.pages.length == undefined && <LoadingSkeleton />}

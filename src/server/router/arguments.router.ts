@@ -1,36 +1,27 @@
 import { createRouter } from "../createRouter";
-import { Comment, Stances } from "../../schema/comments.schema";
+import { Argument, Stances } from "../../schema/comments.schema";
 import { SampleUser } from "../../templateData/users";
-import * as trpc from "@trpc/server";
 import { z } from "zod";
 
-export const commentsRouter = createRouter()
-    .mutation("createComment", {
+export const argumentsRouter = createRouter()
+    .mutation("createArgument", {
         input: z.object({
+            articleId: z.string(),
             content: z.string(),
-            stance: z.enum(["sup", "agn", "neu"]),
-            argument: z.number(),
-            thread: z.number().nullable(),
+            stance: z.string().length(3),
         }),
         async resolve({ input, ctx }) {
-            const comment = await ctx.prisma.comments.create({
+            const argument = await ctx.prisma.argument.create({
                 data: {
-                    inArgument: {
-                        connect: {
-                            id: input.argument,
-                        },
-                    },
-                    inThread: input.thread
-                        ? {
-                              connect: {
-                                  id: input.thread,
-                              },
-                          }
-                        : undefined,
                     content: input.content,
                     author: {
                         connect: {
                             id: SampleUser.id,
+                        },
+                    },
+                    article: {
+                        connect: {
+                            id: input.articleId,
                         },
                     },
                     stance: input.stance,
@@ -51,13 +42,7 @@ export const commentsRouter = createRouter()
                             likedUsers: true,
                             supportedUsers: true,
                             dislikedUsers: true,
-                        },
-                    },
-                    inThread: {
-                        select: {
-                            id: true,
-                            name: true,
-                            argumentId: true,
+                            comments: true,
                         },
                     },
                     likedUsers: {
@@ -75,28 +60,36 @@ export const commentsRouter = createRouter()
                             id: SampleUser.id,
                         },
                     },
+                    argumentThreads: {
+                        select: {
+                            id: true,
+                            name: true,
+                            argumentId: true,
+                        },
+                    },
                 },
             });
 
             return {
-                id: comment.id,
-                author: comment.author,
-                isAuthor: true,
-                content: comment.content,
-                stance: comment.stance as Stances,
-                thread: comment.inThread,
-                likes: comment._count.likedUsers,
-                userLiked: comment.likedUsers.length == 1,
-                support: comment._count.supportedUsers,
-                userSupported: comment.supportedUsers.length == 1,
-                dislikes: comment._count.dislikedUsers,
-                userDisliked: comment.dislikedUsers.length == 1,
-            } as Comment;
+                id: argument.id,
+                author: argument.author,
+                isAuthor: argument.author.id === SampleUser.id,
+                content: argument.content,
+                stance: argument.stance as Stances,
+                likes: argument._count.likedUsers,
+                userLiked: argument.likedUsers.length == 1,
+                support: argument._count.supportedUsers,
+                userSupported: argument.supportedUsers.length == 1,
+                dislikes: argument._count.dislikedUsers,
+                userDisliked: argument.dislikedUsers.length == 1,
+                hasComments: argument._count.comments > 0,
+                threads: argument.argumentThreads,
+            } as Argument;
         },
     })
-    .query("getArgumentComments", {
+    .query("getArticleArguments", {
         input: z.object({
-            argumentId: z.number(),
+            articleId: z.string(),
             stance: z.enum(["sup", "agn", "both"]),
             sort: z.string(),
             limit: z.number().min(1).max(100),
@@ -110,9 +103,9 @@ export const commentsRouter = createRouter()
                 allowedStance.push("agn");
             if (input.stance == "both") allowedStance.push("neu");
 
-            const data = await ctx.prisma.comments.findMany({
+            const data = await ctx.prisma.argument.findMany({
                 where: {
-                    inArgumentId: input.argumentId,
+                    articleId: input.articleId,
                     stance: {
                         in: allowedStance,
                     },
@@ -128,18 +121,12 @@ export const commentsRouter = createRouter()
                         },
                     },
                     stance: true,
-                    inThread: {
-                        select: {
-                            id: true,
-                            name: true,
-                            argumentId: true,
-                        },
-                    },
                     _count: {
                         select: {
                             likedUsers: true,
                             supportedUsers: true,
                             dislikedUsers: true,
+                            comments: true,
                         },
                     },
                     likedUsers: {
@@ -157,17 +144,28 @@ export const commentsRouter = createRouter()
                             id: SampleUser.id,
                         },
                     },
+                    argumentThreads: {
+                        select: {
+                            id: true,
+                            name: true,
+                            argumentId: true,
+                        },
+                    },
+                    pagnationSequence: true,
                 },
+
                 orderBy: {
-                    id: "asc",
+                    pagnationSequence: "asc",
                 },
-                cursor: input.cursor ? { id: input.cursor } : undefined,
+                cursor: input.cursor
+                    ? { pagnationSequence: input.cursor }
+                    : undefined,
                 take: input.limit + 1,
             });
             let nextCursor: number | undefined = undefined;
             if (data.length == input.limit + 1) {
                 const lastItem = data.pop();
-                nextCursor = lastItem?.id;
+                nextCursor = lastItem?.pagnationSequence;
             }
 
             const retData = data.map(
@@ -178,14 +176,15 @@ export const commentsRouter = createRouter()
                         isAuthor: element.author.id === SampleUser.id,
                         content: element.content,
                         stance: element.stance as Stances,
-                        thread: element.inThread,
                         likes: element._count.likedUsers,
                         userLiked: element.likedUsers.length == 1,
                         support: element._count.supportedUsers,
                         userSupported: element.supportedUsers.length == 1,
                         dislikes: element._count.dislikedUsers,
                         userDisliked: element.dislikedUsers.length == 1,
-                    } as Comment)
+                        hasComments: element._count.comments > 0,
+                        threads: element.argumentThreads,
+                    } as Argument)
             );
             return {
                 retData,
@@ -193,92 +192,13 @@ export const commentsRouter = createRouter()
             };
         },
     })
-    .query("getThreadComments", {
-        input: z.object({
-            argumentId: z.number(),
-            threadId: z.number(),
-        }),
-        async resolve({ input, ctx }) {
-            const data = await ctx.prisma.comments.findMany({
-                where: {
-                    inArgumentId: input.argumentId,
-                    inThread: {
-                        id: input.threadId,
-                    },
-                },
-                select: {
-                    id: true,
-                    content: true,
-                    author: {
-                        select: {
-                            id: true,
-                            username: true,
-                            profileImg: true,
-                        },
-                    },
-                    stance: true,
-                    inThread: {
-                        select: {
-                            id: true,
-                            name: true,
-                            argumentId: true,
-                        },
-                    },
-                    _count: {
-                        select: {
-                            likedUsers: true,
-                            supportedUsers: true,
-                            dislikedUsers: true,
-                        },
-                    },
-                    likedUsers: {
-                        where: {
-                            id: SampleUser.id,
-                        },
-                    },
-                    supportedUsers: {
-                        where: {
-                            id: SampleUser.id,
-                        },
-                    },
-                    dislikedUsers: {
-                        where: {
-                            id: SampleUser.id,
-                        },
-                    },
-                },
-                orderBy: {
-                    id: "asc",
-                },
-            });
-
-            const retData = data.map(
-                (element) =>
-                    ({
-                        id: element.id,
-                        author: element.author,
-                        isAuthor: element.author.id === SampleUser.id,
-                        content: element.content,
-                        stance: element.stance as Stances,
-                        thread: element.inThread,
-                        likes: element._count.likedUsers,
-                        userLiked: element.likedUsers.length == 1,
-                        support: element._count.supportedUsers,
-                        userSupported: element.supportedUsers.length == 1,
-                        dislikes: element._count.dislikedUsers,
-                        userDisliked: element.dislikedUsers.length == 1,
-                    } as Comment)
-            );
-            return retData;
-        },
-    })
-    .mutation("updateCommentsInteraction", {
+    .mutation("updateArgumentInteraction", {
         input: z.object({
             id: z.number(),
             status: z.enum(["liked", "supported", "disliked"]).nullable(),
         }),
         async resolve({ input, ctx }) {
-            const originalComment = await ctx.prisma.comments.findUniqueOrThrow(
+            const originalComment = await ctx.prisma.argument.findUniqueOrThrow(
                 {
                     where: {
                         id: input.id,
@@ -337,7 +257,7 @@ export const commentsRouter = createRouter()
                 id: SampleUser.id,
             };
 
-            await ctx.prisma.comments.update({
+            await ctx.prisma.argument.update({
                 where: {
                     id: input.id,
                 },
@@ -372,16 +292,17 @@ export const commentsRouter = createRouter()
             return;
         },
     })
-    .mutation("deleteComment", {
+    .mutation("deleteArgument", {
         input: z.object({
             id: z.number(),
         }),
         async resolve({ input, ctx }) {
-            await ctx.prisma.comments.delete({
+            await ctx.prisma.argument.delete({
                 where: {
                     id: input.id,
                 },
             });
+
             return;
         },
     });

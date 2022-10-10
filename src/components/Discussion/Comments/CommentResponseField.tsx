@@ -1,4 +1,4 @@
-import CommentCard from "./CommentCard/CommentCard";
+import CommentCard from "./OpDisplays/CommentCard";
 import { Comment } from "../../../schema/comments.schema";
 
 interface CommentResponseFieldProps {
