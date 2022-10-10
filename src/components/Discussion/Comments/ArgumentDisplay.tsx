@@ -17,15 +17,16 @@ const ArgumentDisplay = forwardRef<HTMLDivElement, ArgumentDisplay>(
     ({ data, deleteComment }, ref) => {
         const [userReplies, setUserReplies] = useState<Comment[]>([]);
         const [excludedIDs, setExcludedIDs] = useState<number[]>([]);
+        const [selectedThread, setSelectedThread] = useState<number | null>(
+            null
+        );
 
         const {
-            data: tcQueryData,
-            error,
-            isLoading,
-            fetchNextPage,
-            hasNextPage,
-            refetch,
-            isFetched,
+            data: acqData,
+            isLoading: acqIsLoading,
+            isFetched: acqIsFetched,
+            fetchNextPage: acqFetchNextPage,
+            hasNextPage: acqHasNextPage,
         } = trpc.useInfiniteQuery(
             [
                 "comments.getArgumentComments",
@@ -42,9 +43,22 @@ const ArgumentDisplay = forwardRef<HTMLDivElement, ArgumentDisplay>(
             }
         );
 
+        const { data: thqData, refetch: thqRefetch } = trpc.useQuery(
+            [
+                "comments.getThreadComments",
+                {
+                    argumentId: data.id,
+                    threadId: selectedThread,
+                },
+            ],
+            {
+                enabled: false,
+            }
+        );
+
         useEffect(() => {
-            if (tcQueryData) {
-                let filteredIds = tcQueryData.pages
+            if (acqData) {
+                let filteredIds = acqData.pages
                     .flat()
                     .flatMap((element) => element.retData)
                     .map((item) => item.id);
@@ -54,7 +68,11 @@ const ArgumentDisplay = forwardRef<HTMLDivElement, ArgumentDisplay>(
                     )
                 );
             }
-        }, [tcQueryData]);
+        }, [acqData]);
+
+        useEffect(() => {
+            thqRefetch();
+        }, [selectedThread]);
 
         const addCommentMutation = trpc.useMutation("comments.createComment", {
             onSuccess: (data) => {
@@ -69,6 +87,14 @@ const ArgumentDisplay = forwardRef<HTMLDivElement, ArgumentDisplay>(
             },
         });
 
+        const acqDataFormatted = (
+            acqData
+                ? acqData.pages.flat().flatMap((element) => element.retData)
+                : []
+        ).filter((element) => !excludedIDs.includes(element.id));
+
+        const dataSource = selectedThread === null ? acqDataFormatted : thqData;
+
         return (
             <div className="w-full" ref={ref}>
                 <ArgumentCard
@@ -81,32 +107,28 @@ const ArgumentDisplay = forwardRef<HTMLDivElement, ArgumentDisplay>(
                             thread: null,
                         });
                     }}
+                    selectedThread={selectedThread}
+                    setSelectedThread={(value) => {
+                        setSelectedThread(value);
+                    }}
                     deleteFunction={deleteComment}
                 />
-                {(tcQueryData || userReplies.length > 0) && (
+                {(dataSource || userReplies.length > 0) && (
                     <div className="mt-2">
                         <ArgumentComments
-                            data={(tcQueryData
-                                ? tcQueryData.pages
-                                      .flat()
-                                      .flatMap((element) => element.retData)
-                                : []
-                            )
-                                .concat(userReplies)
-                                .filter(
-                                    (element) =>
-                                        !excludedIDs.includes(element.id)
-                                )}
+                            data={userReplies.concat(
+                                dataSource ? dataSource : []
+                            )}
                         />
                     </div>
                 )}
-                {data.hasComments && (isFetched ? hasNextPage : true) && (
+                {data.hasComments && (acqIsFetched ? acqHasNextPage : true) && (
                     <div className="pl-10">
                         <ShowRepliesButton
                             fetchReplies={() => {
-                                fetchNextPage();
+                                acqFetchNextPage();
                             }}
-                            isLoading={isLoading}
+                            isLoading={acqIsLoading}
                         />
                     </div>
                 )}

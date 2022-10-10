@@ -7,18 +7,28 @@ import { CommentReactionButtons } from "../OpCardComponents/CommentReactionButto
 import CommentInput from "../Inputs/CommentInput";
 import ExtendedMenu from "../OpCardComponents/ExtendedMenu";
 
+import ThreadsMenu from "../OpCardComponents/ThreadsMenu";
 import ReportModal from "../../../Report/ReportModal";
 
 import { Argument, Stances } from "../../../../schema/comments.schema";
-
 interface ArgumentCardProps {
     data: Argument;
+    selectedThread: number | null;
+    setSelectedThread: (id: number | null) => void;
     addReply: (content: string, stance: Stances) => void;
     deleteFunction: (commentId: number, motherComment?: number) => void;
 }
 
 const ArgumentCard = forwardRef<HTMLDivElement, ArgumentCardProps>(
-    ({ data, addReply, deleteFunction }, ref) => {
+    (
+        { data, selectedThread, setSelectedThread, addReply, deleteFunction },
+        ref
+    ) => {
+        const [showReportMenu, setShowReportMenu] = useState<boolean>(false);
+        const [reportModalKey, setReportModalKey] = useState<number>(0);
+        const [enableAnim, setEnableAnim] = useState<boolean>(false);
+        const [showReplyBox, setShowReplyBox] = useState<boolean>(false);
+
         const [interaction, setInteraction] = useState<
             "liked" | "supported" | "disliked" | null
         >(
@@ -30,27 +40,6 @@ const ArgumentCard = forwardRef<HTMLDivElement, ArgumentCardProps>(
                 ? "disliked"
                 : null
         );
-
-        const [showReportMenu, setShowReportMenu] = useState<boolean>(false);
-        const [reportModalKey, setReportModalKey] = useState<number>(0);
-        const [enableAnim, setEnableAnim] = useState<boolean>(false);
-
-        const [showReplyBox, setShowReplyBox] = useState<boolean>(false);
-
-        const firstRender = useRef(true);
-
-        useEffect(() => {
-            // if (!firstRender.current)
-            // reactionsMutation.mutate({
-            //     supported: supported,
-            //     liked: liked,
-            //     disliked: disliked,
-            // });
-        }, [interaction]);
-
-        useEffect(() => {
-            firstRender.current = false;
-        }, []);
 
         return (
             <>
@@ -97,6 +86,22 @@ const ArgumentCard = forwardRef<HTMLDivElement, ArgumentCardProps>(
                                         <ReplyIcon className="inline h-6 w-6" />
                                     )}
                                 </button>
+
+                                <div className="block text-neutral-500">
+                                    <ThreadsMenu
+                                        threads={data.threads}
+                                        selectedThread={selectedThread}
+                                        setSelectedThread={(
+                                            id: number | null
+                                        ) => {
+                                            setSelectedThread(
+                                                id === selectedThread
+                                                    ? null
+                                                    : id
+                                            );
+                                        }}
+                                    />
+                                </div>
                             </div>
 
                             <div>
@@ -106,8 +111,8 @@ const ArgumentCard = forwardRef<HTMLDivElement, ArgumentCardProps>(
                                     setShowReportMenu={setShowReportMenu}
                                     deleteFunction={deleteFunction}
                                     allowReply={true}
-                                    setShowReplyBox={setShowReplyBox}
                                     showReplyBox={showReplyBox}
+                                    setShowReplyBox={setShowReplyBox}
                                 />
                             </div>
                         </div>

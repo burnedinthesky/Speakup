@@ -59,23 +59,26 @@ const ExtendedMenu = ({
                         刪除
                     </Menu.Item>
                 )}
-                {allowReply && showReplyBox && setShowReplyBox && (
-                    <Menu.Item
-                        onClick={() => {
-                            setShowReplyBox(!showReplyBox);
-                        }}
-                        className="text-primary-800 lg:hidden"
-                        icon={
-                            showReplyBox ? (
-                                <XIcon className="inline h-6 w-6 text-primary-800" />
-                            ) : (
-                                <ReplyIcon className="inline h-6 w-6 text-primary-800" />
-                            )
-                        }
-                    >
-                        {showReplyBox ? "取消" : "回覆"}
-                    </Menu.Item>
-                )}
+
+                {allowReply &&
+                    showReplyBox !== undefined &&
+                    setShowReplyBox !== undefined && (
+                        <Menu.Item
+                            onClick={() => {
+                                setShowReplyBox(!showReplyBox);
+                            }}
+                            className="text-primary-800 lg:hidden"
+                            icon={
+                                showReplyBox ? (
+                                    <XIcon className="inline h-6 w-6 text-primary-800" />
+                                ) : (
+                                    <ReplyIcon className="inline h-6 w-6 text-primary-800" />
+                                )
+                            }
+                        >
+                            {showReplyBox ? "取消" : "回覆"}
+                        </Menu.Item>
+                    )}
             </Menu.Dropdown>
         </Menu>
     );

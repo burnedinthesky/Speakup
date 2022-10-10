@@ -137,7 +137,7 @@ export function CommentReactionButtons({
     };
 
     return (
-        <div className="flex h-6 w-40 flex-shrink-0 items-center gap-3">
+        <div className="flex h-6 flex-shrink-0 items-center gap-3">
             <div className="flex items-center">
                 <button
                     onClick={() => {

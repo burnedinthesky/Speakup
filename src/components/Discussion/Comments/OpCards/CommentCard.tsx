@@ -1,10 +1,12 @@
-import { useState, useEffect, useRef, forwardRef } from "react";
+import { useState, forwardRef } from "react";
 
 import { CommentReactionButtons } from "../OpCardComponents/CommentReactionButtons";
 import ExtendedMenu from "../OpCardComponents/ExtendedMenu";
 import ReportModal from "../../../Report/ReportModal";
 
-import { Comment, Stances } from "../../../../schema/comments.schema";
+import { Comment } from "../../../../schema/comments.schema";
+import { Badge } from "@mantine/core";
+import { ChatAlt2Icon } from "@heroicons/react/outline";
 
 interface CommentCardProps {
     data: Comment;
@@ -29,31 +31,6 @@ const CommentCard = forwardRef<HTMLDivElement, CommentCardProps>(
         const [reportModalKey, setReportModalKey] = useState<number>(0);
         const [enableAnim, setEnableAnim] = useState<boolean>(false);
 
-        const firstRender = useRef(true);
-
-        // const reactionsMutation = useMutation((updatedStats) =>
-        //     updateCommentReactions({
-        //         auth: `Token ${session.authToken}`,
-        //         boardId: boardData.boardId,
-        //         motherComment,
-        //         commentId: data.id,
-        //         updatedStats,
-        //     })
-        // );
-
-        useEffect(() => {
-            // if (!firstRender.current)
-            // reactionsMutation.mutate({
-            //     supported: supported,
-            //     liked: liked,
-            //     disliked: disliked,
-            // });
-        }, [interaction]);
-
-        useEffect(() => {
-            firstRender.current = false;
-        }, []);
-
         return (
             <>
                 <div className="flex w-full gap-3" ref={ref}>
@@ -69,9 +46,22 @@ const CommentCard = forwardRef<HTMLDivElement, CommentCardProps>(
                         alt="Profile"
                     />
                     <div className="flex-grow">
-                        <h3 className="text-base text-primary-800">
-                            {data.author.username}
-                        </h3>
+                        <div className="flex items-center gap-2">
+                            <h3 className="text-base text-primary-800">
+                                {data.author.username}
+                            </h3>
+                            <div className="h-[18px] w-24 md:w-36">
+                                {data.thread && (
+                                    <Badge
+                                        leftSection={
+                                            <ChatAlt2Icon className="h-4 w-4" />
+                                        }
+                                    >
+                                        {data.thread.name}
+                                    </Badge>
+                                )}
+                            </div>
+                        </div>
                         <p className="mt-2 mb-3 text-base text-neutral-700">
                             {data.content}
                         </p>

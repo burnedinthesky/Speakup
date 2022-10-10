@@ -196,9 +196,11 @@ export const commentsRouter = createRouter()
     .query("getThreadComments", {
         input: z.object({
             argumentId: z.number(),
-            threadId: z.number(),
+            threadId: z.number().nullable(),
         }),
         async resolve({ input, ctx }) {
+            if (input.threadId == null) return;
+
             const data = await ctx.prisma.comments.findMany({
                 where: {
                     inArgumentId: input.argumentId,
