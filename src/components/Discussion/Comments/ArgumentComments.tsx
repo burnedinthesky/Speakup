@@ -2,7 +2,7 @@ import { useState } from "react";
 import { trpc } from "../../../utils/trpc";
 import { showNotification } from "@mantine/notifications";
 
-import CommentCard from "./OpDisplays/CommentCard";
+import CommentCard from "./OpCards/CommentCard";
 
 import { Comment } from "../../../schema/comments.schema";
 

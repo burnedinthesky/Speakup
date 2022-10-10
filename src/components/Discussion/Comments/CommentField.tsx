@@ -6,8 +6,9 @@ import { trpc } from "../../../utils/trpc";
 import { XIcon } from "@heroicons/react/outline";
 
 import ArgumentDisplay from "./ArgumentDisplay";
-import { NewThreadInput } from "./CommentInput";
-import { NoCommentsDisplay, LoadingSkeleton } from "./CommentAccessories";
+import ArgumentInput from "./Inputs/ArgumentInput";
+import NoCommentsDisplay from "./DisplayAccessories/NoCommentsDisplay";
+import LoadingSkeleton from "./DisplayAccessories/LoadingSkeleton";
 
 import { Argument, Stances } from "../../../schema/comments.schema";
 
@@ -109,7 +110,7 @@ const CommentField = ({ articleId, onSide, sortMethod }: CommentFieldProps) => {
             <div className="mx-auto mb-4 flex flex-col px-5 pb-6 sm:px-9 lg:py-3 ">
                 {data && (
                     <>
-                        <NewThreadInput
+                        <ArgumentInput
                             addComment={(content: string, stance: Stances) => {
                                 addArgumentMutation.mutate({
                                     articleId: articleId,

@@ -2,8 +2,8 @@ import { useState, useEffect, forwardRef } from "react";
 import { trpc } from "../../../utils/trpc";
 import { showNotification } from "@mantine/notifications";
 
-import ArgumentCard from "./OpDisplays/ArgumentCard";
-import { ShowRepliesButton } from "./OpDisplays/ReplyAccessroies";
+import ArgumentCard from "./OpCards/ArgumentCard";
+import { ShowRepliesButton } from "./OpDisplayComponents/ReplyAccessroies";
 import ArgumentComments from "./ArgumentComments";
 
 import { Argument, Comment } from "../../../schema/comments.schema";

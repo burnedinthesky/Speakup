@@ -1,18 +1,24 @@
 import { useState, useEffect, useRef, forwardRef } from "react";
 
-import { CommentReactionButtons } from "./CommentReactionButtons";
-import ExtendedMenu from "./ExtendedMenu";
+import { ReplyIcon } from "@heroicons/react/outline";
+import { XIcon } from "@heroicons/react/solid";
+
+import { CommentReactionButtons } from "../OpCardComponents/CommentReactionButtons";
+import CommentInput from "../Inputs/CommentInput";
+import ExtendedMenu from "../OpCardComponents/ExtendedMenu";
+
 import ReportModal from "../../../Report/ReportModal";
 
-import { Comment, Stances } from "../../../../schema/comments.schema";
+import { Argument, Stances } from "../../../../schema/comments.schema";
 
-interface CommentCardProps {
-    data: Comment;
+interface ArgumentCardProps {
+    data: Argument;
+    addReply: (content: string, stance: Stances) => void;
     deleteFunction: (commentId: number, motherComment?: number) => void;
 }
 
-const CommentCard = forwardRef<HTMLDivElement, CommentCardProps>(
-    ({ data, deleteFunction }, ref) => {
+const ArgumentCard = forwardRef<HTMLDivElement, ArgumentCardProps>(
+    ({ data, addReply, deleteFunction }, ref) => {
         const [interaction, setInteraction] = useState<
             "liked" | "supported" | "disliked" | null
         >(
@@ -29,17 +35,9 @@ const CommentCard = forwardRef<HTMLDivElement, CommentCardProps>(
         const [reportModalKey, setReportModalKey] = useState<number>(0);
         const [enableAnim, setEnableAnim] = useState<boolean>(false);
 
-        const firstRender = useRef(true);
+        const [showReplyBox, setShowReplyBox] = useState<boolean>(false);
 
-        // const reactionsMutation = useMutation((updatedStats) =>
-        //     updateCommentReactions({
-        //         auth: `Token ${session.authToken}`,
-        //         boardId: boardData.boardId,
-        //         motherComment,
-        //         commentId: data.id,
-        //         updatedStats,
-        //     })
-        // );
+        const firstRender = useRef(true);
 
         useEffect(() => {
             // if (!firstRender.current)
@@ -77,28 +75,50 @@ const CommentCard = forwardRef<HTMLDivElement, CommentCardProps>(
                         </p>
 
                         <div className="mb-2 flex items-center justify-between">
-                            <div className="flex h-6">
+                            <div className="flex h-6 items-center gap-3">
                                 <CommentReactionButtons
                                     data={data}
-                                    cardType="comment"
+                                    cardType="argument"
                                     enableAnim={enableAnim}
                                     setEnableAnim={setEnableAnim}
                                     interaction={interaction}
                                     setInteraction={setInteraction}
                                 />
+
+                                <button
+                                    className=" hidden -translate-y-[1px] text-neutral-500 2xl:block"
+                                    onClick={() => {
+                                        setShowReplyBox(!showReplyBox);
+                                    }}
+                                >
+                                    {showReplyBox ? (
+                                        <XIcon className="inline h-6 w-6" />
+                                    ) : (
+                                        <ReplyIcon className="inline h-6 w-6" />
+                                    )}
+                                </button>
                             </div>
+
                             <div>
                                 <ExtendedMenu
                                     dataId={data.id}
                                     isAuthor={data.isAuthor}
                                     setShowReportMenu={setShowReportMenu}
                                     deleteFunction={deleteFunction}
-                                    allowReply={false}
+                                    allowReply={true}
+                                    setShowReplyBox={setShowReplyBox}
+                                    showReplyBox={showReplyBox}
                                 />
                             </div>
                         </div>
                     </div>
                 </div>
+                {showReplyBox && (
+                    <CommentInput
+                        addReply={addReply}
+                        setShowReplyBox={setShowReplyBox}
+                    />
+                )}
 
                 <ReportModal
                     key={reportModalKey}
@@ -135,6 +155,6 @@ const CommentCard = forwardRef<HTMLDivElement, CommentCardProps>(
     }
 );
 
-CommentCard.displayName = "CommentCard";
+ArgumentCard.displayName = "ArgumentCard";
 
-export default CommentCard;
+export default ArgumentCard;

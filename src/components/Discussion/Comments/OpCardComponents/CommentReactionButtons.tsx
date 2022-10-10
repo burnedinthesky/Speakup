@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import { trpc } from "../../../../utils/trpc";
-import { conforms, debounce } from "lodash";
+import { debounce } from "lodash";
 
 import { ArrowCircleUpIcon } from "@heroicons/react/outline";
 
@@ -13,7 +13,7 @@ interface InteractionIconProps {
     enableAnim: boolean;
     styles: any;
 }
-export function LikeIcon({ status, enableAnim, styles }: InteractionIconProps) {
+function LikeIcon({ status, enableAnim, styles }: InteractionIconProps) {
     return (
         <svg
             className={`mr-1 inline h-7 w-7 p-[3.5px] text-neutral-500 ${
@@ -39,11 +39,7 @@ export function LikeIcon({ status, enableAnim, styles }: InteractionIconProps) {
         </svg>
     );
 }
-export function DislikeIcon({
-    status,
-    enableAnim,
-    styles,
-}: InteractionIconProps) {
+function DislikeIcon({ status, enableAnim, styles }: InteractionIconProps) {
     return (
         <svg
             className={`mr-1 inline h-7 w-7 p-[3.5px] text-neutral-500 ${

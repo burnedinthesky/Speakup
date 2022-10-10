@@ -1,17 +1,17 @@
 import { useState, useRef, useEffect } from "react";
 import { PaperAirplaneIcon, XIcon } from "@heroicons/react/outline";
-import { Stances } from "../../../schema/comments.schema";
+import { Stances } from "../../../../schema/comments.schema";
 import { showNotification } from "@mantine/notifications";
 
-interface CommentInputProps {
+interface BaseCommentInputProps {
     addComment: (cmtContent: string, cmtStance: Stances) => void;
     setCommentEnterStatus: (value: boolean) => void;
 }
 
-const CommentInput = ({
+const BaseCommentInput = ({
     addComment,
     setCommentEnterStatus,
-}: CommentInputProps) => {
+}: BaseCommentInputProps) => {
     const commentDiv = useRef<HTMLDivElement>(null);
     const [selectedStance, setSelectedStance] = useState<Stances | null>(null);
     const [expandWidth, setExpandWidth] = useState<boolean>(false);
@@ -183,54 +183,4 @@ const CommentInput = ({
     );
 };
 
-interface NewThreadInputProps {
-    addComment: (cmtContent: string, cmtSide: Stances) => void;
-}
-
-const NewThreadInput = ({ addComment }: NewThreadInputProps) => {
-    const [isCommenting, setIsCommenting] = useState<boolean>(false);
-
-    return (
-        <div className="mt-2 mb-4 flex w-full flex-col items-end justify-center">
-            {isCommenting ? (
-                <CommentInput
-                    addComment={addComment}
-                    setCommentEnterStatus={setIsCommenting}
-                />
-            ) : (
-                <button
-                    className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border border-primary-800 `}
-                    onClick={() => {
-                        setIsCommenting(true);
-                    }}
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-6 w-6 fill-primary-800 pl-[1px]"
-                    >
-                        <path d="M4 14a1 1 0 0 1 .3-.7l11-11a1 1 0 0 1 1.4 0l3 3a1 1 0 0 1 0 1.4l-11 11a1 1 0 0 1-.7.3H5a1 1 0 0 1-1-1v-3z" />
-                        <rect width="20" height="2" x="2" y="20" rx="1" />
-                    </svg>
-                </button>
-            )}
-        </div>
-    );
-};
-
-interface NewReplyInputProps {
-    addReply: (cmtContent: string, stance: Stances) => void;
-    setShowReplyBox: (value: boolean) => void;
-}
-
-const NewReplyInput = ({ addReply, setShowReplyBox }: NewReplyInputProps) => {
-    return (
-        <div className="ml-10 mb-2 flex w-11/12 items-center overflow-x-hidden pt-1">
-            <CommentInput
-                addComment={addReply}
-                setCommentEnterStatus={setShowReplyBox}
-            />
-        </div>
-    );
-};
-
-export { CommentInput, NewThreadInput, NewReplyInput };
+export default BaseCommentInput;
