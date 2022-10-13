@@ -1,17 +1,45 @@
+import { useState } from "react";
 import BaseCommentInput from "./BaseOpInput";
-import { Stances } from "../../../../schema/comments.schema";
+import { ArgumentThread, Stances } from "../../../../schema/comments.schema";
+import ThreadsMenu from "../OpCardComponents/ThreadsMenu";
 
 interface CommentInputProps {
-    addReply: (cmtContent: string, stance: Stances) => void;
+    threads: ArgumentThread[];
+    addComment: (
+        cmtContent: string,
+        stance: Stances,
+        thread: number | null
+    ) => void;
     setShowReplyBox: (value: boolean) => void;
+    addNewThread: (name: string) => void;
 }
 
-const CommentInput = ({ addReply, setShowReplyBox }: CommentInputProps) => {
+const CommentInput = ({
+    threads,
+    addComment,
+    setShowReplyBox,
+    addNewThread,
+}: CommentInputProps) => {
+    const [selectedThread, setSelectedThread] = useState<number | null>(null);
+
+    const submitComment = (cmtContent: string, cmtStance: Stances) => {
+        addComment(cmtContent, cmtStance, selectedThread);
+    };
+
     return (
-        <div className="ml-10 mb-2 flex w-11/12 items-center overflow-x-hidden pt-1">
+        <div className="ml-10 mb-2 flex w-11/12 items-center pt-1">
             <BaseCommentInput
-                addComment={addReply}
+                addComment={submitComment}
                 setCommentEnterStatus={setShowReplyBox}
+                shrinkAtStart={false}
+                additionalSelector={
+                    <ThreadsMenu
+                        threads={threads}
+                        selectedThread={selectedThread}
+                        setSelectedThread={setSelectedThread}
+                        addNewThread={addNewThread}
+                    />
+                }
             />
         </div>
     );

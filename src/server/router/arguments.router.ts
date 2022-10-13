@@ -292,6 +292,27 @@ export const argumentsRouter = createRouter()
             return;
         },
     })
+    .mutation("createNewThread", {
+        input: z.object({
+            argumentId: z.number(),
+            name: z.string().min(2).max(8),
+        }),
+        async resolve({ input, ctx }) {
+            const thread = await ctx.prisma.argumentThread.create({
+                data: {
+                    argumentId: input.argumentId,
+                    name: input.name,
+                },
+                select: {
+                    id: true,
+                    argumentId: true,
+                    name: true,
+                },
+            });
+
+            return thread;
+        },
+    })
     .mutation("deleteArgument", {
         input: z.object({
             id: z.number(),

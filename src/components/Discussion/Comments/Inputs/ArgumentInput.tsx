@@ -17,6 +17,7 @@ const ArgumentInput = ({ addComment }: ArgumentInputProps) => {
                 <BaseCommentInput
                     addComment={addComment}
                     setCommentEnterStatus={setIsCommenting}
+                    shrinkAtStart={true}
                 />
             ) : (
                 <button

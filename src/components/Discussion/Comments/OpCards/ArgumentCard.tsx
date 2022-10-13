@@ -1,33 +1,39 @@
-import { useState, useEffect, useRef, forwardRef } from "react";
+import { useState, forwardRef } from "react";
 
 import { ReplyIcon } from "@heroicons/react/outline";
 import { XIcon } from "@heroicons/react/solid";
 
 import { CommentReactionButtons } from "../OpCardComponents/CommentReactionButtons";
-import CommentInput from "../Inputs/CommentInput";
 import ExtendedMenu from "../OpCardComponents/ExtendedMenu";
 
 import ThreadsMenu from "../OpCardComponents/ThreadsMenu";
 import ReportModal from "../../../Report/ReportModal";
 
-import { Argument, Stances } from "../../../../schema/comments.schema";
+import { Argument } from "../../../../schema/comments.schema";
 interface ArgumentCardProps {
     data: Argument;
     selectedThread: number | null;
     setSelectedThread: (id: number | null) => void;
-    addReply: (content: string, stance: Stances) => void;
+    replyInputOpen: boolean;
+    setReplyInputOpen: (value: boolean) => void;
     deleteFunction: (commentId: number, motherComment?: number) => void;
 }
 
 const ArgumentCard = forwardRef<HTMLDivElement, ArgumentCardProps>(
     (
-        { data, selectedThread, setSelectedThread, addReply, deleteFunction },
+        {
+            data,
+            selectedThread,
+            setSelectedThread,
+            replyInputOpen,
+            setReplyInputOpen,
+            deleteFunction,
+        },
         ref
     ) => {
         const [showReportMenu, setShowReportMenu] = useState<boolean>(false);
         const [reportModalKey, setReportModalKey] = useState<number>(0);
         const [enableAnim, setEnableAnim] = useState<boolean>(false);
-        const [showReplyBox, setShowReplyBox] = useState<boolean>(false);
 
         const [interaction, setInteraction] = useState<
             "liked" | "supported" | "disliked" | null
@@ -77,17 +83,17 @@ const ArgumentCard = forwardRef<HTMLDivElement, ArgumentCardProps>(
                                 <button
                                     className=" hidden -translate-y-[1px] text-neutral-500 2xl:block"
                                     onClick={() => {
-                                        setShowReplyBox(!showReplyBox);
+                                        setReplyInputOpen(!replyInputOpen);
                                     }}
                                 >
-                                    {showReplyBox ? (
+                                    {replyInputOpen ? (
                                         <XIcon className="inline h-6 w-6" />
                                     ) : (
                                         <ReplyIcon className="inline h-6 w-6" />
                                     )}
                                 </button>
 
-                                <div className="block text-neutral-500">
+                                <div className="block translate-y-[1px] text-neutral-500">
                                     <ThreadsMenu
                                         threads={data.threads}
                                         selectedThread={selectedThread}
@@ -100,6 +106,7 @@ const ArgumentCard = forwardRef<HTMLDivElement, ArgumentCardProps>(
                                                     : id
                                             );
                                         }}
+                                        targetBtnColor="text-neutral-500"
                                     />
                                 </div>
                             </div>
@@ -111,19 +118,19 @@ const ArgumentCard = forwardRef<HTMLDivElement, ArgumentCardProps>(
                                     setShowReportMenu={setShowReportMenu}
                                     deleteFunction={deleteFunction}
                                     allowReply={true}
-                                    showReplyBox={showReplyBox}
-                                    setShowReplyBox={setShowReplyBox}
+                                    showReplyBox={replyInputOpen}
+                                    setShowReplyBox={setReplyInputOpen}
                                 />
                             </div>
                         </div>
                     </div>
                 </div>
-                {showReplyBox && (
+                {/* {showReplyBox && (
                     <CommentInput
                         addReply={addReply}
                         setShowReplyBox={setShowReplyBox}
                     />
-                )}
+                )} */}
 
                 <ReportModal
                     key={reportModalKey}

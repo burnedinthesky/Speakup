@@ -1,4 +1,4 @@
-import { ReplyIcon } from "@heroicons/react/outline";
+import { ChevronDownIcon } from "@heroicons/react/outline";
 
 interface ShowRepliesButtonProps {
     fetchReplies: () => void;
@@ -17,7 +17,7 @@ export function ShowRepliesButton({
             }}
             disabled={isLoading}
         >
-            <ReplyIcon className="inline h-5 w-5 rotate-180" />
+            <ChevronDownIcon className="inline h-5 w-5 " />
             <p className="inline text-sm">
                 {isLoading ? "載入中" : "檢視討論串"}
             </p>

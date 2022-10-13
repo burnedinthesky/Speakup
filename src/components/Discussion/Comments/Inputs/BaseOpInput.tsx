@@ -1,20 +1,24 @@
 import { useState, useRef, useEffect } from "react";
 import { PaperAirplaneIcon, XIcon } from "@heroicons/react/outline";
-import { Stances } from "../../../../schema/comments.schema";
+import { ArgumentThread, Stances } from "../../../../schema/comments.schema";
 import { showNotification } from "@mantine/notifications";
 
 interface BaseCommentInputProps {
     addComment: (cmtContent: string, cmtStance: Stances) => void;
     setCommentEnterStatus: (value: boolean) => void;
+    shrinkAtStart: boolean;
+    additionalSelector?: JSX.Element;
 }
 
 const BaseCommentInput = ({
     addComment,
     setCommentEnterStatus,
+    shrinkAtStart,
+    additionalSelector,
 }: BaseCommentInputProps) => {
     const commentDiv = useRef<HTMLDivElement>(null);
     const [selectedStance, setSelectedStance] = useState<Stances | null>(null);
-    const [expandWidth, setExpandWidth] = useState<boolean>(false);
+    const [expandWidth, setExpandWidth] = useState<boolean>(!shrinkAtStart);
     const [disableSubmit, setDisableSubmit] = useState<boolean>(true);
 
     useEffect(() => {
@@ -130,7 +134,7 @@ const BaseCommentInput = ({
             >
                 <div
                     ref={commentDiv}
-                    className={`my-auto h-full w-full bg-transparent px-2 text-lg leading-9 text-neutral-800 focus:outline-none sm:pr-32`}
+                    className={`my-auto h-full w-full bg-transparent px-2 text-base leading-9 text-neutral-800 focus:outline-none sm:pr-32`}
                     contentEditable
                     onKeyPress={(e) => {
                         setDisableSubmit(
@@ -142,7 +146,7 @@ const BaseCommentInput = ({
                         }
                     }}
                 />
-                <div className="absolute bottom-[3px] right-2 hidden h-7 flex-wrap items-center justify-end overflow-hidden sm:flex">
+                <div className="absolute bottom-[3px] right-2 hidden h-7 flex-wrap items-center justify-end sm:flex">
                     <div
                         className={`${
                             selectedStance ? "w-[32px]" : "w-[96px]"
@@ -163,6 +167,8 @@ const BaseCommentInput = ({
                             />
                         </span>
                     </div>
+
+                    {additionalSelector}
                     <SubmitButton />
                     <CloseButton />
                 </div>
@@ -173,6 +179,7 @@ const BaseCommentInput = ({
                     <StanceSelectButton assignedStance="agn" text="反" />
                     <StanceSelectButton assignedStance="neu" text="中" />
                 </span>
+                {additionalSelector}
                 <span>
                     <SubmitButton />
                     <CloseButton />

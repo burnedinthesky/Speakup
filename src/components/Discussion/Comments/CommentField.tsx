@@ -136,7 +136,7 @@ const CommentField = ({ articleId, onSide, sortMethod }: CommentFieldProps) => {
                                         <Fragment key={i}>
                                             <ArgumentDisplay
                                                 data={data}
-                                                deleteComment={() => {
+                                                deleteArgument={() => {
                                                     refetch();
                                                     deleteArgumentMutation.mutate(
                                                         {
