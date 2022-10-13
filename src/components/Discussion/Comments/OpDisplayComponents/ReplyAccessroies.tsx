@@ -1,4 +1,5 @@
 import { ChevronDownIcon } from "@heroicons/react/outline";
+import { Loader } from "@mantine/core";
 
 interface ShowRepliesButtonProps {
     fetchReplies: () => void;
@@ -17,10 +18,17 @@ export function ShowRepliesButton({
             }}
             disabled={isLoading}
         >
-            <ChevronDownIcon className="inline h-5 w-5 " />
-            <p className="inline text-sm">
-                {isLoading ? "載入中" : "檢視討論串"}
-            </p>
+            {isLoading ? (
+                <div className="flex items-center">
+                    <Loader className="h-4" />
+                    <p className="inline text-sm">載入中</p>
+                </div>
+            ) : (
+                <div className="flex items-center">
+                    <ChevronDownIcon className="inline h-5 w-5 " />
+                    <p className="inline text-sm">顯示回覆</p>
+                </div>
+            )}
         </button>
     );
 }

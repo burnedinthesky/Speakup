@@ -379,11 +379,37 @@ export const commentsRouter = createRouter()
             id: z.number(),
         }),
         async resolve({ input, ctx }) {
-            await ctx.prisma.comments.delete({
+            const data = await ctx.prisma.comments.delete({
                 where: {
                     id: input.id,
                 },
+                select: {
+                    argumentThreadId: true,
+                },
             });
+            if (data.argumentThreadId) {
+                const remainedComments =
+                    await ctx.prisma.argumentThread.findUniqueOrThrow({
+                        where: {
+                            id: data.argumentThreadId,
+                        },
+                        select: {
+                            _count: {
+                                select: {
+                                    comments: true,
+                                },
+                            },
+                        },
+                    });
+
+                if (remainedComments._count.comments === 0) {
+                    await ctx.prisma.argumentThread.delete({
+                        where: {
+                            id: data.argumentThreadId,
+                        },
+                    });
+                }
+            }
             return;
         },
     });

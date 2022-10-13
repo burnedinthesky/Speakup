@@ -93,22 +93,24 @@ const ArgumentCard = forwardRef<HTMLDivElement, ArgumentCardProps>(
                                     )}
                                 </button>
 
-                                <div className="block translate-y-[1px] text-neutral-500">
-                                    <ThreadsMenu
-                                        threads={data.threads}
-                                        selectedThread={selectedThread}
-                                        setSelectedThread={(
-                                            id: number | null
-                                        ) => {
-                                            setSelectedThread(
-                                                id === selectedThread
-                                                    ? null
-                                                    : id
-                                            );
-                                        }}
-                                        targetBtnColor="text-neutral-500"
-                                    />
-                                </div>
+                                {data.threads.length > 0 && (
+                                    <div className="block translate-y-[1px] text-neutral-500">
+                                        <ThreadsMenu
+                                            threads={data.threads}
+                                            selectedThread={selectedThread}
+                                            setSelectedThread={(
+                                                id: number | null
+                                            ) => {
+                                                setSelectedThread(
+                                                    id === selectedThread
+                                                        ? null
+                                                        : id
+                                                );
+                                            }}
+                                            targetBtnColor="text-neutral-500"
+                                        />
+                                    </div>
+                                )}
                             </div>
 
                             <div>
@@ -125,12 +127,6 @@ const ArgumentCard = forwardRef<HTMLDivElement, ArgumentCardProps>(
                         </div>
                     </div>
                 </div>
-                {/* {showReplyBox && (
-                    <CommentInput
-                        addReply={addReply}
-                        setShowReplyBox={setShowReplyBox}
-                    />
-                )} */}
 
                 <ReportModal
                     key={reportModalKey}
