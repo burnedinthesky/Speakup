@@ -1,86 +1,23 @@
-import {
-    ChatAlt2Icon,
-    CheckIcon,
-    PlusIcon,
-    PlusSmIcon,
-} from "@heroicons/react/outline";
+import { ChatAlt2Icon, CheckIcon, PlusSmIcon } from "@heroicons/react/outline";
 import { Button, Menu, Modal, TextInput } from "@mantine/core";
 import { useState } from "react";
 import { ArgumentThread } from "../../../../schema/comments.schema";
-
-interface AddThreadModalProps {
-    opened: boolean;
-    setOpened: (value: boolean) => void;
-    addNewThread: (name: string) => void;
-}
-
-const AddThreadModal = ({
-    opened,
-    setOpened,
-    addNewThread,
-}: AddThreadModalProps) => {
-    const [threadName, setThreadName] = useState<string>("");
-    const [inputError, setInputError] = useState<string | null>(null);
-
-    const submitName = () => {
-        setInputError(null);
-        if (threadName.length < 2) {
-            setInputError("名稱過短");
-        } else if (threadName.length > 8) {
-            setInputError("名稱過長，請輸入八個字內");
-        } else {
-            addNewThread(threadName);
-            setOpened(false);
-        }
-    };
-
-    return (
-        <Modal
-            centered
-            opened={opened}
-            onClose={() => {
-                setOpened(false);
-            }}
-            title="新增討論串"
-        >
-            <TextInput
-                value={threadName}
-                onChange={(e) => setThreadName(e.currentTarget.value)}
-                error={inputError}
-                placeholder="請輸入討論串名稱"
-            />
-            <div className="mt-2 flex w-full justify-end">
-                <Button
-                    className="bg-primary-600 font-normal"
-                    onClick={() => {
-                        submitName();
-                    }}
-                >
-                    新增
-                </Button>
-            </div>
-        </Modal>
-    );
-};
 
 interface ThreadsMenuProps {
     threads: ArgumentThread[];
     selectedThread: number | null;
     setSelectedThread: (id: number | null) => void;
-    addNewThread?: (name: string) => void;
     targetBtnColor?: string;
+    setOpenNewThreadModal?: (value: boolean) => void;
 }
 
 const ThreadsMenu = ({
     threads,
     selectedThread,
     setSelectedThread,
-    addNewThread,
     targetBtnColor,
+    setOpenNewThreadModal,
 }: ThreadsMenuProps) => {
-    const [openNewThreadModel, setOpenNewThreadModal] =
-        useState<boolean>(false);
-
     return (
         <>
             <Menu
@@ -119,7 +56,7 @@ const ThreadsMenu = ({
                             {element.name}
                         </Menu.Item>
                     ))}
-                    {addNewThread && (
+                    {setOpenNewThreadModal && (
                         <>
                             <Menu.Divider />
                             <Menu.Item
@@ -134,13 +71,6 @@ const ThreadsMenu = ({
                     )}
                 </Menu.Dropdown>
             </Menu>
-            {addNewThread && (
-                <AddThreadModal
-                    opened={openNewThreadModel}
-                    setOpened={setOpenNewThreadModal}
-                    addNewThread={addNewThread}
-                />
-            )}
         </>
     );
 };

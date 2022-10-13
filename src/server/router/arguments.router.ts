@@ -296,6 +296,7 @@ export const argumentsRouter = createRouter()
         input: z.object({
             argumentId: z.number(),
             name: z.string().min(2).max(8),
+            updatingComments: z.array(z.number()),
         }),
         async resolve({ input, ctx }) {
             const thread = await ctx.prisma.argumentThread.create({
@@ -307,6 +308,17 @@ export const argumentsRouter = createRouter()
                     id: true,
                     argumentId: true,
                     name: true,
+                },
+            });
+
+            await ctx.prisma.comments.updateMany({
+                where: {
+                    id: {
+                        in: input.updatingComments,
+                    },
+                },
+                data: {
+                    argumentThreadId: thread.id,
                 },
             });
 

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import BaseCommentInput from "./BaseOpInput";
 import { ArgumentThread, Stances } from "../../../../schema/comments.schema";
-import ThreadsMenu from "../OpCardComponents/ThreadsMenu";
+import ThreadsMenu from "../Threads/ThreadsMenu";
 
 interface CommentInputProps {
     threads: ArgumentThread[];
@@ -11,14 +11,14 @@ interface CommentInputProps {
         thread: number | null
     ) => void;
     setShowReplyBox: (value: boolean) => void;
-    addNewThread: (name: string) => void;
+    setOpenNewThreadModal?: (value: boolean) => void;
 }
 
 const CommentInput = ({
     threads,
     addComment,
     setShowReplyBox,
-    addNewThread,
+    setOpenNewThreadModal,
 }: CommentInputProps) => {
     const [selectedThread, setSelectedThread] = useState<number | null>(null);
 
@@ -37,7 +37,7 @@ const CommentInput = ({
                         threads={threads}
                         selectedThread={selectedThread}
                         setSelectedThread={setSelectedThread}
-                        addNewThread={addNewThread}
+                        setOpenNewThreadModal={setOpenNewThreadModal}
                     />
                 }
             />

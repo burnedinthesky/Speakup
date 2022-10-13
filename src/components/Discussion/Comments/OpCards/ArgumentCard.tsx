@@ -6,7 +6,7 @@ import { XIcon } from "@heroicons/react/solid";
 import { CommentReactionButtons } from "../OpCardComponents/CommentReactionButtons";
 import ExtendedMenu from "../OpCardComponents/ExtendedMenu";
 
-import ThreadsMenu from "../OpCardComponents/ThreadsMenu";
+import ThreadsMenu from "../Threads/ThreadsMenu";
 import ReportModal from "../../../Report/ReportModal";
 
 import { Argument } from "../../../../schema/comments.schema";
