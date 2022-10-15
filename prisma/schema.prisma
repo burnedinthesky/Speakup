@@ -22,7 +22,7 @@ model User {
     username   String   @unique
     password   String
     email      String   @unique
-    profileImg String   @default("")
+    profileImg String?
     birthday   String?
     gender     Int?
     role       UserRole @default(USER)

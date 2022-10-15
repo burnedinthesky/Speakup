@@ -1,9 +1,5 @@
-import {
-    createArticleSchema,
-    getSingleArticleSchema,
-} from "../../schema/article.schema";
+import { getSingleArticleSchema } from "../../schema/article.schema";
 import { createRouter } from "../createRouter";
-import * as trpc from "@trpc/server";
 
 export const articleRouter = createRouter()
     .query("articles", {

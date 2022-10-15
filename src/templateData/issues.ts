@@ -1,13 +1,14 @@
 import { Article } from "../schema/article.schema";
 
 export const SampleArticle: Article = {
-    id: "1234",
-    title: "Sth",
-    tags: ["stg"],
+    id: "cl99rb4pd000g3b6m5egfn4z4",
+    title: "台灣應該廢除早自習嗎？",
+    tags: ["教育"],
     content: [
         {
             type: "h1",
-            content: "Heading 1",
+            content:
+                "哇噻這是中文字誒哭哭哇噻這是中文字誒哭哭哇噻這是中文字誒哭哭哇噻這是中文字誒哭哭三二asdfj;klas;djfkl;asjdkl;",
         },
         {
             type: "p",
@@ -55,7 +56,6 @@ export const SampleArticle: Article = {
         },
     ],
     viewCount: 0,
-    threadId: 1,
     author: {
         username: "Hello",
         profileImg: "https://hello.com",
@@ -65,5 +65,5 @@ export const SampleArticle: Article = {
         { title: "Google", link: "https://www.google.com" },
         { title: "Google", link: "https://www.google.com" },
     ],
-    commentCount: 0,
+    argumentCount: 0,
 };
