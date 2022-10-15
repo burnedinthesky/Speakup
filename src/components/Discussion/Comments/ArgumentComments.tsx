@@ -13,7 +13,12 @@ interface ArgumentCommentProps {
 const ArgumentComments = ({ data }: ArgumentCommentProps) => {
     const [excludedIDs, setExcludedIDs] = useState<number[]>([]);
 
+    const trpcUtils = trpc.useContext();
+
     const deleteCommentMutation = trpc.useMutation("comments.deleteComment", {
+        onSettled: () => {
+            trpcUtils.invalidateQueries(["comments.getArgumentComments"]);
+        },
         onError: (_, variables) => {
             setExcludedIDs((cur) =>
                 cur.filter((element) => variables.id !== element)

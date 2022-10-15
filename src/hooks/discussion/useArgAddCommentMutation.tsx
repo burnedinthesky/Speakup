@@ -14,129 +14,98 @@ const useArgAddCommentMutation = ({
 }: useArgAddCommentMutationProps) => {
     const trpcUtils = trpc.useContext();
 
+    interface ContextType {
+        thread: number | null;
+        minId: number;
+    }
+
     const addCommentMutation = trpc.useMutation("comments.createComment", {
         onSuccess: (data, variables, context) => {
-            const ctx = context as {
-                query: "argument" | "thread";
-                previousData: any[];
-                minId: number;
-            };
+            const ctx = context as ContextType;
 
             const minId = ctx.minId;
 
-            if (ctx.query == "argument") {
-                trpcUtils.setInfiniteQueryData(
-                    [
-                        "comments.getArgumentComments",
-                        {
-                            argumentId: variables.argument,
-                            sort: "",
-                            stance: "both",
-                            limit: 20,
-                        },
-                    ],
-                    (prev) => {
-                        if (!prev) {
-                            return {
-                                pages: [],
-                                pageParams: [],
-                            };
-                        }
+            trpcUtils.setInfiniteQueryData(
+                [
+                    "comments.getArgumentComments",
+                    {
+                        argumentId: variables.argument,
+                        sort: "",
+                        stance: "both",
+                        limit: 20,
+                        threadId: ctx.thread,
+                    },
+                ],
+                (prev) => {
+                    if (!prev) {
                         return {
-                            ...prev,
-                            pages: prev.pages.map((page) => {
-                                return {
-                                    ...page,
-                                    retData: page.retData.map((element) =>
-                                        element.id === minId ? data : element
-                                    ),
-                                };
-                            }),
+                            pages: [{ retData: [data], nextCursor: undefined }],
+                            pageParams: [],
                         };
                     }
-                );
-                trpcUtils.invalidateQueries(["comments.getArgumentComments"]);
-            } else {
-                trpcUtils.setQueryData(
-                    ["comments.getThreadComments"],
-                    (prev) => {
-                        if (!prev) return [];
-                        return prev.map((element) =>
-                            element.id === minId ? data : element
-                        );
-                    }
-                );
-                trpcUtils.invalidateQueries(["comments.getThreadComments"]);
-            }
+                    return {
+                        ...prev,
+                        pages: prev.pages.map((page) => {
+                            return {
+                                ...page,
+                                retData: page.retData.map((element) =>
+                                    element.id === minId ? data : element
+                                ),
+                            };
+                        }),
+                    };
+                }
+            );
+
+            trpcUtils.invalidateQueries(["comments.getArgumentComments"]);
         },
         onError: (_, variables, context) => {
-            const ctx = context as {
-                query: "argument" | "thread";
-                minId: number;
-                threadId: number | number;
-            };
+            const ctx = context as ContextType;
 
             const minId = ctx.minId;
 
-            if (ctx.query == "argument") {
-                trpcUtils.setInfiniteQueryData(
-                    [
-                        "comments.getArgumentComments",
-                        {
-                            limit: 20,
-                            argumentId: variables.argument,
-                            sort: "",
-                            stance: "both",
-                        },
-                    ],
-                    (prev) => {
-                        if (!prev) {
-                            return {
-                                pages: [],
-                                pageParams: [],
-                            };
-                        }
+            trpcUtils.setInfiniteQueryData(
+                [
+                    "comments.getArgumentComments",
+                    {
+                        limit: 20,
+                        argumentId: variables.argument,
+                        sort: "",
+                        stance: "both",
+                        threadId: ctx.thread,
+                    },
+                ],
+                (prev) => {
+                    if (!prev) {
                         return {
-                            ...prev,
-                            pages: prev.pages.map((page) => {
-                                return {
-                                    ...page,
-                                    retData: page.retData.filter(
-                                        (element) => element.id !== minId
-                                    ),
-                                };
-                            }),
+                            pages: [],
+                            pageParams: [],
                         };
                     }
-                );
-                trpcUtils.invalidateQueries(["comments.getArgumentComments"]);
-            } else {
-                trpcUtils.setQueryData(
-                    [
-                        "comments.getThreadComments",
-                        {
-                            argumentId: variables.argument,
-                            threadId: variables.thread,
-                        },
-                    ],
-                    (prev) => {
-                        if (!prev) return [];
-                        return prev.filter((element) => element.id !== minId);
-                    }
-                );
-                trpcUtils.invalidateQueries(["comments.getThreadComments"]);
-            }
+                    return {
+                        ...prev,
+                        pages: prev.pages.map((page) => {
+                            return {
+                                ...page,
+                                retData: page.retData.filter(
+                                    (element) => element.id !== minId
+                                ),
+                            };
+                        }),
+                    };
+                }
+            );
 
             showNotification({
                 title: "發生未知錯誤",
                 message: "留言失敗，請再試一次",
                 color: "red",
             });
+
+            trpcUtils.invalidateQueries(["comments.getArgumentComments"]);
         },
         onMutate: (newComment) => {
-            const query = selectedThread === null ? "argument" : "thread";
-            let previousData,
-                minId = -1;
+            let minId = -1;
             const formattedNewCmt = {
                 id: -1,
                 author: {
@@ -156,82 +125,56 @@ const useArgAddCommentMutation = ({
                     : undefined,
             } as Comment;
 
-            if (selectedThread === null) {
-                trpcUtils.cancelQuery(["comments.getArgumentComments"]);
-                previousData = trpcUtils.getInfiniteQueryData([
+            trpcUtils.cancelQuery(["comments.getArgumentComments"]);
+            trpcUtils.setInfiniteQueryData(
+                [
                     "comments.getArgumentComments",
-                ]);
-                trpcUtils.setInfiniteQueryData(
-                    [
-                        "comments.getArgumentComments",
-                        {
-                            limit: 20,
-                            argumentId: newComment.argument,
-                            sort: "",
-                            stance: "both",
-                        },
-                    ],
-                    (prev) => {
-                        if (!prev) {
-                            return {
-                                pages: [],
-                                pageParams: [],
-                            };
-                        }
-                        console.log("yoo");
-                        const returning = {
-                            ...prev,
-                            pages: prev.pages.map((element, i, arr) => {
-                                if (i < arr.length - 1) return element;
-                                element.retData.forEach((element) => {
-                                    if (element.id < minId) minId = element.id;
-                                });
-                                formattedNewCmt.id = minId;
-                                return {
-                                    ...element,
-                                    retData: [
-                                        ...element.retData,
-                                        formattedNewCmt,
-                                    ],
-                                };
-                            }),
-                        };
-
-                        console.log(returning);
-
-                        return returning;
-                    }
-                );
-            } else {
-                trpcUtils.cancelQuery(["comments.getThreadComments"]);
-                previousData = trpcUtils.getQueryData([
-                    "comments.getThreadComments",
-                ]);
-                if (previousData)
-                    previousData.forEach((element) => {
-                        if (element.id < minId) minId = element.id;
+                    {
+                        limit: 20,
+                        argumentId: newComment.argument,
+                        sort: "",
+                        stance: "both",
+                        threadId: selectedThread,
+                    },
+                ],
+                (prev) => {
+                    prev?.pages.forEach((page) => {
+                        page.retData.forEach((element) => {
+                            if (element.id < minId) minId = element.id;
+                        });
                     });
-                formattedNewCmt.id = minId;
-                trpcUtils.setQueryData(
-                    [
-                        "comments.getThreadComments",
-                        {
-                            argumentId: newComment.argument,
-                            threadId: selectedThread,
-                        },
-                    ],
-                    (prev) => {
-                        if (!prev) {
-                            return [];
-                        }
-                        return [...prev, formattedNewCmt];
+
+                    formattedNewCmt.id = minId;
+
+                    if (!prev) {
+                        return {
+                            pages: [
+                                {
+                                    retData: [formattedNewCmt],
+                                    nextCursor: undefined,
+                                },
+                            ],
+                            pageParams: [],
+                        };
                     }
-                );
-            }
+
+                    return {
+                        ...prev,
+                        pages: prev.pages.map((element, i, arr) => {
+                            if (i < arr.length - 1) return element;
+                            return {
+                                ...element,
+                                retData: [...element.retData, formattedNewCmt],
+                            };
+                        }),
+                    };
+                }
+            );
+
             return {
-                query,
+                thread: selectedThread,
                 minId,
-            };
+            } as ContextType;
         },
     });
 

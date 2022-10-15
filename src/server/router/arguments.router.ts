@@ -8,7 +8,7 @@ export const argumentsRouter = createRouter()
         input: z.object({
             articleId: z.string(),
             content: z.string(),
-            stance: z.string().length(3),
+            stance: z.enum(["sup", "agn", "neu"]),
         }),
         async resolve({ input, ctx }) {
             const argument = await ctx.prisma.argument.create({
@@ -91,11 +91,14 @@ export const argumentsRouter = createRouter()
         input: z.object({
             articleId: z.string(),
             stance: z.enum(["sup", "agn", "both"]),
-            sort: z.string(),
+            sort: z.enum(["default", "time", "replies"]),
             limit: z.number().min(1).max(100),
             cursor: z.number().nullish(),
         }),
         async resolve({ input, ctx }) {
+            console.log("called");
+            console.log(input);
+
             const allowedStance = [];
             if (input.stance == "sup" || input.stance == "both")
                 allowedStance.push("sup");
@@ -103,11 +106,79 @@ export const argumentsRouter = createRouter()
                 allowedStance.push("agn");
             if (input.stance == "both") allowedStance.push("neu");
 
-            const data = await ctx.prisma.argument.findMany({
+            let userArgs: any[] = [];
+
+            if (!input.cursor) {
+                userArgs = await ctx.prisma.argument.findMany({
+                    where: {
+                        articleId: input.articleId,
+                        stance: {
+                            in: allowedStance,
+                        },
+                        authorId: {
+                            equals: SampleUser.id,
+                        },
+                    },
+                    select: {
+                        id: true,
+                        content: true,
+                        author: {
+                            select: {
+                                id: true,
+                                username: true,
+                                profileImg: true,
+                            },
+                        },
+                        stance: true,
+                        _count: {
+                            select: {
+                                likedUsers: true,
+                                supportedUsers: true,
+                                dislikedUsers: true,
+                                comments: true,
+                            },
+                        },
+                        likedUsers: {
+                            where: {
+                                id: SampleUser.id,
+                            },
+                        },
+                        supportedUsers: {
+                            where: {
+                                id: SampleUser.id,
+                            },
+                        },
+                        dislikedUsers: {
+                            where: {
+                                id: SampleUser.id,
+                            },
+                        },
+                        argumentThreads: {
+                            select: {
+                                id: true,
+                                name: true,
+                                argumentId: true,
+                            },
+                        },
+                        pagnationSequence: true,
+                    },
+
+                    orderBy: {
+                        createdTime: "desc",
+                    },
+                });
+            }
+
+            let data = await ctx.prisma.argument.findMany({
                 where: {
                     articleId: input.articleId,
                     stance: {
                         in: allowedStance,
+                    },
+                    NOT: {
+                        authorId: {
+                            equals: SampleUser.id,
+                        },
                     },
                 },
                 select: {
@@ -155,18 +226,41 @@ export const argumentsRouter = createRouter()
                 },
 
                 orderBy: {
-                    pagnationSequence: "asc",
+                    pagnationSequence:
+                        input.sort === "default" ? "asc" : undefined,
+                    createdTime: input.sort === "time" ? "desc" : undefined,
+                    comments:
+                        input.sort === "replies"
+                            ? {
+                                  _count: "desc",
+                              }
+                            : undefined,
                 },
-                cursor: input.cursor
-                    ? { pagnationSequence: input.cursor }
-                    : undefined,
+                skip: input.limit * (input.cursor ? input.cursor : 0),
                 take: input.limit + 1,
             });
-            let nextCursor: number | undefined = undefined;
-            if (data.length == input.limit + 1) {
-                const lastItem = data.pop();
-                nextCursor = lastItem?.pagnationSequence;
-            }
+
+            console.log({
+                pagnationSequence: input.sort === "default" ? "asc" : undefined,
+                createdTime: input.sort === "time" ? "desc" : undefined,
+                comments:
+                    input.sort === "replies"
+                        ? {
+                              _count: "desc",
+                          }
+                        : undefined,
+            });
+
+            console.log(data);
+
+            let nextCursor =
+                data.length === input.limit + 1
+                    ? (input.cursor ? input.cursor : 0) + 1
+                    : undefined;
+
+            if (data.length > input.limit) data.pop();
+
+            data = userArgs.concat(data);
 
             const retData = data.map(
                 (element) =>
@@ -292,6 +386,20 @@ export const argumentsRouter = createRouter()
             return;
         },
     })
+    .mutation("deleteArgument", {
+        input: z.object({
+            id: z.number(),
+        }),
+        async resolve({ input, ctx }) {
+            await ctx.prisma.argument.delete({
+                where: {
+                    id: input.id,
+                },
+            });
+
+            return;
+        },
+    })
     .mutation("createNewThread", {
         input: z.object({
             argumentId: z.number(),
@@ -325,12 +433,35 @@ export const argumentsRouter = createRouter()
             return thread;
         },
     })
-    .mutation("deleteArgument", {
+    .mutation("updateThread", {
+        input: z.object({
+            threadId: z.number(),
+            name: z.string().min(2).max(8),
+        }),
+        async resolve({ input, ctx }) {
+            const thread = await ctx.prisma.argumentThread.update({
+                where: {
+                    id: input.threadId,
+                },
+                data: {
+                    name: input.name,
+                },
+                select: {
+                    id: true,
+                    argumentId: true,
+                    name: true,
+                },
+            });
+
+            return thread;
+        },
+    })
+    .mutation("deleteThread", {
         input: z.object({
             id: z.number(),
         }),
         async resolve({ input, ctx }) {
-            await ctx.prisma.argument.delete({
+            await ctx.prisma.argumentThread.delete({
                 where: {
                     id: input.id,
                 },

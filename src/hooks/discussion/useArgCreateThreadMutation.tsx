@@ -18,69 +18,51 @@ const useArgCreateThreadMutation = ({
     const createThreadMutation = trpc.useMutation("arguments.createNewThread", {
         onSuccess: (data, variables, context) => {
             const ctx = context as {
-                query: "argument" | "threads";
+                thread: number | null;
             };
 
             setAddedThreads((cur) =>
                 cur.map((element) => (element.id == -1 ? data : element))
             );
-
-            if (ctx.query == "argument") {
-                trpcUtils.setInfiniteQueryData(
-                    [
-                        "comments.getArgumentComments",
-                        {
-                            argumentId: variables.argumentId,
-                            sort: "",
-                            stance: "both",
-                            limit: 20,
-                        },
-                    ],
-                    (prev) => {
-                        if (!prev) {
-                            return {
-                                pages: [],
-                                pageParams: [],
-                            };
-                        }
+            trpcUtils.setInfiniteQueryData(
+                [
+                    "comments.getArgumentComments",
+                    {
+                        argumentId: variables.argumentId,
+                        sort: "",
+                        stance: "both",
+                        limit: 20,
+                        threadId: ctx.thread,
+                    },
+                ],
+                (prev) => {
+                    if (!prev) {
                         return {
-                            ...prev,
-                            pages: prev.pages.map((page) => {
-                                return {
-                                    ...page,
-                                    retData: page.retData.map((element) =>
-                                        variables.updatingComments.includes(
-                                            element.id
-                                        )
-                                            ? {
-                                                  ...element,
-                                                  thread: data,
-                                              }
-                                            : element
-                                    ),
-                                };
-                            }),
+                            pages: [],
+                            pageParams: [],
                         };
                     }
-                );
-                trpcUtils.invalidateQueries(["comments.getArgumentComments"]);
-            } else {
-                trpcUtils.setQueryData(
-                    ["comments.getThreadComments"],
-                    (prev) => {
-                        if (!prev) return [];
-                        return prev.map((element) =>
-                            variables.updatingComments.includes(element.id)
-                                ? {
-                                      ...element,
-                                      thread: data,
-                                  }
-                                : element
-                        );
-                    }
-                );
-                trpcUtils.invalidateQueries(["comments.getThreadComments"]);
-            }
+                    return {
+                        ...prev,
+                        pages: prev.pages.map((page) => {
+                            return {
+                                ...page,
+                                retData: page.retData.map((element) =>
+                                    variables.updatingComments.includes(
+                                        element.id
+                                    )
+                                        ? {
+                                              ...element,
+                                              thread: data,
+                                          }
+                                        : element
+                                ),
+                            };
+                        }),
+                    };
+                }
+            );
+            trpcUtils.invalidateQueries(["comments.getArgumentComments"]);
         },
         onError: () => {
             setAddedThreads((cur) =>
@@ -103,7 +85,7 @@ const useArgCreateThreadMutation = ({
                 ])
             );
             return {
-                query: selectedThread === null ? "argument" : "thread",
+                thread: selectedThread,
             };
         },
     });

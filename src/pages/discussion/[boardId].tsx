@@ -81,9 +81,11 @@ const DiscussionBoard = ({ article }: DiscussionProps) => {
                             </div>
                         </div>
                         <CommentField
-                            key={viewingStance + sortMethod}
+                            // key={viewingStance + sortMethod}
                             articleId={article.id}
-                            onSide={viewingStance as "sup" | "agn" | "both"}
+                            viewingStance={
+                                viewingStance as "sup" | "agn" | "both"
+                            }
                             sortMethod={sortMethod}
                         />
                     </div>

@@ -10,6 +10,7 @@ interface CommentInputProps {
         stance: Stances,
         thread: number | null
     ) => void;
+    viewingSelectedThread: number | null;
     setShowReplyBox: (value: boolean) => void;
     setOpenNewThreadModal?: (value: boolean) => void;
 }
@@ -17,13 +18,18 @@ interface CommentInputProps {
 const CommentInput = ({
     threads,
     addComment,
+    viewingSelectedThread,
     setShowReplyBox,
     setOpenNewThreadModal,
 }: CommentInputProps) => {
     const [selectedThread, setSelectedThread] = useState<number | null>(null);
 
     const submitComment = (cmtContent: string, cmtStance: Stances) => {
-        addComment(cmtContent, cmtStance, selectedThread);
+        addComment(
+            cmtContent,
+            cmtStance,
+            viewingSelectedThread ? viewingSelectedThread : selectedThread
+        );
     };
 
     return (
@@ -33,12 +39,22 @@ const CommentInput = ({
                 setCommentEnterStatus={setShowReplyBox}
                 shrinkAtStart={false}
                 additionalSelector={
-                    <ThreadsMenu
-                        threads={threads}
-                        selectedThread={selectedThread}
-                        setSelectedThread={setSelectedThread}
-                        setOpenNewThreadModal={setOpenNewThreadModal}
-                    />
+                    viewingSelectedThread ? (
+                        <ThreadsMenu
+                            threads={threads.filter(
+                                (ele) => ele.id === viewingSelectedThread
+                            )}
+                            selectedThread={viewingSelectedThread}
+                            setSelectedThread={() => {}}
+                        />
+                    ) : (
+                        <ThreadsMenu
+                            threads={threads}
+                            selectedThread={selectedThread}
+                            setSelectedThread={setSelectedThread}
+                            setOpenNewThreadModal={setOpenNewThreadModal}
+                        />
+                    )
                 }
             />
         </div>

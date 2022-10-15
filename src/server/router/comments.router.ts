@@ -1,7 +1,6 @@
 import { createRouter } from "../createRouter";
 import { Comment, Stances } from "../../schema/comments.schema";
 import { SampleUser } from "../../templateData/users";
-import * as trpc from "@trpc/server";
 import { z } from "zod";
 
 export const commentsRouter = createRouter()
@@ -101,6 +100,7 @@ export const commentsRouter = createRouter()
             sort: z.string(),
             limit: z.number().min(1).max(100),
             cursor: z.number().nullish(),
+            threadId: z.number().nullable(),
         }),
         async resolve({ input, ctx }) {
             const allowedStance = [];
@@ -116,6 +116,11 @@ export const commentsRouter = createRouter()
                     stance: {
                         in: allowedStance,
                     },
+                    inThread: input.threadId
+                        ? {
+                              id: input.threadId,
+                          }
+                        : undefined,
                 },
                 select: {
                     id: true,
@@ -191,87 +196,6 @@ export const commentsRouter = createRouter()
                 retData,
                 nextCursor,
             };
-        },
-    })
-    .query("getThreadComments", {
-        input: z.object({
-            argumentId: z.number(),
-            threadId: z.number().nullable(),
-        }),
-        async resolve({ input, ctx }) {
-            if (input.threadId == null) return;
-
-            const data = await ctx.prisma.comments.findMany({
-                where: {
-                    inArgumentId: input.argumentId,
-                    inThread: {
-                        id: input.threadId,
-                    },
-                },
-                select: {
-                    id: true,
-                    content: true,
-                    author: {
-                        select: {
-                            id: true,
-                            username: true,
-                            profileImg: true,
-                        },
-                    },
-                    stance: true,
-                    inThread: {
-                        select: {
-                            id: true,
-                            name: true,
-                            argumentId: true,
-                        },
-                    },
-                    _count: {
-                        select: {
-                            likedUsers: true,
-                            supportedUsers: true,
-                            dislikedUsers: true,
-                        },
-                    },
-                    likedUsers: {
-                        where: {
-                            id: SampleUser.id,
-                        },
-                    },
-                    supportedUsers: {
-                        where: {
-                            id: SampleUser.id,
-                        },
-                    },
-                    dislikedUsers: {
-                        where: {
-                            id: SampleUser.id,
-                        },
-                    },
-                },
-                orderBy: {
-                    id: "asc",
-                },
-            });
-
-            const retData = data.map(
-                (element) =>
-                    ({
-                        id: element.id,
-                        author: element.author,
-                        isAuthor: element.author.id === SampleUser.id,
-                        content: element.content,
-                        stance: element.stance as Stances,
-                        thread: element.inThread,
-                        likes: element._count.likedUsers,
-                        userLiked: element.likedUsers.length == 1,
-                        support: element._count.supportedUsers,
-                        userSupported: element.supportedUsers.length == 1,
-                        dislikes: element._count.dislikedUsers,
-                        userDisliked: element.dislikedUsers.length == 1,
-                    } as Comment)
-            );
-            return retData;
         },
     })
     .mutation("updateCommentsInteraction", {

@@ -10,15 +10,22 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+    USER
+    CREATOR
+    SENIORCREATOR
+    ADMIN
+}
+
 model User {
-    id         String  @id @unique @default(uuid())
-    username   String  @unique
+    id         String   @id @unique @default(uuid())
+    username   String   @unique
     password   String
-    email      String  @unique
-    profileImg String  @default("")
+    email      String   @unique
+    profileImg String   @default("")
     birthday   String?
     gender     Int?
-    role       Role    @default(USER)
+    role       UserRole @default(USER)
 
     Articles  Articles[]
     Arguments Argument[] @relation("postedArguments")
@@ -31,6 +38,22 @@ model User {
     likedComments     Comments[] @relation("likedComments")
     dislikedComments  Comments[] @relation("supportedComments")
     supportedComments Comments[] @relation("dislikedComments")
+
+    PrivateUser PrivateUser?
+}
+
+enum PrivateUserRole {
+    USER
+    SYSTEMADMIN
+}
+
+model PrivateUser {
+    id           String @id @unique @default(uuid())
+    UserInstance User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId       String @unique
+
+    Role      PrivateUserRole @default(USER)
+    AuthToken String?         @unique @db.VarChar(64)
 }
 
 model Articles {
@@ -69,7 +92,7 @@ model Argument {
 model ArgumentThread {
     id         Int        @id @default(autoincrement())
     name       String
-    argument   Argument   @relation(fields: [argumentId], references: [id])
+    argument   Argument   @relation(fields: [argumentId], references: [id], onDelete: Cascade)
     argumentId Int
     comments   Comments[]
 
@@ -91,11 +114,4 @@ model Comments {
     inArgumentId     Int
     inThread         ArgumentThread? @relation(fields: [argumentThreadId], references: [id])
     argumentThreadId Int?
-}
-
-enum Role {
-    USER
-    CREATOR
-    SENIORCREATOR
-    ADMIN
 }

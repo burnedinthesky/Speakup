@@ -1,4 +1,4 @@
-import { useState, useEffect, forwardRef } from "react";
+import { useState, forwardRef } from "react";
 import { trpc } from "../../../utils/trpc";
 import { useInView } from "react-intersection-observer";
 
@@ -14,11 +14,7 @@ import ArgumentComments from "./ArgumentComments";
 import CommentInput from "./Inputs/CommentInput";
 import CreateThreadModal from "./Threads/CreateThreadModal";
 
-import {
-    Argument,
-    ArgumentThread,
-    Comment,
-} from "../../../schema/comments.schema";
+import { Argument, ArgumentThread } from "../../../schema/comments.schema";
 
 export interface ArgumentDisplay {
     data: Argument;
@@ -46,12 +42,12 @@ const ArgumentDisplay = forwardRef<HTMLDivElement, ArgumentDisplay>(
         });
 
         const {
-            data: acqData,
-            isLoading: acqIsLoading,
-            isFetched: acqIsFetched,
-            fetchNextPage: acqFetchNextPage,
-            hasNextPage: acqHasNextPage,
-            refetch: acqRefetch,
+            data: cmtData,
+            isLoading: cmtIsLoading,
+            isFetched: cmtIsFetched,
+            fetchNextPage: cmtFetchNextPage,
+            hasNextPage: cmtHasNextPage,
+            refetch: cmtRefetch,
         } = trpc.useInfiniteQuery(
             [
                 "comments.getArgumentComments",
@@ -60,23 +56,11 @@ const ArgumentDisplay = forwardRef<HTMLDivElement, ArgumentDisplay>(
                     limit: 20,
                     sort: "",
                     stance: "both",
-                },
-            ],
-            {
-                getNextPageParam: (lastPage) => lastPage.nextCursor,
-                enabled: false,
-            }
-        );
-
-        const { data: thqData, refetch: thqRefetch } = trpc.useQuery(
-            [
-                "comments.getThreadComments",
-                {
-                    argumentId: data.id,
                     threadId: selectedThread,
                 },
             ],
             {
+                getNextPageParam: (lastPage) => lastPage?.nextCursor,
                 enabled: false,
             }
         );
@@ -91,11 +75,9 @@ const ArgumentDisplay = forwardRef<HTMLDivElement, ArgumentDisplay>(
             selectedThread,
         });
 
-        const acqDataFormatted = acqData
-            ? acqData.pages.flat().flatMap((element) => element.retData)
+        const cmtDataFormatted = cmtData
+            ? cmtData.pages.flat().flatMap((element) => element.retData)
             : [];
-
-        const dataSource = selectedThread === null ? acqDataFormatted : thqData;
 
         return (
             <div className="w-full" ref={ref}>
@@ -103,8 +85,7 @@ const ArgumentDisplay = forwardRef<HTMLDivElement, ArgumentDisplay>(
                     data={data}
                     selectedThread={selectedThread}
                     setSelectedThread={(value) => {
-                        if (value) thqRefetch();
-                        else acqRefetch();
+                        cmtRefetch();
                         setSelectedThread(value);
                     }}
                     replyInputOpen={showCommentInput}
@@ -113,21 +94,19 @@ const ArgumentDisplay = forwardRef<HTMLDivElement, ArgumentDisplay>(
                     ref={argCardRef}
                 />
                 <AnimatePresence>
-                    {dataSource && (
-                        <motion.div transition={{ height: "auto" }}>
-                            <ArgumentComments data={dataSource} />
-                        </motion.div>
-                    )}
+                    <motion.div transition={{ height: "auto" }}>
+                        <ArgumentComments data={cmtDataFormatted} />
+                    </motion.div>
                 </AnimatePresence>
                 <div className="flex divide-x-[1px]">
                     {data.hasComments &&
-                        (acqIsFetched ? acqHasNextPage : true) && (
+                        (cmtIsFetched ? cmtHasNextPage : true) && (
                             <div className="px-2 pl-10">
                                 <ShowRepliesButton
                                     fetchReplies={() => {
-                                        acqFetchNextPage();
+                                        cmtFetchNextPage();
                                     }}
-                                    isLoading={acqIsLoading}
+                                    isLoading={cmtIsLoading}
                                 />
                             </div>
                         )}
@@ -182,6 +161,7 @@ const ArgumentDisplay = forwardRef<HTMLDivElement, ArgumentDisplay>(
                                         });
                                     }}
                                     threads={data.threads.concat(addedThreads)}
+                                    viewingSelectedThread={selectedThread}
                                     setShowReplyBox={(val: boolean) => {
                                         if (!val) setCommentInputInAnim(true);
                                         setShowCommentInput(val);
@@ -205,7 +185,7 @@ const ArgumentDisplay = forwardRef<HTMLDivElement, ArgumentDisplay>(
                                 setOpenCreateThreadModalCount((cur) => cur + 1);
                             setOpenCreateThreadModal(val);
                         }}
-                        comments={dataSource}
+                        comments={cmtDataFormatted}
                         createNewThread={(
                             updateingIds: number[],
                             name: string
