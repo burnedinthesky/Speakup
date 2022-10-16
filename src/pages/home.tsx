@@ -32,8 +32,23 @@ const UserHome = () => {
     }, []);
 
     if (isLoading) {
-        if (homeVer == "mob") return <MobileLoadingScreen />;
-        return <DesktopLoadingScreen />;
+        return (
+            <>
+                <Head>
+                    <title>{`Speakup - 首頁`}</title>
+                    <meta
+                        name="viewport"
+                        content="initial-scale=1.0, width=device-width"
+                    />
+                    <link rel="manifest" href="/site.webmanifest" />
+                </Head>
+                {homeVer === "mob" ? (
+                    <MobileLoadingScreen />
+                ) : (
+                    <DesktopLoadingScreen />
+                )}
+            </>
+        );
     }
 
     if (!data) {
@@ -46,11 +61,21 @@ const UserHome = () => {
             setSendErrorNotification(true);
         }
         return (
-            <div className="fixed top-0 left-0 flex h-screen w-screen justify-center bg-neutral-50">
-                <Header />
-                <Navbar retractable={false} />
-                <Footbar />
-            </div>
+            <>
+                <Head>
+                    <title>{`Speakup - 首頁`}</title>
+                    <meta
+                        name="viewport"
+                        content="initial-scale=1.0, width=device-width"
+                    />
+                    <link rel="manifest" href="/site.webmanifest" />
+                </Head>
+                <div className="fixed top-0 left-0 flex h-screen w-screen justify-center bg-neutral-50">
+                    <Header />
+                    <Navbar retractable={false} />
+                    <Footbar />
+                </div>
+            </>
         );
     }
 

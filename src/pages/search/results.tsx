@@ -1,89 +1,87 @@
-import React, { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { useQuery } from "react-query";
-// import { useSession } from 'next-auth/react';
 import { showNotification } from "@mantine/notifications";
 
-import Header from "../../components/AppShell/Header";
-import Navbar from "../../components/AppShell/Navbar";
-import Footbar from "../../components/AppShell/Footbar";
+import { AppShell } from "../../components/AppShell";
 import NavCard from "../../components/Navigation/NavCard";
-import { SampleSearchResults } from "../../templateData/navigation";
-import Head from "next/head";
-// import Pagebar from "../../components/navbar/Pagebar";
+
+import { trpc } from "../../utils/trpc";
+import { Pagination } from "@mantine/core";
+
+interface SearchParams {
+    keyword: string | null;
+    tags: string[] | null;
+    onPage: number | null;
+}
 
 const SearchResults = () => {
     const router = useRouter();
-    const isIdle = false,
-        isLoading = false,
-        error = null;
+    const [searchParams, setSearchParams] = useState<SearchParams>({
+        keyword: null,
+        tags: null,
+        onPage: null,
+    });
 
-    const data = SampleSearchResults;
-
-    // const { data: session } = useSession();
-
-    // const { data, error, isLoading, isIdle, refetch } = useQuery(
-    //     "searchres",
-    //     async () => {
-    //         let response = await fetch(
-    //             `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search`,
-    //             {
-    //                 method: "POST",
-    //                 headers: {
-    //                     Authorization: `Token ${session.authToken}`,
-    //                     Accept: "application/json",
-    //                     "Content-Type": "application/json",
-    //                 },
-    //                 body: JSON.stringify({
-    //                     searchterm: router.query.searchterm,
-    //                 }),
-    //             }
-    //         );
-    //         if (response.ok) return response.json();
-    //         let res = await response.json();
-    //         throw new Error(res.Error);
-    //     },
-    //     {
-    //         enabled: false,
-    //         refetchOnWindowFocus: false,
-    //     }
-    // );
+    const {
+        data: results,
+        error,
+        isFetched,
+        isLoading,
+        refetch,
+    } = trpc.useQuery(
+        [
+            "navigation.search",
+            {
+                keyword: searchParams.keyword,
+                tags: searchParams.tags,
+                onPage: searchParams.onPage,
+            },
+        ],
+        {
+            // enabled: false,
+        }
+    );
 
     useEffect(() => {
-        if (router.isReady /*&& session*/) {
-            if (router.query.searchterm === undefined) {
-                window.location.href = "/search";
+        if (router.isReady) {
+            console.log("here");
+
+            let keyword: string | null = null,
+                tags: string[] | null = null,
+                onPage: number | null = null;
+            if (typeof router.query.keyword === "string") {
+                keyword = router.query.keyword;
             }
-            // refetch();
+
+            if (typeof router.query.tags === "string") {
+                console.log(router.query.tags);
+                tags = router.query.tags.split(",");
+            }
+
+            if (typeof router.query.page === "string") {
+                onPage = parseInt(router.query.page);
+            }
+
+            console.log({
+                keyword: keyword,
+                tags: tags,
+                onPage: onPage,
+            });
+
+            if (!keyword && !tags) router.push("/search");
+            setSearchParams({
+                keyword: keyword,
+                tags: tags,
+                onPage: onPage,
+            });
+
+            refetch();
         }
-    }, [router.query /*, session*/]);
+    }, [router.isReady, router.query]);
 
-    const AppShell = () => {
+    if (!isFetched || isLoading) {
         return (
-            <>
-                <Head>
-                    <title>{`Speakup搜尋 ${
-                        router.query.searchterm
-                            ? "- " + router.query.searchterm
-                            : ""
-                    }`}</title>
-                    <meta
-                        name="viewport"
-                        content="initial-scale=1.0, width=device-width"
-                    />
-                    <link rel="manifest" href="/site.webmanifest" />
-                </Head>
-                <Header />
-                <Navbar retractable={false} />
-                <Footbar />
-            </>
-        );
-    };
-
-    if (isIdle || isLoading) {
-        return (
-            <div className="fixed top-0 left-0 h-screen w-screen overflow-x-hidden bg-neutral-100 scrollbar-hide">
-                <AppShell />
+            <AppShell title="Speakup搜尋">
                 <div className="flex h-screen w-full flex-col items-center pt-14 lg:ml-64 lg:w-[calc(100%-16rem)]">
                     <div className="mt-10 w-[calc(100%-56px)] max-w-3xl md:mt-16 md:w-[calc(100%-160px)] ">
                         <div className="h-10 w-96 animate-pulse rounded-xl bg-neutral-200" />
@@ -91,35 +89,32 @@ const SearchResults = () => {
                         <div className="mt-6 h-36 w-full animate-pulse rounded-xl bg-neutral-200" />
                     </div>
                 </div>
-            </div>
+            </AppShell>
         );
-    } else if (error) {
+    }
+
+    if (error || !results) {
         showNotification({
             title: "資料獲取失敗",
-            message: "請重新整理頁面",
+            message: "請重新整理頁面 ",
             color: "red",
             disallowClose: true,
             autoClose: false,
         });
-        return (
-            <div className="fixed top-0 left-0 h-screen w-screen overflow-x-hidden bg-neutral-100 scrollbar-hide">
-                <AppShell />
-            </div>
-        );
+        return <AppShell title="Speakup搜尋" />;
     }
 
     return (
-        <div className="fixed top-0 left-0 h-screen w-screen overflow-x-hidden bg-neutral-100 scrollbar-hide">
-            <AppShell />
+        <AppShell title="Speakup 搜尋">
             <div className="flex h-screen w-full flex-col items-center pt-14 lg:ml-64 lg:w-[calc(100%-16rem)]">
                 <div className="mt-10 w-[calc(100%-56px)] max-w-3xl md:mt-16 md:w-[calc(100%-160px)] ">
                     <h1 className="text-2xl text-primary-800 md:text-3xl">
-                        {data.length > 0
-                            ? `以下為${router.query.searchterm}的搜尋結果`
-                            : `很抱歉，我們找不到符合${router.query.searchterm}的結果`}
+                        {results.data.length > 0
+                            ? `以下為${searchParams.keyword}的搜尋結果`
+                            : `很抱歉，我們找不到符合${searchParams.keyword}的結果`}
                     </h1>
                     <div className="mt-8 flex flex-col gap-6">
-                        {data.map((cardContent, i) => (
+                        {results.data.map((cardContent, i) => (
                             <NavCard
                                 key={i}
                                 cardContent={cardContent}
@@ -129,16 +124,23 @@ const SearchResults = () => {
                     </div>
                 </div>
                 <div className="h-16 flex-shrink-0"></div>
-                {/* <Pagebar
-                    maxPage={data.pages}
-                    url={(id) => {
-                        return `/search/results?searchterm=${router.query.searchTerm}&onpage=${id}`;
+                <Pagination
+                    page={searchParams.onPage ? searchParams.onPage : 1}
+                    onChange={(page) => {
+                        let params = new URLSearchParams();
+                        if (searchParams.keyword)
+                            params.set("keyword", searchParams.keyword);
+                        if (searchParams.tags)
+                            params.set("tags", searchParams.tags.toString());
+                        params.set("page", page.toString());
+                        router.push(`/search/results?${params.toString()}`);
                     }}
-                    selected={router.query.onpage ? router.query.onpage : 1}
-                /> */}
+                    total={results.hasPages}
+                    withControls={false}
+                />
                 <div className="mt-16 h-1 w-1 flex-shrink-0" />
             </div>
-        </div>
+        </AppShell>
     );
 };
 
