@@ -1,7 +1,7 @@
 import { Article } from "../schema/article.schema";
 
 export const SampleArticle: Article = {
-    id: "cl99rb4pd000g3b6m5egfn4z4",
+    id: "cl90vkxcc0000v5tlvac9c1i2",
     title: "台灣應該廢除早自習嗎？",
     tags: ["教育"],
     content: [

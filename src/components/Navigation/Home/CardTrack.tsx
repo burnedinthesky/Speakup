@@ -7,6 +7,7 @@ import HomeNavCard from "./HomeNavCard";
 
 import { Article } from "../../../schema/article.schema";
 import { useRef } from "react";
+import { ScrollArea } from "@mantine/core";
 
 interface CardTrackProps {
     title: string;
@@ -23,20 +24,23 @@ const CardTrack = ({ title, cards }: CardTrackProps) => {
         <div>
             <h2 className="text-2xl text-primary-800">{title}</h2>
             <div className="flex">
-                <div
-                    className="mt-4 flex gap-9 overflow-x-auto pb-3.5"
-                    ref={trackRef}
-                >
-                    {cards.map((card, i, arr) => (
-                        <div
-                            key={i}
-                            className="w-96 flex-shrink-0"
-                            ref={i === arr.length - 1 ? lastCardRef : undefined}
-                        >
-                            <HomeNavCard cardContent={card} />
-                        </div>
-                    ))}
-                </div>
+                <ScrollArea className="mt-4 pb-3.5" viewportRef={trackRef}>
+                    <div className="flex gap-9">
+                        {cards.map((card, i, arr) => (
+                            <div
+                                key={i}
+                                className="w-96 flex-shrink-0"
+                                ref={
+                                    i === arr.length - 1
+                                        ? lastCardRef
+                                        : undefined
+                                }
+                            >
+                                <HomeNavCard cardContent={card} />
+                            </div>
+                        ))}
+                    </div>
+                </ScrollArea>
                 <div className="flex w-20 flex-shrink-0 items-center justify-center">
                     {inView ? (
                         <a
@@ -50,8 +54,12 @@ const CardTrack = ({ title, cards }: CardTrackProps) => {
                         <button
                             className="text-primary-600"
                             onClick={() => {
-                                if (trackRef.current)
-                                    trackRef.current.scrollLeft += 300;
+                                if (!trackRef.current) return;
+                                console.log("Hello");
+                                trackRef.current.scrollTo({
+                                    left: trackRef.current.scrollLeft + 200,
+                                    behavior: "smooth",
+                                });
                             }}
                         >
                             <ChevronDoubleRightIcon className="w-6" />
