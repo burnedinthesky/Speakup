@@ -3,7 +3,7 @@ import { trpc } from "../utils/trpc";
 
 import Head from "next/head";
 
-import { Footbar, Header, Navbar } from "../components/AppShell";
+import { AppShell } from "../components/AppShell";
 
 import {
     DesktopLoadingScreen,
@@ -33,21 +33,13 @@ const UserHome = () => {
 
     if (isLoading) {
         return (
-            <>
-                <Head>
-                    <title>{`Speakup - 首頁`}</title>
-                    <meta
-                        name="viewport"
-                        content="initial-scale=1.0, width=device-width"
-                    />
-                    <link rel="manifest" href="/site.webmanifest" />
-                </Head>
+            <AppShell title="Speakup - 首頁">
                 {homeVer === "mob" ? (
                     <MobileLoadingScreen />
                 ) : (
                     <DesktopLoadingScreen />
                 )}
-            </>
+            </AppShell>
         );
     }
 
@@ -60,23 +52,7 @@ const UserHome = () => {
             });
             setSendErrorNotification(true);
         }
-        return (
-            <>
-                <Head>
-                    <title>{`Speakup - 首頁`}</title>
-                    <meta
-                        name="viewport"
-                        content="initial-scale=1.0, width=device-width"
-                    />
-                    <link rel="manifest" href="/site.webmanifest" />
-                </Head>
-                <div className="fixed top-0 left-0 flex h-screen w-screen justify-center bg-neutral-50">
-                    <Header />
-                    <Navbar retractable={false} />
-                    <Footbar />
-                </div>
-            </>
-        );
+        return <AppShell title="Speakup - 首頁" />;
     }
 
     return (

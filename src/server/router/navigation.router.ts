@@ -35,12 +35,6 @@ export const navigationRouter = createRouter()
             onPage: z.number().min(1).nullable(),
         }),
         async resolve({ ctx, input }) {
-            console.log("queried");
-
-            await new Promise((resolve) => {
-                setTimeout(resolve, 5000);
-            });
-
             const page = input.onPage ? input.onPage : 1;
 
             const data = SampleSearchResults;

@@ -1,7 +1,7 @@
 import Link from "next/link";
-// import DesktopNotifications from "./header/DesktopNotificationHandler";
+
+import SearchBar from "../Navigation/Search/SearchBar";
 import AccountOptions from "../Account/AccountOptions";
-import DesktopDropdown from "../Navigation/Search/DesktopDropdown";
 
 const Header = () => {
     return (
@@ -25,8 +25,8 @@ const Header = () => {
                             alt="logo"
                         />
                     </Link>
-                    <div className=" w-7/12 max-w-2xl  xl:w-5/12">
-                        <DesktopDropdown />
+                    <div className=" w-7/12 max-w-2xl xl:w-5/12">
+                        <SearchBar />
                     </div>
                 </div>
                 <div className="flex h-9 items-center justify-end gap-5 ">

@@ -75,6 +75,8 @@ const SearchResults = () => {
                 onPage: onPage,
             });
 
+            console.log(tags);
+
             refetch();
         }
     }, [router.isReady, router.query]);
@@ -110,7 +112,17 @@ const SearchResults = () => {
                 <div className="mt-10 w-[calc(100%-56px)] max-w-3xl md:mt-16 md:w-[calc(100%-160px)] ">
                     <h1 className="text-2xl text-primary-800 md:text-3xl">
                         {results.data.length > 0
-                            ? `以下為${searchParams.keyword}的搜尋結果`
+                            ? `以下為${
+                                  searchParams.keyword
+                                      ? searchParams.keyword
+                                      : ""
+                              } ${
+                                  searchParams.tags
+                                      ? searchParams.tags
+                                            .map((ele) => `#${ele}`)
+                                            .join(" ")
+                                      : ""
+                              }的搜尋結果`
                             : `很抱歉，我們找不到符合${searchParams.keyword}的結果`}
                     </h1>
                     <div className="mt-8 flex flex-col gap-6">

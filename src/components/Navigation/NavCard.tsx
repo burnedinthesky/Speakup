@@ -6,6 +6,7 @@ import {
     UserCircleIcon,
 } from "@heroicons/react/outline";
 import { Article } from "../../schema/article.schema";
+import { Avatar } from "@mantine/core";
 
 interface NavCardProps {
     cardContent: Article;
@@ -13,6 +14,8 @@ interface NavCardProps {
 }
 
 const NavCard = ({ cardContent, showDetails }: NavCardProps) => {
+    const formatter = Intl.NumberFormat("en", { notation: "compact" });
+
     return (
         <Link href={`/discussion/${cardContent.id}`}>
             <div className="flex w-full cursor-pointer justify-between overflow-hidden rounded-2xl bg-white pr-4 md:pr-7">
@@ -21,7 +24,7 @@ const NavCard = ({ cardContent, showDetails }: NavCardProps) => {
                     <h3 className=" text-lg text-neutral-800 md:text-xl">
                         {cardContent.title}
                     </h3>
-                    <p className="line-clamp-3 mt-1 h-[72px] text-ellipsis text-neutral-700">
+                    <p className="mt-1 h-[72px] text-ellipsis text-neutral-700 line-clamp-3">
                         {cardContent.content[0]?.content}
                     </p>
                 </div>
@@ -30,17 +33,31 @@ const NavCard = ({ cardContent, showDetails }: NavCardProps) => {
                         showDetails && "md:flex"
                     }`}
                 >
-                    <div className="flex items-center">
-                        <UserCircleIcon className="mr-2 h-6 w-6 flex-shrink-0" />
-                        <p className="text-xs">{cardContent.author.username}</p>
+                    <div className="flex items-center overflow-hidden text-ellipsis">
+                        <Avatar
+                            src={cardContent.author.profileImg}
+                            size={24}
+                            radius="xl"
+                            color="cyan"
+                            className="mr-2"
+                        >
+                            {cardContent.author.username[0]}
+                        </Avatar>
+                        <div className="h-4 w-[calc(100%-32px)] truncate text-xs">
+                            {cardContent.author.username}
+                        </div>
                     </div>
                     <div className="flex items-center">
                         <EyeIcon className="mr-2 h-6 w-6 flex-shrink-0" />
-                        <p className="text-xs">{cardContent.viewCount}</p>
+                        <p className="text-xs">
+                            {formatter.format(cardContent.viewCount)}
+                        </p>
                     </div>
                     <div className="flex items-center">
                         <ChatAlt2Icon className="mr-2 h-6 w-6 flex-shrink-0" />
-                        <p className="text-xs">{cardContent.commentCount}</p>
+                        <p className="text-xs">
+                            {formatter.format(cardContent.argumentCount)}
+                        </p>
                     </div>
                 </div>
             </div>
