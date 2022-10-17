@@ -12,6 +12,7 @@ import StanceSelector from "../../components/Discussion/Selectors/StanceSelector
 import SortSelector from "../../components/Discussion/Selectors/SortSelector";
 
 import { Article } from "../../schema/article.schema";
+import { trpc } from "../../utils/trpc";
 
 interface DiscussionProps {
     article: Article;
@@ -23,6 +24,15 @@ const DiscussionBoard = ({ article }: DiscussionProps) => {
         "default" | "time" | "replies"
     >("default");
     const [screenSize, setScreenSize] = useState<"mob" | "des">("mob");
+    const [articleViewQueryFetched, setArticleViewQueryFetched] =
+        useState<boolean>(false);
+
+    trpc.useQuery(["articles.register-view", article.id], {
+        enabled: !articleViewQueryFetched,
+        onSettled: () => {
+            setArticleViewQueryFetched(true);
+        },
+    });
 
     const updateSortMethod = (e: MouseEvent<HTMLButtonElement>) => {
         const updateMode = e.currentTarget.innerText as

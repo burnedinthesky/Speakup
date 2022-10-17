@@ -39,7 +39,8 @@ model User {
     dislikedComments  Comments[] @relation("supportedComments")
     supportedComments Comments[] @relation("dislikedComments")
 
-    PrivateUser PrivateUser?
+    PrivateUser  PrivateUser?
+    ArticleViews ArticleViews[]
 }
 
 enum PrivateUserRole {
@@ -67,6 +68,15 @@ model Articles {
     content     Json
     references  Json
     arguments   Argument[]
+}
+
+model ArticleViews {
+    id     BigInt  @id @default(autoincrement())
+    ip     String?
+    user   User?   @relation(fields: [userId], references: [id])
+    userId String?
+
+    @@unique([ip, userId])
 }
 
 model Argument {
