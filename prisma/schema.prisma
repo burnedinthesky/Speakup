@@ -65,6 +65,7 @@ model CollectionSet {
     userId      String
     name        String
     collections Collections[]
+    createdTime DateTime      @default(now())
 }
 
 model Collections {
@@ -74,6 +75,7 @@ model Collections {
     article        Articles        @relation(fields: [articleId], references: [id])
     articleId      String
     collectionSets CollectionSet[]
+    createdTime    DateTime        @default(now())
 
     @@unique([articleId, userId])
 }

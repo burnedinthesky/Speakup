@@ -1,11 +1,13 @@
-import { Prisma } from "@prisma/client";
+import { createRouter } from "../createRouter";
 import { z } from "zod";
+import { Prisma } from "@prisma/client";
 import { ArticleBlock } from "../../schema/article.schema";
 import {
+    CollectionSet,
     HomeRecommendations,
     NavCardData,
 } from "../../schema/navigation.schema";
-import { createRouter } from "../createRouter";
+import { SampleUser } from "../../templateData/users";
 
 const processArticles = (
     articles: {
@@ -126,5 +128,237 @@ export const navigationRouter = createRouter()
                 data,
                 hasPages: 2,
             };
+        },
+    })
+    .query("getUserCollections", {
+        input: z.object({
+            collectionSet: z.number().nullable(),
+            limit: z.number().min(1).max(100),
+            cursor: z.number().nullish(),
+        }),
+        async resolve({ ctx, input }) {
+            const data = await ctx.prisma.collections.findMany({
+                where: {
+                    userId: SampleUser.id,
+
+                    collectionSets: input.collectionSet
+                        ? {
+                              some: {
+                                  id: input.collectionSet,
+                              },
+                          }
+                        : undefined,
+                },
+                select: {
+                    article: {
+                        select: {
+                            id: true,
+                            title: true,
+                            tags: true,
+                            author: {
+                                select: {
+                                    username: true,
+                                    profileImg: true,
+                                },
+                            },
+                            content: true,
+                            viewCount: true,
+                            _count: {
+                                select: {
+                                    arguments: true,
+                                },
+                            },
+                        },
+                    },
+                },
+                take: input.limit + 1,
+                skip: input.cursor ? input.cursor * input.limit : 0,
+            });
+
+            let nextCursor: number | undefined;
+            if (data.length === input.limit + 1) {
+                nextCursor = input.cursor ? input.cursor + 1 : 1;
+                data.pop();
+            }
+            console.log("here");
+            return {
+                data: processArticles(data.map((data) => data.article)),
+                nextCursor,
+            };
+        },
+    })
+    .mutation("upsertUserCollection", {
+        input: z.object({
+            articleId: z.string(),
+            collectionSetIds: z.array(z.number()),
+        }),
+        async resolve({ input, ctx }) {
+            const currectCollection = await ctx.prisma.collections.findUnique({
+                where: {
+                    articleId_userId: {
+                        userId: SampleUser.id,
+                        articleId: input.articleId,
+                    },
+                },
+                select: {
+                    id: true,
+                    collectionSets: {
+                        select: {
+                            id: true,
+                        },
+                    },
+                },
+            });
+
+            await ctx.prisma.user.findFirstOrThrow({
+                where: {
+                    CollectionSet: {
+                        every: {
+                            id: {
+                                in: input.collectionSetIds,
+                            },
+                        },
+                    },
+                },
+            });
+
+            let disconnect: { id: number }[] = [];
+            if (currectCollection)
+                currectCollection.collectionSets.forEach((ele) => {
+                    if (!input.collectionSetIds.includes(ele.id)) {
+                        disconnect.push({ id: ele.id });
+                    }
+                });
+
+            const data = await ctx.prisma.collections.upsert({
+                where: {
+                    articleId_userId: {
+                        articleId: input.articleId,
+                        userId: SampleUser.id,
+                    },
+                },
+                update: {
+                    collectionSets: {
+                        connect: input.collectionSetIds.map((ele) => ({
+                            id: ele,
+                        })),
+                        disconnect: disconnect,
+                    },
+                },
+                create: {
+                    article: {
+                        connect: {
+                            id: input.articleId,
+                        },
+                    },
+                    user: {
+                        connect: {
+                            id: SampleUser.id,
+                        },
+                    },
+                    collectionSets: {
+                        connect: input.collectionSetIds.map((ele) => ({
+                            id: ele,
+                        })),
+                    },
+                },
+                select: {
+                    article: {
+                        select: {
+                            id: true,
+                            title: true,
+                            tags: true,
+                            author: {
+                                select: {
+                                    username: true,
+                                    profileImg: true,
+                                },
+                            },
+                            content: true,
+                            viewCount: true,
+                            _count: {
+                                select: {
+                                    arguments: true,
+                                },
+                            },
+                        },
+                    },
+                },
+            });
+            return processArticles([data.article])[0];
+        },
+    })
+    .mutation("deleteUserCollection", {
+        input: z.object({
+            collectionId: z.number(),
+        }),
+        async resolve({ ctx, input }) {
+            await ctx.prisma.collections.deleteMany({
+                where: {
+                    user: {
+                        id: SampleUser.id,
+                    },
+                    id: input.collectionId,
+                },
+            });
+
+            return;
+        },
+    })
+    .query("getCollectionSets", {
+        async resolve({ ctx }) {
+            const sets = await ctx.prisma.collectionSet.findMany({
+                where: {
+                    userId: SampleUser.id,
+                },
+                select: {
+                    id: true,
+                    name: true,
+                },
+                orderBy: {
+                    createdTime: "desc",
+                },
+            });
+
+            return sets as CollectionSet[];
+        },
+    })
+    .mutation("createCollectionSet", {
+        input: z.object({
+            name: z.string(),
+        }),
+        async resolve({ ctx, input }) {
+            const createdSet = await ctx.prisma.collectionSet.create({
+                data: {
+                    user: {
+                        connect: {
+                            id: SampleUser.id,
+                        },
+                    },
+                    name: input.name,
+                },
+                select: {
+                    id: true,
+                    name: true,
+                },
+            });
+
+            return createdSet as CollectionSet;
+        },
+    })
+    .mutation("deleteCollectionSet", {
+        input: z.object({
+            colSetId: z.number(),
+        }),
+        async resolve({ ctx, input }) {
+            await ctx.prisma.collectionSet.deleteMany({
+                where: {
+                    id: input.colSetId,
+                    user: {
+                        id: SampleUser.id,
+                    },
+                },
+            });
+            return;
         },
     });

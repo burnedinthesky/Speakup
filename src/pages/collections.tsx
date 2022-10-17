@@ -1,26 +1,30 @@
-import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 import { showNotification } from "@mantine/notifications";
+import { trpc } from "../utils/trpc";
 
 import { AppShell } from "../components/AppShell";
 import NavCard from "../components/Navigation/NavCard";
 import NoCollectionsDisplay from "../components/Navigation/Collections/NoCollectionsDisplay";
-
-import { SampleCollections } from "../templateData/navigation";
 import CollectionSetSelector from "../components/Navigation/Collections/CollectionSetSelector";
-import { useState } from "react";
 
 const Collections = () => {
-    const router = useRouter();
-
-    const isIdle = false,
-        isLoading = false,
-        error = null;
-
-    const data = SampleCollections;
-
     const [selectedSet, setSelectedSet] = useState<number | null>(null);
 
-    if (isIdle || isLoading) {
+    const { data, isLoading } = trpc.useInfiniteQuery(
+        [
+            "navigation.getUserCollections",
+            { collectionSet: selectedSet, limit: 20 },
+        ],
+        {
+            getNextPageParam: (lastPage) => lastPage.nextCursor,
+        }
+    );
+
+    const { data: colSets, isLoading: colSetsLoading } = trpc.useQuery([
+        "navigation.getCollectionSets",
+    ]);
+
+    if (isLoading || colSetsLoading) {
         return (
             <AppShell title="Speakup收藏">
                 <div className="fixed top-0 left-0 h-screen w-screen overflow-x-hidden bg-neutral-100 scrollbar-hide">
@@ -35,7 +39,7 @@ const Collections = () => {
             </AppShell>
         );
     }
-    if (error) {
+    if (!data || !colSets) {
         showNotification({
             title: "資料獲取失敗",
             message: "請重新整理頁面",
@@ -50,16 +54,19 @@ const Collections = () => {
         <AppShell title="Speakup收藏">
             <div className="fixed top-0 left-0 flex h-screen w-screen justify-center overflow-y-auto pt-14">
                 <div className="w-full max-w-3xl pt-20 md:w-[calc(100%-160px)]">
-                    {data.length > 0 ? (
+                    {data.pages[0] && data.pages[0].data.length > 0 ? (
                         <>
                             <div className="flex flex-col gap-8">
-                                {data.map((cardContent, i) => (
-                                    <NavCard
-                                        key={i}
-                                        cardContent={cardContent}
-                                        showDetails={false}
-                                    />
-                                ))}
+                                {data.pages
+                                    .flat()
+                                    .flatMap((ele) => ele.data)
+                                    .map((cardContent, i) => (
+                                        <NavCard
+                                            key={i}
+                                            cardContent={cardContent}
+                                            showDetails={false}
+                                        />
+                                    ))}
                             </div>
                             <div className="h-16 flex-shrink-0"></div>
                             <div className="mt-16 h-1 w-1 flex-shrink-0" />
@@ -68,7 +75,7 @@ const Collections = () => {
                         <NoCollectionsDisplay />
                     )}
                     <CollectionSetSelector
-                        sets={[]}
+                        sets={colSets}
                         selectedSet={selectedSet}
                         setSelectedSet={setSelectedSet}
                     />

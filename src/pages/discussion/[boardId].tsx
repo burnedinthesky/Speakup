@@ -91,7 +91,6 @@ const DiscussionBoard = ({ article }: DiscussionProps) => {
                             </div>
                         </div>
                         <CommentField
-                            // key={viewingStance + sortMethod}
                             articleId={article.id}
                             viewingStance={
                                 viewingStance as "sup" | "agn" | "both"
