@@ -1,8 +1,8 @@
 import { Avatar } from "@mantine/core";
 import Link from "next/link";
-import { Article } from "../../../schema/article.schema";
+import { NavCardData } from "../../../schema/navigation.schema";
 
-const HomeNavCard = ({ cardContent }: { cardContent: Article }) => {
+const HomeNavCard = ({ cardContent }: { cardContent: NavCardData }) => {
     return (
         <Link href={`/discussion/${cardContent.id}`}>
             <div className="flex h-40 w-full flex-shrink-0 cursor-pointer justify-between overflow-hidden rounded-2xl border-2 border-primary-800 bg-neutral-50 pr-4 md:pr-7 xl:border-2 ">
@@ -28,7 +28,7 @@ const HomeNavCard = ({ cardContent }: { cardContent: Article }) => {
                         </p>
                     </div>
                     <p className="mt-2 h-[48px] text-ellipsis text-sm text-neutral-700 line-clamp-2 lg:h-[60px] lg:line-clamp-3 ">
-                        {cardContent.content[0]?.content}
+                        {cardContent.brief}
                     </p>
                 </div>
             </div>

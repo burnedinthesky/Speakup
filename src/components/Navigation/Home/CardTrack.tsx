@@ -1,17 +1,19 @@
+import { useRef } from "react";
 import { useInView } from "react-intersection-observer";
+
+import { ScrollArea } from "@mantine/core";
 import {
     ChevronDoubleRightIcon,
     SearchCircleIcon,
 } from "@heroicons/react/outline";
+
 import HomeNavCard from "./HomeNavCard";
 
-import { Article } from "../../../schema/article.schema";
-import { useRef } from "react";
-import { ScrollArea } from "@mantine/core";
+import { NavCardData } from "../../../schema/navigation.schema";
 
 interface CardTrackProps {
     title: string;
-    cards: Article[];
+    cards: NavCardData[];
 }
 
 const CardTrack = ({ title, cards }: CardTrackProps) => {
@@ -44,8 +46,7 @@ const CardTrack = ({ title, cards }: CardTrackProps) => {
                 <div className="flex w-20 flex-shrink-0 items-center justify-center">
                     {inView ? (
                         <a
-                            href={"/search"}
-                            // href={`/search/results?searchterm=@${track.title}`}
+                            href={`/search/results?tags=${title}`}
                             className="w-8 rounded-full text-primary-700"
                         >
                             <SearchCircleIcon />

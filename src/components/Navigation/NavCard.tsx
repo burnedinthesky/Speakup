@@ -1,15 +1,10 @@
-import React from "react";
 import Link from "next/link";
-import {
-    ChatAlt2Icon,
-    EyeIcon,
-    UserCircleIcon,
-} from "@heroicons/react/outline";
-import { Article } from "../../schema/article.schema";
+import { ChatAlt2Icon, EyeIcon } from "@heroicons/react/outline";
 import { Avatar } from "@mantine/core";
+import { NavCardData } from "../../schema/navigation.schema";
 
 interface NavCardProps {
-    cardContent: Article;
+    cardContent: NavCardData;
     showDetails: boolean;
 }
 
@@ -25,7 +20,7 @@ const NavCard = ({ cardContent, showDetails }: NavCardProps) => {
                         {cardContent.title}
                     </h3>
                     <p className="mt-1 h-[72px] text-ellipsis text-neutral-700 line-clamp-3">
-                        {cardContent.content[0]?.content}
+                        {cardContent.brief}
                     </p>
                 </div>
                 <div
