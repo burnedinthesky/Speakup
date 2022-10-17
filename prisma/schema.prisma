@@ -39,8 +39,10 @@ model User {
     dislikedComments  Comments[] @relation("supportedComments")
     supportedComments Comments[] @relation("dislikedComments")
 
-    PrivateUser  PrivateUser?
-    ArticleViews ArticleViews[]
+    PrivateUser   PrivateUser?
+    ArticleViews  ArticleViews[]
+    Collections   Collections[]
+    CollectionSet CollectionSet[]
 }
 
 enum PrivateUserRole {
@@ -57,17 +59,37 @@ model PrivateUser {
     AuthToken String?         @unique @db.VarChar(64)
 }
 
+model CollectionSet {
+    id          Int           @id @unique @default(autoincrement())
+    user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId      String
+    name        String
+    collections Collections[]
+}
+
+model Collections {
+    id             Int             @id @unique @default(autoincrement())
+    user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId         String
+    article        Articles        @relation(fields: [articleId], references: [id])
+    articleId      String
+    collectionSets CollectionSet[]
+
+    @@unique([articleId, userId])
+}
+
 model Articles {
-    id          String     @id @default(cuid())
-    title       String     @unique
+    id          String        @id @default(cuid())
+    title       String        @unique
     tags        String[]
-    createdTime DateTime   @default(now())
-    author      User       @relation(fields: [authorId], references: [id])
+    createdTime DateTime      @default(now())
+    author      User          @relation(fields: [authorId], references: [id])
     authorId    String
-    viewCount   Int        @default(0)
+    viewCount   Int           @default(0)
     content     Json
     references  Json
     arguments   Argument[]
+    Collections Collections[]
 }
 
 model ArticleViews {

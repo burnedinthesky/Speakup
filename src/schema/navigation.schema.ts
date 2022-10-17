@@ -18,3 +18,8 @@ export type HomeRecommendation = {
 export type HomeRecommendations = {
     [key: string]: HomeRecommendation;
 };
+
+export type CollectionSet = {
+    id: number;
+    name: string;
+};
