@@ -19,7 +19,11 @@ const NavCard = ({ cardContent, showDetails }: NavCardProps) => {
 
     return (
         <div className="flex w-full justify-between overflow-hidden rounded-2xl bg-white pr-4 md:pr-7">
-            <div className="w-[4.5rem] flex-shrink-0 bg-primary-700  md:w-24"></div>
+            <div className="flex w-[4.5rem] flex-shrink-0 flex-col items-center justify-center bg-primary-700 text-white md:w-24">
+                {cardContent.tags.map((ele) => (
+                    <p>#{ele}</p>
+                ))}
+            </div>
             <div className="h-full flex-grow px-4 py-3">
                 <Link href={`/discussion/${cardContent.id}`}>
                     <h3 className="cursor-pointer text-lg text-neutral-800 md:text-xl">

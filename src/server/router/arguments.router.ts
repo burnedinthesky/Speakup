@@ -97,7 +97,6 @@ export const argumentsRouter = createRouter()
         }),
         async resolve({ input, ctx }) {
             console.log("called");
-            console.log(input);
 
             const allowedStance = [];
             if (input.stance == "sup" || input.stance == "both")
@@ -239,19 +238,6 @@ export const argumentsRouter = createRouter()
                 skip: input.limit * (input.cursor ? input.cursor : 0),
                 take: input.limit + 1,
             });
-
-            console.log({
-                pagnationSequence: input.sort === "default" ? "asc" : undefined,
-                createdTime: input.sort === "time" ? "desc" : undefined,
-                comments:
-                    input.sort === "replies"
-                        ? {
-                              _count: "desc",
-                          }
-                        : undefined,
-            });
-
-            console.log(data);
 
             let nextCursor =
                 data.length === input.limit + 1

@@ -62,7 +62,7 @@ const Navbar = ({ retractable }: { retractable: boolean }) => {
                     />
                     <NavbarSection
                         retractable={retractable}
-                        link="/search/results?searchterm=@熱門議題"
+                        link="/search/results?tags=熱門議題"
                         icon={<TrendingUpIcon className="w-7 flex-shrink-0" />}
                         text="熱門議題"
                     />
@@ -86,7 +86,7 @@ const Navbar = ({ retractable }: { retractable: boolean }) => {
                     <ul className="list-none overflow-x-hidden pl-20">
                         {tags.map((tag, i) => (
                             <Link
-                                href={`/search/results?searchterm=@${tag}`}
+                                href={`/search/results?tags=${tag}`}
                                 key={`link${i}`}
                             >
                                 <li

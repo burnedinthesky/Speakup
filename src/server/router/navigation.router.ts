@@ -221,9 +221,6 @@ export const navigationRouter = createRouter()
             collectionSetIds: z.array(z.number()),
         }),
         async resolve({ input, ctx }) {
-            console.log("Updated");
-            console.log(input.collectionSetIds);
-
             const currectCollection = await ctx.prisma.collections.findUnique({
                 where: {
                     articleId_userId: {
