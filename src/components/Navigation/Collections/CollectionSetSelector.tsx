@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { PlusCircleIcon, TrashIcon } from "@heroicons/react/outline";
 import CreateColSetModal from "./CreateCollectionsSetModal";
-import useCreateColSetMutation from "../../../hooks/navigation/useCreateColSetMutation";
 import { CollectionSet } from "../../../schema/navigation.schema";
 import { trpc } from "../../../utils/trpc";
 import { showNotification } from "@mantine/notifications";
@@ -25,7 +24,6 @@ const CollectionSetSelector = ({
 
     const trpcUtils = trpc.useContext();
 
-    const createColSetMutation = useCreateColSetMutation();
     const deleteColSetMutation = trpc.useMutation(
         ["navigation.deleteCollectionSet"],
         {
@@ -95,11 +93,6 @@ const CollectionSetSelector = ({
             <CreateColSetModal
                 opened={openAddSetModal}
                 setOpened={setOpenAddSetModal}
-                createNewColSet={(name: string) => {
-                    createColSetMutation.mutate({
-                        name,
-                    });
-                }}
             />
         </div>
     );

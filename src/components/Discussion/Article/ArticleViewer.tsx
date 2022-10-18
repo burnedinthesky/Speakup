@@ -6,6 +6,7 @@ import { BookmarkIcon, FlagIcon, ShareIcon } from "@heroicons/react/outline";
 import { Article, ArticleBlock } from "../../../schema/article.schema";
 import ShareDialog from "./ShareDialog";
 import { useRouter } from "next/router";
+import AddToCollection from "../../Navigation/Collections/AddToCollection";
 
 interface ArticleViewerProps {
     article: Article;
@@ -97,10 +98,12 @@ const ArticleViewer = ({ article }: ArticleViewerProps) => {
                             setUserSaved(!userSaved);
                         }}
                     >
-                        <BookmarkIcon
-                            className={`h-7 w-7 text-primary-700 transition-colors ${
-                                userSaved ? "fill-yellow-300" : "fill-white"
-                            }`}
+                        <AddToCollection
+                            articleId={article.id}
+                            classNames={{
+                                bookmarkIcon: "h-7 text-primary-700",
+                                collectText: "hidden",
+                            }}
                         />
                     </button>
                     <button

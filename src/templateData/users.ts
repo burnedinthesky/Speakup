@@ -1,5 +1,5 @@
 export const SampleUser = {
-    id: "6472b871-c917-45cf-b0f3-c68bcc4008ff",
-    profileImg: "",
-    username: "Test",
+    id: "20aa0523-6704-463c-9376-cdbb9ffd6a07",
+    profileImg: null,
+    username: "User1",
 };

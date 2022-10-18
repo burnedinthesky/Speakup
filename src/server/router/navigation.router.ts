@@ -187,12 +187,43 @@ export const navigationRouter = createRouter()
             };
         },
     })
+    .query("getSingleCollection", {
+        input: z.object({
+            articleId: z.string(),
+        }),
+        async resolve({ ctx, input }) {
+            const data = await ctx.prisma.collections.findFirst({
+                where: {
+                    userId: SampleUser.id,
+                    articleId: input.articleId,
+                },
+                select: {
+                    id: true,
+                    collectionSets: {
+                        select: {
+                            id: true,
+                        },
+                    },
+                },
+            });
+
+            return data
+                ? {
+                      ...data,
+                      collectionSets: data.collectionSets.map((ele) => ele.id),
+                  }
+                : null;
+        },
+    })
     .mutation("upsertUserCollection", {
         input: z.object({
             articleId: z.string(),
             collectionSetIds: z.array(z.number()),
         }),
         async resolve({ input, ctx }) {
+            console.log("Updated");
+            console.log(input.collectionSetIds);
+
             const currectCollection = await ctx.prisma.collections.findUnique({
                 where: {
                     articleId_userId: {
@@ -210,17 +241,24 @@ export const navigationRouter = createRouter()
                 },
             });
 
-            await ctx.prisma.user.findFirstOrThrow({
+            const users = await ctx.prisma.collectionSet.findMany({
                 where: {
-                    CollectionSet: {
-                        every: {
-                            id: {
-                                in: input.collectionSetIds,
-                            },
-                        },
+                    id: {
+                        in: input.collectionSetIds,
                     },
                 },
+                select: {
+                    userId: true,
+                },
             });
+
+            if (
+                users.length > 1 || users.length
+                    ? users[0]?.userId !== SampleUser.id
+                    : false
+            ) {
+                throw new Error("Invalid Collection Sets");
+            }
 
             let disconnect: { id: number }[] = [];
             if (currectCollection)
@@ -293,6 +331,7 @@ export const navigationRouter = createRouter()
             collectionId: z.number(),
         }),
         async resolve({ ctx, input }) {
+            console.log("Updated");
             await ctx.prisma.collections.deleteMany({
                 where: {
                     user: {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { showNotification } from "@mantine/notifications";
 import { trpc } from "../utils/trpc";
 

@@ -1,19 +1,17 @@
 import { useState } from "react";
 import { Button, Modal, TextInput } from "@mantine/core";
+import useCreateColSetMutation from "../../../hooks/navigation/useCreateColSetMutation";
 
 interface CreateColSetModalProps {
     opened: boolean;
     setOpened: (value: boolean) => void;
-    createNewColSet: (name: string) => void;
 }
 
-const CreateColSetModal = ({
-    opened,
-    setOpened,
-    createNewColSet,
-}: CreateColSetModalProps) => {
+const CreateColSetModal = ({ opened, setOpened }: CreateColSetModalProps) => {
     const [colSetName, setColSetName] = useState<string>("");
     const [inputError, setInputError] = useState<string | null>(null);
+
+    const createColSetMutation = useCreateColSetMutation();
 
     const submitCollectionSet = () => {
         setInputError(null);
@@ -22,7 +20,11 @@ const CreateColSetModal = ({
         } else if (colSetName.length > 10) {
             setInputError("名稱過長，請輸入十個字內");
         } else {
-            createNewColSet(colSetName);
+            createColSetMutation.mutate({
+                name: colSetName,
+            });
+            setColSetName("");
+            setInputError(null);
             setOpened(false);
         }
     };
