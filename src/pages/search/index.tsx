@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { ClipboardCopyIcon, SearchIcon } from "@heroicons/react/outline";
 import Header from "../../components/AppShell/Header";
 import Navbar from "../../components/AppShell/Navbar";
@@ -9,12 +9,6 @@ import Head from "next/head";
 
 const SearchMenu = () => {
     const [searchText, setSearchText] = useState("");
-
-    useEffect(() => {
-        if (!localStorage.getItem("AuthToken")) {
-            window.location.href = "/login";
-        }
-    }, []);
 
     const tags = ArticleTagValues;
 
@@ -64,7 +58,7 @@ const SearchMenu = () => {
                     </form>
                     <div className="mx-auto my-7 w-full text-primary-800">
                         <h2 className="my-3 text-xl lg:my-4 lg:text-2xl">
-                            #推薦標籤
+                            或透過標籤搜尋
                         </h2>
                         <div className="flex flex-wrap gap-x-4 gap-y-5">
                             {tags.map((tag, i) => (

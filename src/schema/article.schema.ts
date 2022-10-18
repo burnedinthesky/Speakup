@@ -28,12 +28,11 @@ export type Article = {
     id: string;
     title: string;
     tags: ArticleTags[];
+    author: ArticleAuthor;
+    viewCount: number;
     content: ArticleBlock[];
     references: ReferencesLink[];
-    author: ArticleAuthor;
-    threadGroupId: number;
-    viewCount: number;
-    commentCount: number;
+    argumentCount: number;
 };
 
 export const createArticleSchema = z.object({

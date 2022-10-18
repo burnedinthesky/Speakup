@@ -12,6 +12,7 @@ import StanceSelector from "../../components/Discussion/Selectors/StanceSelector
 import SortSelector from "../../components/Discussion/Selectors/SortSelector";
 
 import { Article } from "../../schema/article.schema";
+import { trpc } from "../../utils/trpc";
 
 interface DiscussionProps {
     article: Article;
@@ -23,6 +24,15 @@ const DiscussionBoard = ({ article }: DiscussionProps) => {
         "default" | "time" | "replies"
     >("default");
     const [screenSize, setScreenSize] = useState<"mob" | "des">("mob");
+    const [articleViewQueryFetched, setArticleViewQueryFetched] =
+        useState<boolean>(false);
+
+    trpc.useQuery(["articles.register-view", article.id], {
+        enabled: !articleViewQueryFetched,
+        onSettled: () => {
+            setArticleViewQueryFetched(true);
+        },
+    });
 
     const updateSortMethod = (e: MouseEvent<HTMLButtonElement>) => {
         const updateMode = e.currentTarget.innerText as
@@ -81,9 +91,10 @@ const DiscussionBoard = ({ article }: DiscussionProps) => {
                             </div>
                         </div>
                         <CommentField
-                            key={viewingStance + sortMethod}
-                            threadGroupId={article.threadGroupId}
-                            onSide={viewingStance as "sup" | "agn" | "both"}
+                            articleId={article.id}
+                            viewingStance={
+                                viewingStance as "sup" | "agn" | "both"
+                            }
                             sortMethod={sortMethod}
                         />
                     </div>
@@ -103,11 +114,11 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
             id: boardId,
         },
         select: {
+            id: true,
             title: true,
             tags: true,
             content: true,
             references: true,
-            threadGroupId: true,
             viewCount: true,
             author: {
                 select: {

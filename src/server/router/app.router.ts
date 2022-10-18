@@ -1,13 +1,13 @@
 import { createRouter } from "../createRouter";
+import { argumentsRouter } from "./arguments.router";
+import { articleRouter } from "./article.router";
 import { commentsRouter } from "./comments.router";
-import { threadGroupsRouter } from "./threadgroup.router";
-import { threadsRouter } from "./threads.router";
-import { userRouter } from "./user.router";
+import { navigationRouter } from "./navigation.router";
 
 export const appRouter = createRouter()
-    .merge("threads.", threadsRouter)
+    .merge("articles.", articleRouter)
+    .merge("arguments.", argumentsRouter)
     .merge("comments.", commentsRouter)
-    .merge("threadgroups.", threadGroupsRouter)
-    .merge("users", userRouter);
+    .merge("navigation.", navigationRouter);
 
 export type AppRouter = typeof appRouter;

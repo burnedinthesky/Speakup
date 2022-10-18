@@ -7,6 +7,7 @@ import {
     BookmarkIcon,
 } from "@heroicons/react/outline";
 import { ArticleTagValues } from "../../schema/article.schema";
+import { ScrollArea } from "@mantine/core";
 
 //prettier-ignore
 const tags = ArticleTagValues;
@@ -45,7 +46,7 @@ const NavbarSection = ({
 const Navbar = ({ retractable }: { retractable: boolean }) => {
     return (
         <nav
-            className={`transition-width group fixed top-14 left-0 z-10 hidden h-[calc(100vh-56px)] flex-shrink-0 flex-col overflow-hidden overflow-x-hidden rounded-r-[32px] bg-neutral-50 pt-6 duration-500 ease-out lg:flex ${
+            className={`group fixed top-14 left-0 z-10 hidden h-[calc(100vh-56px)] flex-shrink-0 flex-col overflow-hidden overflow-x-hidden rounded-r-[32px] bg-neutral-50 pt-6 transition-width duration-500 ease-out lg:flex ${
                 retractable
                     ? "w-20 hover:w-64 hover:drop-shadow-xl lg:flex"
                     : "w-64"
@@ -76,27 +77,29 @@ const Navbar = ({ retractable }: { retractable: boolean }) => {
 
             <hr className="my-3 mx-auto w-5/6 border-t-2 border-gray-300" />
 
-            <div
-                className={`flex-grow overflow-y-auto pb-6 ${
-                    retractable ? "hidden group-hover:block" : "block"
-                }`}
-            >
-                <ul className="h-full list-none overflow-x-hidden pl-20">
-                    {tags.map((tag, i) => (
-                        <Link
-                            href={`/search/results?searchterm=@${tag}`}
-                            key={`link${i}`}
-                        >
-                            <li
-                                key={i}
-                                className="cursor-pointer whitespace-nowrap py-2 text-lg text-primary-900 "
+            <ScrollArea>
+                <div
+                    className={`flex-grow pb-6 ${
+                        retractable ? "hidden group-hover:block" : "block"
+                    }`}
+                >
+                    <ul className="list-none overflow-x-hidden pl-20">
+                        {tags.map((tag, i) => (
+                            <Link
+                                href={`/search/results?searchterm=@${tag}`}
+                                key={`link${i}`}
                             >
-                                {tag}
-                            </li>
-                        </Link>
-                    ))}
-                </ul>
-            </div>
+                                <li
+                                    key={i}
+                                    className="cursor-pointer whitespace-nowrap py-2 text-lg text-primary-900 "
+                                >
+                                    {tag}
+                                </li>
+                            </Link>
+                        ))}
+                    </ul>
+                </div>
+            </ScrollArea>
         </nav>
     );
 };

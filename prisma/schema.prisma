@@ -10,99 +10,142 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model User {
-    id                String                     @id @unique @default(uuid())
-    username          String                     @unique
-    password          String
-    email             String                     @unique
-    profileImg        String                     @default("")
-    birthday          String?
-    gender            Int?
-    role              Role                       @default(USER)
-    Articles          Articles[]
-    Comments          Comments[]
-    likedComments     LikedUsersOnComments[]
-    dislikedComments  DislikedUsersOnComments[]
-    supportedComments SupportedUsersOnComments[]
-}
-
-model Articles {
-    id            String      @id @default(cuid())
-    title         String      @unique
-    tags          String[]
-    createdTime   DateTime    @default(now())
-    author        User        @relation(fields: [authorId], references: [id])
-    authorId      String
-    viewCount     Int         @default(0)
-    content       Json
-    references    Json
-    threadGroup   ThreadGroup @relation(fields: [threadGroupId], references: [id], onDelete: Cascade)
-    threadGroupId Int         @unique
-}
-
-model ThreadGroup {
-    id       Int       @id @default(autoincrement())
-    threads  Threads[]
-    Articles Articles?
-}
-
-model Threads {
-    id                Int         @id @default(autoincrement())
-    threadGroup       ThreadGroup @relation(fields: [threadGroupId], references: [id])
-    threadGroupId     Int
-    pagnationSequence Int         @unique @default(autoincrement())
-
-    leadComment   Comments   @relation(name: "leadingThread", fields: [leadCommentId], references: [id], onDelete: Cascade)
-    leadCommentId Int        @unique
-    comments      Comments[]
-}
-
-model Comments {
-    id             Int                        @id @default(autoincrement())
-    content        String                     @db.Text
-    owner          User                       @relation(fields: [ownerId], references: [id])
-    ownerId        String
-    createdTime    DateTime                   @default(now())
-    stance         String                     @db.VarChar(3)
-    likedUsers     LikedUsersOnComments[]
-    dislikedUsers  DislikedUsersOnComments[]
-    supportedUsers SupportedUsersOnComments[]
-
-    leadingThread Threads? @relation(name: "leadingThread")
-    inThread      Threads? @relation(fields: [inThreadId], references: [id], onDelete: Cascade)
-    inThreadId    Int?
-}
-
-model LikedUsersOnComments {
-    User       User     @relation(fields: [userId], references: [id])
-    userId     String
-    comment    Comments @relation(fields: [commentsId], references: [id])
-    commentsId Int
-
-    @@id([commentsId, userId])
-}
-
-model DislikedUsersOnComments {
-    User       User     @relation(fields: [userId], references: [id])
-    userId     String
-    Comments   Comments @relation(fields: [commentsId], references: [id])
-    commentsId Int
-
-    @@id([commentsId, userId])
-}
-
-model SupportedUsersOnComments {
-    User       User     @relation(fields: [userId], references: [id])
-    userId     String
-    Comments   Comments @relation(fields: [commentsId], references: [id])
-    commentsId Int
-
-    @@id([commentsId, userId])
-}
-
-enum Role {
+enum UserRole {
     USER
     CREATOR
     SENIORCREATOR
     ADMIN
+}
+
+model User {
+    id         String   @id @unique @default(uuid())
+    username   String   @unique
+    password   String
+    email      String   @unique
+    profileImg String?
+    birthday   String?
+    gender     Int?
+    role       UserRole @default(USER)
+
+    Articles  Articles[]
+    Arguments Argument[] @relation("postedArguments")
+    Comments  Comments[] @relation("postedComments")
+
+    likedArguments     Argument[] @relation("likedArguments")
+    dislikedArguments  Argument[] @relation("supportedArguments")
+    supportedArguments Argument[] @relation("dislikedArguments")
+
+    likedComments     Comments[] @relation("likedComments")
+    dislikedComments  Comments[] @relation("supportedComments")
+    supportedComments Comments[] @relation("dislikedComments")
+
+    PrivateUser   PrivateUser?
+    ArticleViews  ArticleViews[]
+    Collections   Collections[]
+    CollectionSet CollectionSet[]
+}
+
+enum PrivateUserRole {
+    USER
+    SYSTEMADMIN
+}
+
+model PrivateUser {
+    id           String @id @unique @default(uuid())
+    UserInstance User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId       String @unique
+
+    Role      PrivateUserRole @default(USER)
+    AuthToken String?         @unique @db.VarChar(64)
+}
+
+model CollectionSet {
+    id          Int           @id @unique @default(autoincrement())
+    user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId      String
+    name        String
+    collections Collections[]
+    createdTime DateTime      @default(now())
+}
+
+model Collections {
+    id             Int             @id @unique @default(autoincrement())
+    user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId         String
+    article        Articles        @relation(fields: [articleId], references: [id])
+    articleId      String
+    collectionSets CollectionSet[]
+    createdTime    DateTime        @default(now())
+
+    @@unique([articleId, userId])
+}
+
+model Articles {
+    id          String        @id @default(cuid())
+    title       String        @unique
+    tags        String[]
+    createdTime DateTime      @default(now())
+    author      User          @relation(fields: [authorId], references: [id])
+    authorId    String
+    viewCount   Int           @default(0)
+    content     Json
+    references  Json
+    arguments   Argument[]
+    Collections Collections[]
+}
+
+model ArticleViews {
+    id     BigInt  @id @default(autoincrement())
+    ip     String?
+    user   User?   @relation(fields: [userId], references: [id])
+    userId String?
+
+    @@unique([ip, userId])
+}
+
+model Argument {
+    id             Int      @id @default(autoincrement())
+    content        String   @db.Text
+    author         User     @relation("postedArguments", fields: [authorId], references: [id])
+    authorId       String
+    createdTime    DateTime @default(now())
+    stance         String   @db.Text
+    likedUsers     User[]   @relation("likedArguments")
+    dislikedUsers  User[]   @relation("supportedArguments")
+    supportedUsers User[]   @relation("dislikedArguments")
+
+    pagnationSequence Int @unique @default(autoincrement())
+
+    article   Articles @relation(fields: [articleId], references: [id])
+    articleId String
+
+    comments        Comments[]
+    argumentThreads ArgumentThread[]
+}
+
+model ArgumentThread {
+    id         Int        @id @default(autoincrement())
+    name       String
+    argument   Argument   @relation(fields: [argumentId], references: [id], onDelete: Cascade)
+    argumentId Int
+    comments   Comments[]
+
+    @@unique([argumentId, name])
+}
+
+model Comments {
+    id             Int      @id @default(autoincrement())
+    content        String   @db.Text
+    author         User     @relation("postedComments", fields: [authorId], references: [id])
+    authorId       String
+    createdTime    DateTime @default(now())
+    stance         String   @db.Text
+    likedUsers     User[]   @relation("likedComments")
+    dislikedUsers  User[]   @relation("supportedComments")
+    supportedUsers User[]   @relation("dislikedComments")
+
+    inArgument       Argument        @relation(fields: [inArgumentId], references: [id], onDelete: Cascade)
+    inArgumentId     Int
+    inThread         ArgumentThread? @relation(fields: [argumentThreadId], references: [id])
+    argumentThreadId Int?
 }

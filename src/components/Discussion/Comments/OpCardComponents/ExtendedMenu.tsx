@@ -8,19 +8,19 @@ import {
     DotsVerticalIcon,
 } from "@heroicons/react/outline";
 
-import { Comment } from "../../../../schema/comments.schema";
-
 interface ExtendedMenuProps {
-    cmtData: Comment;
+    dataId: number;
+    isAuthor: boolean;
     setShowReportMenu: (value: boolean) => void;
     deleteFunction: (value: number) => void;
     allowReply: boolean;
-    showReplyBox: boolean;
-    setShowReplyBox: (value: boolean) => void;
+    showReplyBox?: boolean;
+    setShowReplyBox?: (value: boolean) => void;
 }
 
 const ExtendedMenu = ({
-    cmtData,
+    dataId,
+    isAuthor,
     setShowReportMenu,
     deleteFunction,
     allowReply,
@@ -33,7 +33,7 @@ const ExtendedMenu = ({
                 <DotsVerticalIcon className="h-6 w-6 cursor-pointer text-neutral-500" />
             </Menu.Target>
             <Menu.Dropdown>
-                {!cmtData.isOwner && (
+                {!isAuthor && (
                     <Menu.Item
                         onClick={() => {
                             setShowReportMenu(true);
@@ -46,10 +46,10 @@ const ExtendedMenu = ({
                         檢舉
                     </Menu.Item>
                 )}
-                {cmtData.isOwner && (
+                {isAuthor && (
                     <Menu.Item
                         onClick={() => {
-                            deleteFunction(cmtData.id);
+                            deleteFunction(dataId);
                         }}
                         className="text-primary-800"
                         icon={
@@ -59,23 +59,26 @@ const ExtendedMenu = ({
                         刪除
                     </Menu.Item>
                 )}
-                {allowReply && (
-                    <Menu.Item
-                        onClick={() => {
-                            setShowReplyBox(!showReplyBox);
-                        }}
-                        className="text-primary-800 lg:hidden"
-                        icon={
-                            showReplyBox ? (
-                                <XIcon className="inline h-6 w-6 text-primary-800" />
-                            ) : (
-                                <ReplyIcon className="inline h-6 w-6 text-primary-800" />
-                            )
-                        }
-                    >
-                        {showReplyBox ? "取消" : "回覆"}
-                    </Menu.Item>
-                )}
+
+                {allowReply &&
+                    showReplyBox !== undefined &&
+                    setShowReplyBox !== undefined && (
+                        <Menu.Item
+                            onClick={() => {
+                                setShowReplyBox(!showReplyBox);
+                            }}
+                            className="text-primary-800 lg:hidden"
+                            icon={
+                                showReplyBox ? (
+                                    <XIcon className="inline h-6 w-6 text-primary-800" />
+                                ) : (
+                                    <ReplyIcon className="inline h-6 w-6 text-primary-800" />
+                                )
+                            }
+                        >
+                            {showReplyBox ? "取消" : "回覆"}
+                        </Menu.Item>
+                    )}
             </Menu.Dropdown>
         </Menu>
     );
