@@ -109,7 +109,7 @@ const SearchResults = () => {
     return (
         <AppShell title="Speakup 搜尋">
             <div className="flex h-screen w-full flex-col items-center pt-14 lg:ml-64 lg:w-[calc(100%-16rem)]">
-                <div className="mt-10 w-[calc(100%-56px)] max-w-3xl md:mt-16 md:w-[calc(100%-160px)] ">
+                <div className="mx-5 mt-10 max-w-3xl md:mt-16 md:w-[calc(100%-160px)] ">
                     <h1 className="text-2xl text-primary-800 md:text-3xl">
                         {results.data.length > 0
                             ? `以下為${
@@ -125,7 +125,7 @@ const SearchResults = () => {
                               }的搜尋結果`
                             : `很抱歉，我們找不到符合${searchParams.keyword}的結果`}
                     </h1>
-                    <div className="mt-8 flex flex-col gap-6">
+                    <div className="mt-5 flex flex-col gap-5">
                         {results.data.map((cardContent, i) => (
                             <NavCard
                                 key={i}
@@ -135,7 +135,7 @@ const SearchResults = () => {
                         ))}
                     </div>
                 </div>
-                <div className="h-16 flex-shrink-0"></div>
+                <div className="h-8 flex-shrink-0 lg:h-16"></div>
                 <Pagination
                     page={searchParams.onPage ? searchParams.onPage : 1}
                     onChange={(page) => {
@@ -150,7 +150,6 @@ const SearchResults = () => {
                     total={results.hasPages}
                     withControls={false}
                 />
-                <div className="mt-16 h-1 w-1 flex-shrink-0" />
             </div>
         </AppShell>
     );

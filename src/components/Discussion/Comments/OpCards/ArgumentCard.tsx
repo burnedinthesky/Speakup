@@ -7,7 +7,7 @@ import { CommentReactionButtons } from "../OpCardComponents/CommentReactionButto
 import ExtendedMenu from "../OpCardComponents/ExtendedMenu";
 
 import ThreadsMenu from "../Threads/ThreadsMenu";
-import ReportModal from "../../../Report/ReportModal";
+import ReportModal from "../../../../common/components/Report/ReportModal";
 
 import { Argument } from "../../../../schema/comments.schema";
 interface ArgumentCardProps {

@@ -18,13 +18,13 @@ const NavCard = ({ cardContent, showDetails }: NavCardProps) => {
     const formatter = Intl.NumberFormat("en", { notation: "compact" });
 
     return (
-        <div className="flex w-full justify-between overflow-hidden rounded-2xl bg-white pr-4 md:pr-7">
+        <div className="flex w-full justify-between overflow-hidden rounded-lg bg-white pr-4 md:pr-7 lg:rounded-2xl">
             <div className="flex w-[4.5rem] flex-shrink-0 flex-col items-center justify-center bg-primary-700 text-white md:w-24">
                 {cardContent.tags.map((ele) => (
                     <p>#{ele}</p>
                 ))}
             </div>
-            <div className="h-full flex-grow px-4 py-3">
+            <div className="h-full flex-grow py-3 pl-4 md:pr-4">
                 <Link href={`/discussion/${cardContent.id}`}>
                     <h3 className="cursor-pointer text-lg text-neutral-800 md:text-xl">
                         {cardContent.title}
@@ -46,7 +46,7 @@ const NavCard = ({ cardContent, showDetails }: NavCardProps) => {
                         </div>
                     </div>
                     <div className="flex items-center">
-                        <ChatAlt2Icon className="mr-2 h-6 w-6 flex-shrink-0" />
+                        <ChatAlt2Icon className="mr-2 h-5 flex-shrink-0 md:h-6" />
                         <p className="text-xs">
                             {formatter.format(cardContent.argumentCount)}
                         </p>
@@ -54,13 +54,13 @@ const NavCard = ({ cardContent, showDetails }: NavCardProps) => {
                     <AddToCollection
                         articleId={cardContent.id}
                         classNames={{
-                            bookmarkIcon: "h-6 w-6 flex-shrink-0",
+                            bookmarkIcon: "h-5 flex-shrink-0 md:h-6",
                             collectText: "w-10 text-xs",
                         }}
                     />
                 </div>
                 <Link href={`/discussion/${cardContent.id}`}>
-                    <p className="mt-1 h-[72px] cursor-pointer text-ellipsis text-neutral-700 line-clamp-3">
+                    <p className="mt-1 cursor-pointer text-ellipsis text-sm text-neutral-700 line-clamp-3 md:text-base">
                         {cardContent.brief}
                     </p>
                 </Link>

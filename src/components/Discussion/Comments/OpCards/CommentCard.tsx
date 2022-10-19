@@ -2,7 +2,7 @@ import { useState, forwardRef } from "react";
 
 import { CommentReactionButtons } from "../OpCardComponents/CommentReactionButtons";
 import ExtendedMenu from "../OpCardComponents/ExtendedMenu";
-import ReportModal from "../../../Report/ReportModal";
+import ReportModal from "../../../../common/components/Report/ReportModal";
 
 import { Comment } from "../../../../schema/comments.schema";
 import { Badge } from "@mantine/core";

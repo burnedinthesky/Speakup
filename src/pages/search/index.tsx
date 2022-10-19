@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
 
-import Head from "next/head";
 import { SearchIcon } from "@heroicons/react/outline";
 import { TextInput } from "@mantine/core";
 import { CheckCircleIcon } from "@heroicons/react/solid";

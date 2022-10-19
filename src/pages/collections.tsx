@@ -53,10 +53,10 @@ const Collections = () => {
     return (
         <AppShell title="Speakup收藏">
             <div className="fixed top-0 left-0 flex h-screen w-screen justify-center overflow-y-auto pt-14">
-                <div className="w-full max-w-3xl pt-20 md:w-[calc(100%-160px)]">
+                <div className="mx-5 w-full max-w-3xl pt-10 md:w-[calc(100%-160px)] lg:ml-64 lg:pt-20 xl:ml-0 ">
                     {data.pages[0] && data.pages[0].data.length > 0 ? (
                         <>
-                            <div className="flex flex-col gap-8">
+                            <div className="flex flex-col gap-5">
                                 {data.pages
                                     .flat()
                                     .flatMap((ele) => ele.data)
