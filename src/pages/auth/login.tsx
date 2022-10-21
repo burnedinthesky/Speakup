@@ -12,12 +12,17 @@ import {
 import { InboxIcon, LockClosedIcon } from "@heroicons/react/outline";
 import { useRouter } from "next/router";
 import { showNotification } from "@mantine/notifications";
+import Head from "next/head";
 
 const Login = () => {
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
     const { data: session } = useSession();
+
+    useEffect(() => {
+        if (session) router.push("/home");
+    }, [session]);
 
     const hash = (text: string) => {
         const utf8 = new TextEncoder().encode(text);
@@ -79,61 +84,71 @@ const Login = () => {
     });
 
     return (
-        <div className=" fixed top-0 left-0 flex h-screen w-screen items-center justify-center bg-primary-50">
-            <div className="mx-8 w-full max-w-lg rounded-3xl bg-white py-14 px-12">
-                <div className="flex w-full items-center justify-center gap-2">
-                    <h1 className="text-2xl">歡迎回來</h1>
-                    <img
-                        className="h-7 w-7"
-                        src="/assets/logo-mic.svg"
-                        alt=""
-                    />
-                </div>
-                <p className="mt-3 text-center">
-                    請輸入帳號密碼
-                    <br />
-                    沒有帳號密碼？
-                    <Link href="/signup">
-                        <span className="cursor-pointer text-primary-600">
-                            立刻註冊
-                        </span>
-                    </Link>
-                </p>
-                <form
-                    className="relative mt-11 flex flex-col gap-4"
-                    onSubmit={submitLogin}
-                >
-                    <LoadingOverlay visible={loading} />
-                    <TextInput
-                        placeholder="您的信箱"
-                        icon={
-                            <InboxIcon className="h-6 w-6 text-primary-600" />
-                        }
-                        required
-                        {...loginForm.getInputProps("email")}
-                    />
-                    <PasswordInput
-                        placeholder="您的密碼"
-                        icon={
-                            <LockClosedIcon className="h-6 w-6 text-primary-600" />
-                        }
-                        required
-                        {...loginForm.getInputProps("password")}
-                    />
-                    <Link href="/auth/resetpwd">
-                        <p className=" cursor-pointer text-sm text-primary-600">
-                            忘記密碼
-                        </p>
-                    </Link>
-                    <Button
-                        className="bg-primary-600 hover:bg-primary-700"
-                        type="submit"
+        <>
+            <Head>
+                <title>{"Speakup 登入"}</title>
+                <meta
+                    name="viewport"
+                    content="initial-scale=1.0, width=device-width"
+                />
+                <link rel="manifest" href="/site.webmanifest" />
+            </Head>
+            <div className=" fixed top-0 left-0 flex h-screen w-screen items-center justify-center bg-primary-50">
+                <div className="mx-8 w-full max-w-lg rounded-3xl bg-white py-14 px-12">
+                    <div className="flex w-full items-center justify-center gap-2">
+                        <h1 className="text-2xl">歡迎回來</h1>
+                        <img
+                            className="h-7 w-7"
+                            src="/assets/logo-mic.svg"
+                            alt=""
+                        />
+                    </div>
+                    <p className="mt-3 text-center">
+                        請輸入帳號密碼
+                        <br />
+                        沒有帳號密碼？
+                        <Link href="/auth/signup">
+                            <span className="cursor-pointer text-primary-600">
+                                立刻註冊
+                            </span>
+                        </Link>
+                    </p>
+                    <form
+                        className="relative mt-11 flex flex-col gap-4"
+                        onSubmit={submitLogin}
                     >
-                        登入
-                    </Button>
-                </form>
+                        <LoadingOverlay visible={loading} />
+                        <TextInput
+                            placeholder="您的信箱"
+                            icon={
+                                <InboxIcon className="h-6 w-6 text-primary-600" />
+                            }
+                            required
+                            {...loginForm.getInputProps("email")}
+                        />
+                        <PasswordInput
+                            placeholder="您的密碼"
+                            icon={
+                                <LockClosedIcon className="h-6 w-6 text-primary-600" />
+                            }
+                            required
+                            {...loginForm.getInputProps("password")}
+                        />
+                        <Link href="/auth/resetpwd">
+                            <p className=" cursor-pointer text-sm text-primary-600">
+                                忘記密碼
+                            </p>
+                        </Link>
+                        <Button
+                            className="bg-primary-600 hover:bg-primary-700"
+                            type="submit"
+                        >
+                            登入
+                        </Button>
+                    </form>
+                </div>
             </div>
-        </div>
+        </>
     );
 };
 

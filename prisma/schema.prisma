@@ -73,10 +73,12 @@ model User {
     dislikedComments  Comments[] @relation("supportedComments")
     supportedComments Comments[] @relation("dislikedComments")
 
-    PrivateUser   PrivateUser?
-    ArticleViews  ArticleViews[]
-    Collections   Collections[]
-    CollectionSet CollectionSet[]
+    PrivateUser       PrivateUser?
+    ArticleViews      ArticleViews[]
+    Collections       Collections[]
+    CollectionSet     CollectionSet[]
+    CredEmailVerToken CredEmailVerToken?
+    CredEmailLimiter  CredEmailLimiter?
 }
 
 model VerificationToken {
@@ -85,6 +87,24 @@ model VerificationToken {
     expires    DateTime
 
     @@unique([identifier, token])
+}
+
+model CredEmailLimiter {
+    id              Int      @id @default(autoincrement())
+    user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId          String   @unique
+    lastEmailSent   DateTime @default(now())
+    dayStartTime    DateTime @default(now())
+    emailsSentInDay Int      @default(0)
+}
+
+model CredEmailVerToken {
+    id          String   @id @default(cuid())
+    valToken    String
+    failedCount Int      @default(0)
+    user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId      String   @unique
+    expiers     DateTime
 }
 
 enum PrivateUserRole {

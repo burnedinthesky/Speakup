@@ -6,9 +6,10 @@ import Footbar from "./Footbar";
 interface AppShellProps {
     children?: JSX.Element;
     title: string;
+    rootDivStyle?: string;
 }
 
-const AppShell = ({ children, title }: AppShellProps) => {
+const AppShell = ({ children, title, rootDivStyle }: AppShellProps) => {
     return (
         <>
             <Head>
@@ -19,7 +20,13 @@ const AppShell = ({ children, title }: AppShellProps) => {
                 />
                 <link rel="manifest" href="/site.webmanifest" />
             </Head>
-            <div className="fixed top-0 left-0 h-screen w-screen overflow-x-hidden bg-neutral-100 scrollbar-hide">
+            <div
+                className={
+                    rootDivStyle
+                        ? rootDivStyle
+                        : `fixed top-0 left-0 h-screen w-screen bg-neutral-100 scrollbar-hide overflow-x-hidden`
+                }
+            >
                 <Header />
                 <Navbar retractable={false} />
                 <Footbar />

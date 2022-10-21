@@ -3,11 +3,13 @@ import { argumentsRouter } from "./arguments.router";
 import { articleRouter } from "./article.router";
 import { commentsRouter } from "./comments.router";
 import { navigationRouter } from "./navigation.router";
+import { userRouter } from "./user.router";
 
 export const appRouter = createRouter()
     .merge("articles.", articleRouter)
     .merge("arguments.", argumentsRouter)
     .merge("comments.", commentsRouter)
-    .merge("navigation.", navigationRouter);
+    .merge("navigation.", navigationRouter)
+    .merge("users.", userRouter);
 
 export type AppRouter = typeof appRouter;
