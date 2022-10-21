@@ -11,7 +11,7 @@ import CommentField from "../../components/Discussion/Comments/CommentField";
 import StanceSelector from "../../components/Discussion/Selectors/StanceSelector";
 import SortSelector from "../../components/Discussion/Selectors/SortSelector";
 
-import { Article } from "../../schema/article.schema";
+import { Article } from "../../types/article.types";
 import { trpc } from "../../utils/trpc";
 
 interface DiscussionProps {
@@ -67,7 +67,7 @@ const DiscussionBoard = ({ article }: DiscussionProps) => {
                 <link rel="manifest" href="/site.webmanifest" />
             </Head>
 
-            <main className="fixed top-0 left-0 right-0 bottom-0 overflow-y-auto overflow-x-hidden bg-neutral-100 pt-14 pb-16 scrollbar-hide">
+            <main className="fixed top-0 left-0 right-0 bottom-0 overflow-y-auto bg-neutral-100 pt-14 pb-16 scrollbar-hide overflow-x-hidden">
                 <Header />
                 <Navbar retractable={true} />
                 <Footbar />
@@ -122,7 +122,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
             viewCount: true,
             author: {
                 select: {
-                    username: true,
+                    name: true,
                     profileImg: true,
                 },
             },

@@ -1,5 +1,5 @@
 import { createRouter } from "../createRouter";
-import { Comment, Stances } from "../../schema/comments.schema";
+import { Comment, Stances } from "../../types/comments.types";
 import { SampleUser } from "../../templateData/users";
 import { z } from "zod";
 
@@ -40,7 +40,7 @@ export const commentsRouter = createRouter()
                     author: {
                         select: {
                             id: true,
-                            username: true,
+                            name: true,
                             profileImg: true,
                         },
                     },
@@ -128,7 +128,7 @@ export const commentsRouter = createRouter()
                     author: {
                         select: {
                             id: true,
-                            username: true,
+                            name: true,
                             profileImg: true,
                         },
                     },

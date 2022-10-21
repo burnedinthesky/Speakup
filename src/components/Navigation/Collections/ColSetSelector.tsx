@@ -3,7 +3,7 @@ import useUpsertCollectionMutation from "../../../hooks/navigation/useUpsertColl
 import { Checkbox, Overlay, ScrollArea } from "@mantine/core";
 import { PlusCircleIcon } from "@heroicons/react/outline";
 
-import { CollectionSet } from "../../../schema/navigation.schema";
+import { CollectionSet } from "../../../types/navigation.types";
 
 interface ColSetCardProps {
     checked: boolean;

@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import BaseCommentInput from "./BaseOpInput";
 
-import { Stances } from "../../../../schema/comments.schema";
+import { Stances } from "../../../../types/comments.types";
 
 interface ArgumentInputProps {
     addComment: (cmtContent: string, cmtSide: Stances) => void;

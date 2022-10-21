@@ -1,5 +1,5 @@
 import { showNotification } from "@mantine/notifications";
-import { ArgumentThread } from "../../schema/comments.schema";
+import { ArgumentThread } from "../../types/comments.types";
 import { trpc } from "../../utils/trpc";
 
 interface useArgCreateThreadMutationProps {

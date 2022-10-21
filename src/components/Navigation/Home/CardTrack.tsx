@@ -9,7 +9,7 @@ import {
 
 import HomeNavCard from "./HomeNavCard";
 
-import { NavCardData } from "../../../schema/navigation.schema";
+import { NavCardData } from "../../../types/navigation.types";
 
 interface CardTrackProps {
     title: string;

@@ -1,9 +1,9 @@
 import { useState } from "react";
 import Link from "next/link";
-import { Spoiler } from "@mantine/core";
+import { Avatar, Spoiler } from "@mantine/core";
 
 import { BookmarkIcon, FlagIcon, ShareIcon } from "@heroicons/react/outline";
-import { Article, ArticleBlock } from "../../../schema/article.schema";
+import { Article, ArticleBlock } from "../../../types/article.types";
 import ShareDialog from "./ShareDialog";
 import { useRouter } from "next/router";
 import AddToCollection from "../../Navigation/Collections/AddToCollection";
@@ -50,23 +50,22 @@ const ArticleViewer = ({ article }: ArticleViewerProps) => {
                 <h1 className="pb-2 text-3xl text-primary-900">
                     {article.title}
                 </h1>
-                <div className="flex items-center pb-3">
-                    <img
-                        className="mr-3 h-5 w-5 "
+                <div className="flex items-center gap-2 pb-3">
+                    <Avatar
                         src={article.author.profileImg}
-                        alt=""
-                    />
+                        radius="xl"
+                        size="sm"
+                    >
+                        {article.author.name[0]}
+                    </Avatar>
                     <p className="text-sm text-neutral-500">
-                        {article.author.username}
+                        {article.author.name}
                     </p>
                     <div className="w-4" />
                 </div>
                 <div className="flex flex-wrap justify-start gap-4">
                     {article.tags.map((tag, i) => (
-                        <Link
-                            href={`/search/results?searchterm=@${tag}`}
-                            key={i}
-                        >
+                        <Link href={`/search/results?tags=${tag}`} key={i}>
                             <div className="flex h-8 flex-shrink-0 cursor-pointer items-center rounded-2xl border-[1.5px] border-neutral-400 px-4">
                                 <p className="text-center text-sm text-neutral-500">{`#${tag}`}</p>
                             </div>

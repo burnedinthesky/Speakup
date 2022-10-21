@@ -1,11 +1,11 @@
-import { Comment } from "../schema/comments.schema";
+import { Comment } from "../types/comments.types";
 
 export const cmtQueryData: Comment[] = [
     /*{
         id: 123,
         author: {
             id: "asjdkfl",
-            username: "test",
+            name: "test",
             pfp: "http://www.google.com",
         },
         isOwner: false,

@@ -17,15 +17,49 @@ enum UserRole {
     ADMIN
 }
 
+// https://next-auth.js.org/adapters/models
+
+model Account {
+    id                String  @id @default(cuid())
+    userId            String
+    type              String
+    provider          String
+    providerAccountId String
+    refresh_token     String? @db.Text
+    access_token      String? @db.Text
+    expires_at        Int?
+    token_type        String?
+    scope             String?
+    id_token          String? @db.Text
+    session_state     String?
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([provider, providerAccountId])
+}
+
+model Session {
+    id           String   @id @default(cuid())
+    sessionToken String   @unique
+    userId       String
+    expires      DateTime
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
 model User {
-    id         String   @id @unique @default(uuid())
-    username   String   @unique
-    password   String
-    email      String   @unique
+    id            String    @id @unique @default(uuid())
+    name          String    @unique
+    email         String    @unique
+    emailVerified DateTime?
+    password      String?   @db.Char(64)
+
     profileImg String?
     birthday   String?
     gender     Int?
     role       UserRole @default(USER)
+
+    accounts Account[]
+    sessions Session[]
 
     Articles  Articles[]
     Arguments Argument[] @relation("postedArguments")
@@ -43,6 +77,14 @@ model User {
     ArticleViews  ArticleViews[]
     Collections   Collections[]
     CollectionSet CollectionSet[]
+}
+
+model VerificationToken {
+    identifier String
+    token      String   @unique
+    expires    DateTime
+
+    @@unique([identifier, token])
 }
 
 enum PrivateUserRole {

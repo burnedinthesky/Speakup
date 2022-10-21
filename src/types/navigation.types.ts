@@ -1,4 +1,4 @@
-import { ArticleAuthor } from "./article.schema";
+import { ArticleAuthor } from "./article.types";
 
 export type NavCardData = {
     id: string;

@@ -1,59 +1,41 @@
-import React from "react";
-
 import {
     CogIcon,
+    ChevronDownIcon,
     InformationCircleIcon,
     LogoutIcon,
-    PencilAltIcon,
-    ChevronDownIcon,
-    HomeIcon,
-    UserCircleIcon,
 } from "@heroicons/react/outline";
-import { Menu } from "@mantine/core";
+import { Avatar, Menu } from "@mantine/core";
 import { useRouter } from "next/router";
-// import { signOut, useSession } from "next-auth/react";
-import { showNotification } from "@mantine/notifications";
+import { signOut, useSession } from "next-auth/react";
 
 const AccountOptions = () => {
     const router = useRouter();
-    // const { data: session } = useSession();
-
-    const inAdmin = router.pathname.split("/")[1] == "admin";
-
-    const logout = () => {
-        fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/logout`, {
-            method: "POST",
-            headers: {
-                // Authorization: `Token ${session.authToken}`,
-            },
-        }).then((response) => {
-            if (response.status === 204) {
-                // signOut();
-            } else
-                showNotification({
-                    title: "登出失敗",
-                    message: "請再試一次",
-                    color: "red",
-                    autoClose: false,
-                });
-        });
-    };
+    const { data: session } = useSession();
 
     return (
         <Menu position="bottom-end">
             <Menu.Target>
-                <button className="">
-                    <UserCircleIcon className="h-8 w-8 lg:hidden" />
+                <button>
+                    <div className="block lg:hidden">
+                        <Avatar
+                            src={session?.user.profileImg}
+                            radius="xl"
+                            size="sm"
+                        >
+                            {session?.user.name[0]}
+                        </Avatar>
+                    </div>
                     <div className=" hidden items-center gap-2 rounded-3xl bg-primary-400 py-2 px-3 text-neutral-800 lg:flex">
-                        {/* <div className="h-7 w-7 overflow-hidden rounded-full">
-                                    <img
-                                        className="h-full"
-                                        src={session?.user?.image}
-                                        alt="pfp"
-                                    />
-                                </div> */}
-                        <UserCircleIcon className="w7- h-7 text-white" />
-                        {/* <p className="">{session?.user?.name}</p> */}
+                        <Avatar
+                            src={session?.user.profileImg}
+                            radius="xl"
+                            size="sm"
+                        >
+                            {session?.user.name[0]}
+                        </Avatar>
+                        <p className="ml-2 mr-1 text-white">
+                            {session?.user?.name}
+                        </p>
                         <ChevronDownIcon className="h-4 w-4 text-white" />
                     </div>
                 </button>
@@ -95,7 +77,11 @@ const AccountOptions = () => {
                 <Menu.Item
                     className="text-primary-900"
                     icon={<LogoutIcon className="h-7 w-7" />}
-                    onClick={logout}
+                    onClick={() => {
+                        signOut({
+                            callbackUrl: "/auth/login",
+                        });
+                    }}
                 >
                     登出
                 </Menu.Item>

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { PaperAirplaneIcon, XIcon } from "@heroicons/react/outline";
-import { ArgumentThread, Stances } from "../../../../schema/comments.schema";
+import { ArgumentThread, Stances } from "../../../../types/comments.types";
 import { showNotification } from "@mantine/notifications";
 
 interface BaseCommentInputProps {

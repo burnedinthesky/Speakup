@@ -9,7 +9,7 @@ import ExtendedMenu from "../OpCardComponents/ExtendedMenu";
 import ThreadsMenu from "../Threads/ThreadsMenu";
 import ReportModal from "../../../../common/components/Report/ReportModal";
 
-import { Argument } from "../../../../schema/comments.schema";
+import { Argument } from "../../../../types/comments.types";
 interface ArgumentCardProps {
     data: Argument;
     selectedThread: number | null;
@@ -63,7 +63,7 @@ const ArgumentCard = forwardRef<HTMLDivElement, ArgumentCardProps>(
                     />
                     <div className="flex-grow">
                         <h3 className="text-base text-primary-800">
-                            {data.author.username}
+                            {data.author.name}
                         </h3>
                         <p className="mt-2 mb-3 text-base text-neutral-700">
                             {data.content}

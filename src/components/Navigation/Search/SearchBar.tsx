@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import { Popover } from "@mantine/core";
 
 import { SearchIcon } from "@heroicons/react/outline";
-import { ArticleTagValues } from "../../../schema/article.schema";
+import { ArticleTagValues } from "../../../types/article.types";
 
 const SearchBar = () => {
     const [opened, setOpened] = useState(false);

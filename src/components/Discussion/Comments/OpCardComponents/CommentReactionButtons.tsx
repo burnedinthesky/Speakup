@@ -4,7 +4,7 @@ import { debounce } from "lodash";
 
 import { ArrowCircleUpIcon } from "@heroicons/react/outline";
 
-import { Argument, Comment } from "../../../../schema/comments.schema";
+import { Argument, Comment } from "../../../../types/comments.types";
 
 import styles from "../../../../styles/CommentCard.module.css";
 

@@ -1,7 +1,7 @@
 import { Button, Checkbox, Modal, TextInput } from "@mantine/core";
 import { cloneDeep } from "lodash";
 import { useEffect, useState } from "react";
-import { Comment } from "../../../../schema/comments.schema";
+import { Comment } from "../../../../types/comments.types";
 
 interface ChoseCommentCardProps {
     checked: boolean;

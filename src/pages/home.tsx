@@ -12,8 +12,11 @@ import {
 import MobileHome from "../components/Navigation/Home/MobileHome";
 import DesktopHome from "../components/Navigation/Home/DesktopHome";
 import { showNotification } from "@mantine/notifications";
+import { useSession } from "next-auth/react";
 
 const UserHome = () => {
+    const { data: session } = useSession();
+
     const [homeVer, setHomeVer] = useState<"mob" | "des">("mob");
     const [sentErrorNotification, setSendErrorNotification] =
         useState<boolean>(false);
@@ -30,6 +33,11 @@ const UserHome = () => {
             window.onresize = null;
         };
     }, []);
+
+    useEffect(() => {
+        console.log("Session");
+        console.log(session);
+    }, [session]);
 
     if (isLoading) {
         return (

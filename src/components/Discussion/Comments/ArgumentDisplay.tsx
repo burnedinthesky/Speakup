@@ -14,7 +14,7 @@ import ArgumentComments from "./ArgumentComments";
 import CommentInput from "./Inputs/CommentInput";
 import CreateThreadModal from "./Threads/CreateThreadModal";
 
-import { Argument, ArgumentThread } from "../../../schema/comments.schema";
+import { Argument, ArgumentThread } from "../../../types/comments.types";
 
 export interface ArgumentDisplay {
     data: Argument;

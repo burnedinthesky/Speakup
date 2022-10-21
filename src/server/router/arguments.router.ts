@@ -1,5 +1,5 @@
 import { createRouter } from "../createRouter";
-import { Argument, Stances } from "../../schema/comments.schema";
+import { Argument, Stances } from "../../types/comments.types";
 import { SampleUser } from "../../templateData/users";
 import { z } from "zod";
 
@@ -32,7 +32,7 @@ export const argumentsRouter = createRouter()
                     author: {
                         select: {
                             id: true,
-                            username: true,
+                            name: true,
                             profileImg: true,
                         },
                     },
@@ -124,7 +124,7 @@ export const argumentsRouter = createRouter()
                         author: {
                             select: {
                                 id: true,
-                                username: true,
+                                name: true,
                                 profileImg: true,
                             },
                         },
@@ -186,7 +186,7 @@ export const argumentsRouter = createRouter()
                     author: {
                         select: {
                             id: true,
-                            username: true,
+                            name: true,
                             profileImg: true,
                         },
                     },

@@ -1,5 +1,5 @@
 import { showNotification } from "@mantine/notifications";
-import { CollectionSet } from "../../schema/navigation.schema";
+import { CollectionSet } from "../../types/navigation.types";
 import { trpc } from "../../utils/trpc";
 
 const useDeleteCollectionMutation = () => {

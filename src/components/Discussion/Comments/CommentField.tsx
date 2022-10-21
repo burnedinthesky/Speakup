@@ -8,7 +8,7 @@ import ArgumentInput from "./Inputs/ArgumentInput";
 import NoCommentsDisplay from "./DisplayAccessories/NoCommentsDisplay";
 import LoadingSkeleton from "./DisplayAccessories/LoadingSkeleton";
 
-import { Argument, Stances } from "../../../schema/comments.schema";
+import { Argument, Stances } from "../../../types/comments.types";
 import useAddArgumentMutation from "../../../hooks/discussion/useAddArgumentMutation";
 
 interface CommentFieldProps {

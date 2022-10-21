@@ -2,7 +2,7 @@ import { ChevronDownIcon } from "@heroicons/react/outline";
 import { Footbar } from "../../AppShell";
 import HomeNavCard from "./HomeNavCard";
 import Link from "next/link";
-import { HomeRecommendations } from "../../../schema/navigation.schema";
+import { HomeRecommendations } from "../../../types/navigation.types";
 
 interface MobileHomeProps {
     data: HomeRecommendations;

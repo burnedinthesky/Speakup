@@ -6,7 +6,7 @@ import {
     TrendingUpIcon,
     BookmarkIcon,
 } from "@heroicons/react/outline";
-import { ArticleTagValues } from "../../schema/article.schema";
+import { ArticleTagValues } from "../../types/article.types";
 import { ScrollArea } from "@mantine/core";
 
 //prettier-ignore
@@ -46,7 +46,7 @@ const NavbarSection = ({
 const Navbar = ({ retractable }: { retractable: boolean }) => {
     return (
         <nav
-            className={`group fixed top-14 left-0 z-10 hidden h-[calc(100vh-56px)] flex-shrink-0 flex-col overflow-hidden overflow-x-hidden rounded-r-[32px] bg-neutral-50 pt-6 transition-width duration-500 ease-out lg:flex ${
+            className={`group fixed top-14 left-0 z-10 hidden h-[calc(100vh-56px)] flex-shrink-0 flex-col overflow-hidden rounded-r-[32px] bg-neutral-50 pt-6 transition-width duration-500 ease-out overflow-x-hidden lg:flex ${
                 retractable
                     ? "w-20 hover:w-64 hover:drop-shadow-xl lg:flex"
                     : "w-64"
@@ -83,7 +83,7 @@ const Navbar = ({ retractable }: { retractable: boolean }) => {
                         retractable ? "hidden group-hover:block" : "block"
                     }`}
                 >
-                    <ul className="list-none overflow-x-hidden pl-20">
+                    <ul className="list-none pl-20 overflow-x-hidden">
                         {tags.map((tag, i) => (
                             <Link
                                 href={`/search/results?tags=${tag}`}

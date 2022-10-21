@@ -5,7 +5,7 @@ import { SearchIcon } from "@heroicons/react/outline";
 import { TextInput } from "@mantine/core";
 import { CheckCircleIcon } from "@heroicons/react/solid";
 
-import { ArticleTagValues } from "../../schema/article.schema";
+import { ArticleTagValues } from "../../types/article.types";
 import { AppShell } from "../../components/AppShell";
 
 const SearchMenu = () => {

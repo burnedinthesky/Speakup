@@ -4,7 +4,7 @@ import { showNotification } from "@mantine/notifications";
 
 import CommentCard from "./OpCards/CommentCard";
 
-import { Comment } from "../../../schema/comments.schema";
+import { Comment } from "../../../types/comments.types";
 
 interface ArgumentCommentProps {
     data: Comment[];

@@ -1,50 +1,57 @@
 // src/pages/_app.tsx
-import { MantineProvider } from "@mantine/core";
 import type { AppRouter } from "../server/router/app.router";
-import superjson from "superjson";
-import { withTRPC } from "@trpc/next";
-import type { AppType } from "next/dist/shared/lib/utils";
-import "../styles/globals.css";
+import type { AppProps } from "next/app";
+
+import { SessionProvider } from "next-auth/react";
+
+import { MantineProvider } from "@mantine/core";
 import { NotificationsProvider } from "@mantine/notifications";
 
-const MyApp: AppType = ({ Component, pageProps }) => {
+import { withTRPC } from "@trpc/next";
+import superjson from "superjson";
+
+import "../styles/globals.css";
+
+const Speakup = ({ Component, pageProps }: AppProps) => {
     return (
-        <MantineProvider
-            theme={{
-                colors: {
-                    primary: [
-                        "#EAF5F6",
-                        "#D2EBEE",
-                        "#B5E0E5",
-                        "#8ACDD6",
-                        "#6DC1CB",
-                        "#50B4C1",
-                        "#32A8B6",
-                        "#159BAC",
-                        "#0C8C9C",
-                        "#087E8C",
-                    ],
-                    neutral: [
-                        "#F2FBFC",
-                        "#D8E8EA",
-                        "#B2D4D8",
-                        "#92B7BC",
-                        "#7BA4A9",
-                        "#659096",
-                        "#4F777B",
-                        "#406165",
-                        "#2C4346",
-                        "#243436",
-                    ],
-                },
-                primaryColor: "primary",
-                primaryShade: 6,
-            }}
-        >
-            <NotificationsProvider>
-                <Component {...pageProps} />;
-            </NotificationsProvider>
-        </MantineProvider>
+        <SessionProvider session={pageProps.session}>
+            <MantineProvider
+                theme={{
+                    colors: {
+                        primary: [
+                            "#EAF5F6",
+                            "#D2EBEE",
+                            "#B5E0E5",
+                            "#8ACDD6",
+                            "#6DC1CB",
+                            "#50B4C1",
+                            "#32A8B6",
+                            "#159BAC",
+                            "#0C8C9C",
+                            "#087E8C",
+                        ],
+                        neutral: [
+                            "#F2FBFC",
+                            "#D8E8EA",
+                            "#B2D4D8",
+                            "#92B7BC",
+                            "#7BA4A9",
+                            "#659096",
+                            "#4F777B",
+                            "#406165",
+                            "#2C4346",
+                            "#243436",
+                        ],
+                    },
+                    primaryColor: "primary",
+                    primaryShade: 6,
+                }}
+            >
+                <NotificationsProvider>
+                    <Component {...pageProps} />;
+                </NotificationsProvider>
+            </MantineProvider>
+        </SessionProvider>
     );
 };
 
@@ -79,4 +86,4 @@ export default withTRPC<AppRouter>({
      * @link https://trpc.io/docs/ssr
      */
     ssr: false,
-})(MyApp);
+})(Speakup);

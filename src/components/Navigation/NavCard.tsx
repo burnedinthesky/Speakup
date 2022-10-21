@@ -7,7 +7,7 @@ import { ChatAlt2Icon } from "@heroicons/react/outline";
 import AddToCollection from "./Collections/AddToCollection";
 import CreateColSetModal from "./Collections/CreateCollectionsSetModal";
 
-import { NavCardData } from "../../schema/navigation.schema";
+import { NavCardData } from "../../types/navigation.types";
 
 interface NavCardProps {
     cardContent: NavCardData;
@@ -39,10 +39,10 @@ const NavCard = ({ cardContent, showDetails }: NavCardProps) => {
                             color="cyan"
                             className="mr-2"
                         >
-                            {cardContent.author.username[0]}
+                            {cardContent.author.name[0]}
                         </Avatar>
                         <div className="h-4 max-w-[160px] truncate text-xs">
-                            {cardContent.author.username}
+                            {cardContent.author.name}
                         </div>
                     </div>
                     <div className="flex items-center">

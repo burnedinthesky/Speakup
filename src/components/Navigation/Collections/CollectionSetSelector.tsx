@@ -5,7 +5,7 @@ import {
     TrashIcon,
 } from "@heroicons/react/outline";
 import CreateColSetModal from "./CreateCollectionsSetModal";
-import { CollectionSet } from "../../../schema/navigation.schema";
+import { CollectionSet } from "../../../types/navigation.types";
 import { trpc } from "../../../utils/trpc";
 import { showNotification } from "@mantine/notifications";
 import MobileDrawer from "../../../common/components/Overlays/MobileDrawer";

@@ -1,6 +1,6 @@
 import { XIcon } from "@heroicons/react/outline";
 import { showNotification } from "@mantine/notifications";
-import { Argument, ArgumentThread } from "../../schema/comments.schema";
+import { Argument, ArgumentThread } from "../../types/comments.types";
 import { SampleUser } from "../../templateData/users";
 import { trpc } from "../../utils/trpc";
 

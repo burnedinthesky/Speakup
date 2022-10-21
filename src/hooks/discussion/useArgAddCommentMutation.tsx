@@ -1,5 +1,5 @@
 import { showNotification } from "@mantine/notifications";
-import { ArgumentThread, Comment } from "../../schema/comments.schema";
+import { ArgumentThread, Comment } from "../../types/comments.types";
 import { SampleUser } from "../../templateData/users";
 import { trpc } from "../../utils/trpc";
 

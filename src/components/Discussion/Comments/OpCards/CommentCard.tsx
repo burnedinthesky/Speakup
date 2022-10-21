@@ -4,7 +4,7 @@ import { CommentReactionButtons } from "../OpCardComponents/CommentReactionButto
 import ExtendedMenu from "../OpCardComponents/ExtendedMenu";
 import ReportModal from "../../../../common/components/Report/ReportModal";
 
-import { Comment } from "../../../../schema/comments.schema";
+import { Comment } from "../../../../types/comments.types";
 import { Badge } from "@mantine/core";
 import { ChatAlt2Icon } from "@heroicons/react/outline";
 
@@ -48,7 +48,7 @@ const CommentCard = forwardRef<HTMLDivElement, CommentCardProps>(
                     <div className="flex-grow">
                         <div className="flex items-center gap-2">
                             <h3 className="text-base text-primary-800">
-                                {data.author.username}
+                                {data.author.name}
                             </h3>
                             <div className="h-[18px] w-24 md:w-36">
                                 {data.thread && (

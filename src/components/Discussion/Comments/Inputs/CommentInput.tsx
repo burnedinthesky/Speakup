@@ -1,6 +1,6 @@
 import { useState } from "react";
 import BaseCommentInput from "./BaseOpInput";
-import { ArgumentThread, Stances } from "../../../../schema/comments.schema";
+import { ArgumentThread, Stances } from "../../../../types/comments.types";
 import ThreadsMenu from "../Threads/ThreadsMenu";
 
 interface CommentInputProps {
