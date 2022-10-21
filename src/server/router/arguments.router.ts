@@ -2,6 +2,7 @@ import { createRouter } from "../createRouter";
 import { Argument, Stances } from "../../types/comments.types";
 import { SampleUser } from "../../templateData/users";
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 
 export const argumentsRouter = createRouter()
     .mutation("createArgument", {
@@ -11,12 +12,13 @@ export const argumentsRouter = createRouter()
             stance: z.enum(["sup", "agn", "neu"]),
         }),
         async resolve({ input, ctx }) {
+            if (!ctx.user) throw new TRPCError({ code: "UNAUTHORIZED" });
             const argument = await ctx.prisma.argument.create({
                 data: {
                     content: input.content,
                     author: {
                         connect: {
-                            id: SampleUser.id,
+                            id: ctx.user.id,
                         },
                     },
                     article: {
@@ -47,17 +49,17 @@ export const argumentsRouter = createRouter()
                     },
                     likedUsers: {
                         where: {
-                            id: SampleUser.id,
+                            id: ctx.user.id,
                         },
                     },
                     supportedUsers: {
                         where: {
-                            id: SampleUser.id,
+                            id: ctx.user.id,
                         },
                     },
                     dislikedUsers: {
                         where: {
-                            id: SampleUser.id,
+                            id: ctx.user.id,
                         },
                     },
                     argumentThreads: {
@@ -73,7 +75,7 @@ export const argumentsRouter = createRouter()
             return {
                 id: argument.id,
                 author: argument.author,
-                isAuthor: argument.author.id === SampleUser.id,
+                isAuthor: argument.author.id === ctx.user.id,
                 content: argument.content,
                 stance: argument.stance as Stances,
                 likes: argument._count.likedUsers,
@@ -96,8 +98,7 @@ export const argumentsRouter = createRouter()
             cursor: z.number().nullish(),
         }),
         async resolve({ input, ctx }) {
-            console.log("called");
-
+            if (!ctx.user) throw new TRPCError({ code: "UNAUTHORIZED" });
             const allowedStance = [];
             if (input.stance == "sup" || input.stance == "both")
                 allowedStance.push("sup");
@@ -115,7 +116,7 @@ export const argumentsRouter = createRouter()
                             in: allowedStance,
                         },
                         authorId: {
-                            equals: SampleUser.id,
+                            equals: ctx.user.id,
                         },
                     },
                     select: {
@@ -139,17 +140,17 @@ export const argumentsRouter = createRouter()
                         },
                         likedUsers: {
                             where: {
-                                id: SampleUser.id,
+                                id: ctx.user.id,
                             },
                         },
                         supportedUsers: {
                             where: {
-                                id: SampleUser.id,
+                                id: ctx.user.id,
                             },
                         },
                         dislikedUsers: {
                             where: {
-                                id: SampleUser.id,
+                                id: ctx.user.id,
                             },
                         },
                         argumentThreads: {
@@ -176,7 +177,7 @@ export const argumentsRouter = createRouter()
                     },
                     NOT: {
                         authorId: {
-                            equals: SampleUser.id,
+                            equals: ctx.user.id,
                         },
                     },
                 },
@@ -201,17 +202,17 @@ export const argumentsRouter = createRouter()
                     },
                     likedUsers: {
                         where: {
-                            id: SampleUser.id,
+                            id: ctx.user.id,
                         },
                     },
                     supportedUsers: {
                         where: {
-                            id: SampleUser.id,
+                            id: ctx.user.id,
                         },
                     },
                     dislikedUsers: {
                         where: {
-                            id: SampleUser.id,
+                            id: ctx.user.id,
                         },
                     },
                     argumentThreads: {
@@ -253,7 +254,7 @@ export const argumentsRouter = createRouter()
                     ({
                         id: element.id,
                         author: element.author,
-                        isAuthor: element.author.id === SampleUser.id,
+                        isAuthor: element.author.id === ctx.user?.id,
                         content: element.content,
                         stance: element.stance as Stances,
                         likes: element._count.likedUsers,
@@ -278,6 +279,7 @@ export const argumentsRouter = createRouter()
             status: z.enum(["liked", "supported", "disliked"]).nullable(),
         }),
         async resolve({ input, ctx }) {
+            if (!ctx.user) throw new TRPCError({ code: "UNAUTHORIZED" });
             const originalComment = await ctx.prisma.argument.findUniqueOrThrow(
                 {
                     where: {
@@ -286,17 +288,17 @@ export const argumentsRouter = createRouter()
                     select: {
                         likedUsers: {
                             where: {
-                                id: SampleUser.id,
+                                id: ctx.user.id,
                             },
                         },
                         supportedUsers: {
                             where: {
-                                id: SampleUser.id,
+                                id: ctx.user.id,
                             },
                         },
                         dislikedUsers: {
                             where: {
-                                id: SampleUser.id,
+                                id: ctx.user.id,
                             },
                         },
                     },
@@ -334,7 +336,7 @@ export const argumentsRouter = createRouter()
             }
 
             const UserObject = {
-                id: SampleUser.id,
+                id: ctx.user.id,
             };
 
             await ctx.prisma.argument.update({
@@ -377,6 +379,16 @@ export const argumentsRouter = createRouter()
             id: z.number(),
         }),
         async resolve({ input, ctx }) {
+            if (!ctx.user) throw new TRPCError({ code: "UNAUTHORIZED" });
+            const arg = await ctx.prisma.argument.findMany({
+                where: {
+                    id: input.id,
+                    authorId: ctx.user.id,
+                },
+            });
+
+            if (arg.length < 1) throw new TRPCError({ code: "FORBIDDEN" });
+
             await ctx.prisma.argument.delete({
                 where: {
                     id: input.id,
@@ -393,6 +405,7 @@ export const argumentsRouter = createRouter()
             updatingComments: z.array(z.number()),
         }),
         async resolve({ input, ctx }) {
+            if (!ctx.user) throw new TRPCError({ code: "UNAUTHORIZED" });
             const thread = await ctx.prisma.argumentThread.create({
                 data: {
                     argumentId: input.argumentId,
@@ -425,7 +438,8 @@ export const argumentsRouter = createRouter()
             name: z.string().min(2).max(8),
         }),
         async resolve({ input, ctx }) {
-            const thread = await ctx.prisma.argumentThread.update({
+            if (!ctx.user) throw new TRPCError({ code: "UNAUTHORIZED" });
+            const updated = await ctx.prisma.argumentThread.update({
                 where: {
                     id: input.threadId,
                 },
@@ -439,7 +453,7 @@ export const argumentsRouter = createRouter()
                 },
             });
 
-            return thread;
+            return updated;
         },
     })
     .mutation("deleteThread", {
@@ -447,6 +461,7 @@ export const argumentsRouter = createRouter()
             id: z.number(),
         }),
         async resolve({ input, ctx }) {
+            if (!ctx.user) throw new TRPCError({ code: "UNAUTHORIZED" });
             await ctx.prisma.argumentThread.delete({
                 where: {
                     id: input.id,

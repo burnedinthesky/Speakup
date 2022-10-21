@@ -1,4 +1,3 @@
-import { getSingleArticleSchema } from "../../schema/article.schema";
 import { createRouter } from "../createRouter";
 import requestIp from "request-ip";
 import z from "zod";
@@ -10,7 +9,9 @@ export const articleRouter = createRouter()
         },
     })
     .query("single-article", {
-        input: getSingleArticleSchema,
+        input: z.object({
+            articleId: z.string(),
+        }),
         resolve({ input, ctx }) {
             return ctx.prisma.articles.findUnique({
                 where: {
@@ -22,15 +23,25 @@ export const articleRouter = createRouter()
     .query("register-view", {
         input: z.string(),
         async resolve({ ctx, input }) {
-            const clientIp = requestIp.getClientIp(ctx.req);
+            let ret = false;
+            if (ctx.user) {
+                const data = await ctx.prisma.articleViews.findMany({
+                    where: {
+                        userId: ctx.user.id,
+                    },
+                });
+                ret = data.length > 0;
+            } else {
+                const clientIp = requestIp.getClientIp(ctx.req);
 
-            const data = await ctx.prisma.articleViews.findMany({
-                where: {
-                    ip: clientIp,
-                },
-            });
-
-            if (data.length > 0) return true;
+                const data = await ctx.prisma.articleViews.findMany({
+                    where: {
+                        ip: clientIp,
+                    },
+                });
+                ret = data.length > 0;
+            }
+            if (ret) return true;
 
             const views = await ctx.prisma.articles.findUniqueOrThrow({
                 where: {

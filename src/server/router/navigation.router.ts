@@ -1,18 +1,19 @@
 import { createRouter } from "../createRouter";
 import { z } from "zod";
 import { Prisma } from "@prisma/client";
-import { ArticleBlock } from "../../schema/article.schema";
+import { ArticleBlock } from "../../types/article.types";
 import {
     CollectionSet,
     HomeRecommendations,
     NavCardData,
-} from "../../schema/navigation.schema";
-import { SampleUser } from "../../templateData/users";
+} from "../../types/navigation.types";
+
+import { TRPCError } from "@trpc/server";
 
 const processArticles = (
     articles: {
         author: {
-            username: string;
+            name: string;
             profileImg: string | null;
         };
         tags: string[];
@@ -51,6 +52,17 @@ const processArticles = (
     });
 
 export const navigationRouter = createRouter()
+    .middleware(async ({ ctx, next }) => {
+        if (!ctx.user) {
+            throw new TRPCError({ code: "UNAUTHORIZED" });
+        }
+        return next({
+            ctx: {
+                ...ctx,
+                user: ctx.user,
+            },
+        });
+    })
     .query("home", {
         async resolve({ ctx }) {
             const articles = await ctx.prisma.articles.findMany({
@@ -60,7 +72,7 @@ export const navigationRouter = createRouter()
                     tags: true,
                     author: {
                         select: {
-                            username: true,
+                            name: true,
                             profileImg: true,
                         },
                     },
@@ -106,7 +118,7 @@ export const navigationRouter = createRouter()
                     tags: true,
                     author: {
                         select: {
-                            username: true,
+                            name: true,
                             profileImg: true,
                         },
                     },
@@ -139,7 +151,7 @@ export const navigationRouter = createRouter()
         async resolve({ ctx, input }) {
             const data = await ctx.prisma.collections.findMany({
                 where: {
-                    userId: SampleUser.id,
+                    userId: ctx.user.id,
 
                     collectionSets: input.collectionSet
                         ? {
@@ -157,7 +169,7 @@ export const navigationRouter = createRouter()
                             tags: true,
                             author: {
                                 select: {
-                                    username: true,
+                                    name: true,
                                     profileImg: true,
                                 },
                             },
@@ -194,7 +206,7 @@ export const navigationRouter = createRouter()
         async resolve({ ctx, input }) {
             const data = await ctx.prisma.collections.findFirst({
                 where: {
-                    userId: SampleUser.id,
+                    userId: ctx.user.id,
                     articleId: input.articleId,
                 },
                 select: {
@@ -224,7 +236,7 @@ export const navigationRouter = createRouter()
             const currectCollection = await ctx.prisma.collections.findUnique({
                 where: {
                     articleId_userId: {
-                        userId: SampleUser.id,
+                        userId: ctx.user.id,
                         articleId: input.articleId,
                     },
                 },
@@ -251,7 +263,7 @@ export const navigationRouter = createRouter()
 
             if (
                 users.length > 1 || users.length
-                    ? users[0]?.userId !== SampleUser.id
+                    ? users[0]?.userId !== ctx.user.id
                     : false
             ) {
                 throw new Error("Invalid Collection Sets");
@@ -269,7 +281,7 @@ export const navigationRouter = createRouter()
                 where: {
                     articleId_userId: {
                         articleId: input.articleId,
-                        userId: SampleUser.id,
+                        userId: ctx.user.id,
                     },
                 },
                 update: {
@@ -288,7 +300,7 @@ export const navigationRouter = createRouter()
                     },
                     user: {
                         connect: {
-                            id: SampleUser.id,
+                            id: ctx.user.id,
                         },
                     },
                     collectionSets: {
@@ -305,7 +317,7 @@ export const navigationRouter = createRouter()
                             tags: true,
                             author: {
                                 select: {
-                                    username: true,
+                                    name: true,
                                     profileImg: true,
                                 },
                             },
@@ -332,7 +344,7 @@ export const navigationRouter = createRouter()
             await ctx.prisma.collections.deleteMany({
                 where: {
                     user: {
-                        id: SampleUser.id,
+                        id: ctx.user.id,
                     },
                     id: input.collectionId,
                 },
@@ -345,7 +357,7 @@ export const navigationRouter = createRouter()
         async resolve({ ctx }) {
             const sets = await ctx.prisma.collectionSet.findMany({
                 where: {
-                    userId: SampleUser.id,
+                    userId: ctx.user.id,
                 },
                 select: {
                     id: true,
@@ -368,7 +380,7 @@ export const navigationRouter = createRouter()
                 data: {
                     user: {
                         connect: {
-                            id: SampleUser.id,
+                            id: ctx.user.id,
                         },
                     },
                     name: input.name,
@@ -391,7 +403,7 @@ export const navigationRouter = createRouter()
                 where: {
                     id: input.colSetId,
                     user: {
-                        id: SampleUser.id,
+                        id: ctx.user.id,
                     },
                 },
             });
