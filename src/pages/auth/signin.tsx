@@ -1,74 +1,84 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
+import { useRouter } from "next/router";
 
 import Head from "next/head";
 import { motion, AnimatePresence } from "framer-motion";
 
-import SignUpPage from "../../components/Auth/SignUpForm";
-import { SignUpPageIDs } from "../../types/auth.types";
-import VerifyEmailPage from "../../components/Auth/VerifyEmailForm";
-import { useRouter } from "next/router";
+import RequestResetPwdPage from "../../components/Auth/ResetPasswordForm";
+import { SignInPageIDs } from "../../types/auth.types";
+import SignInPage from "../../components/Auth/SignInForm";
 
-const SignUp = () => {
+const SignIn = () => {
     const router = useRouter();
-
-    const [displayPage, setDisplayPage] = useState<SignUpPageIDs>("signup");
-    const [divHeight, setDivHeight] = useState<number>(0);
+    const [displayPage, setDisplayPage] = useState<SignInPageIDs>("signin");
+    const [divHeight, setDivHeight] = useState<number>(312);
     const [firstRender, setFirstRender] = useState<boolean>(true);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         setFirstRender(false);
     }, []);
 
     useEffect(() => {
-        if (router.query.token) setDisplayPage("verifyEmail");
-    }, [router.isReady]);
+        if (!router.isReady) return;
+        const query = router.query;
+        if (query.forgotPassword === "t") {
+            setDisplayPage("reqResetPwd");
+        } else {
+            setDisplayPage("signin");
+        }
+    }, [router.isReady, router.query]);
 
     return (
         <>
             <Head>
-                <title>{"Speakup 註冊"}</title>
+                <title>{"Speakup 登入"}</title>
                 <meta
                     name="viewport"
                     content="initial-scale=1.0, width=device-width"
                 />
                 <link rel="manifest" href="/site.webmanifest" />
             </Head>
-            <div className="fixed top-0 left-0 flex h-screen w-screen items-center justify-center bg-primary-50">
+            <div className="fixed top-0 left-0 flex h-screen w-screen items-center justify-center bg-primary-50 overflow-x-hidden">
                 <div className="mx-8 w-full max-w-md overflow-hidden rounded-3xl bg-white py-14 px-12">
                     <motion.div
                         className="flex w-full"
-                        initial={{ height: 630 }}
+                        initial={{ height: divHeight }}
                         animate={{
                             height: divHeight,
                         }}
                         transition={{ ease: "easeOut" }}
                     >
                         <AnimatePresence>
-                            {displayPage === "signup" && (
+                            {displayPage === "signin" && (
                                 <motion.div
                                     key={0}
                                     className="w-full"
                                     animate={{ x: 0 }}
                                     initial={{ x: firstRender ? 0 : 512 }}
-                                    transition={{ ease: "easeOut" }}
+                                    transition={{
+                                        ease: "easeOut",
+                                    }}
                                     exit={{ x: -512 }}
                                 >
-                                    <SignUpPage
+                                    <SignInPage
                                         setDisplayPage={setDisplayPage}
                                         setDivHeight={setDivHeight}
                                     />
                                 </motion.div>
                             )}
-                            {displayPage === "verifyEmail" && (
+                            {displayPage === "reqResetPwd" && (
                                 <motion.div
                                     key={1}
                                     className="w-full"
                                     animate={{ x: 0 }}
                                     initial={{ x: 512 }}
-                                    transition={{ delay: 0.1, ease: "easeOut" }}
+                                    transition={{
+                                        delay: 0.1,
+                                        ease: "easeOut",
+                                    }}
                                     exit={{ x: -512 }}
                                 >
-                                    <VerifyEmailPage
+                                    <RequestResetPwdPage
                                         setDisplayPage={setDisplayPage}
                                         setDivHeight={setDivHeight}
                                     />
@@ -82,4 +92,4 @@ const SignUp = () => {
     );
 };
 
-export default SignUp;
+export default SignIn;

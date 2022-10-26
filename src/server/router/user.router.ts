@@ -1,8 +1,7 @@
 import { createRouter } from "../createRouter";
 import { TRPCError } from "@trpc/server";
 
-import { tuple, z } from "zod";
-import { User } from "@prisma/client";
+import { z } from "zod";
 
 import { sendgrid } from "../../utils/sendgrid";
 
@@ -94,7 +93,7 @@ export const userRouter = createRouter()
             });
             if (!verifier)
                 throw new TRPCError({
-                    code: "BAD_REQUEST",
+                    code: "NOT_FOUND",
                     message: "Verifier not found",
                 });
             const user = verifier.user;
@@ -251,12 +250,6 @@ export const userRouter = createRouter()
                 },
             });
 
-            await ctx.prisma.credEmailLimiter.delete({
-                where: {
-                    userId: verifier.userId,
-                },
-            });
-
             await ctx.prisma.user.update({
                 where: {
                     id: verifier.userId,
@@ -267,5 +260,83 @@ export const userRouter = createRouter()
             });
 
             return verifier.userId;
+        },
+    })
+    .mutation("sendResetPwdLink", {
+        input: z.object({
+            email: z.string(),
+        }),
+        async resolve({ ctx, input }) {
+            const user = await ctx.prisma.user.findFirst({
+                where: { email: input.email },
+            });
+            if (user) {
+                const genToken = (length: number) => {
+                    var result = "";
+                    var characters =
+                        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+                    var charactersLength = characters.length;
+                    for (var i = 0; i < length; i++) {
+                        result += characters.charAt(
+                            Math.floor(Math.random() * charactersLength)
+                        );
+                    }
+                    return result;
+                };
+
+                const nextHour = new Date();
+                nextHour.setTime(nextHour.getTime() + 60 * 60 * 1000);
+
+                const verToken = await ctx.prisma.verificationToken.create({
+                    data: {
+                        identifier: input.email,
+                        token: genToken(64),
+                        expires: nextHour,
+                    },
+                });
+
+                const resetUrl = `https://speakup.place/auth/resetpwd?token=${verToken.token}`;
+
+                const msg = {
+                    to: user.email,
+                    from: "noreply@speakup.place",
+                    subject: "Speakup 驗證碼",
+                    html: `您申請的密碼重設連結 <a href=${resetUrl}>${resetUrl}</a>`,
+                };
+
+                await sendgrid.send(msg);
+            }
+        },
+    })
+    .mutation("resetPwd", {
+        input: z.object({
+            token: z.string(),
+            password: z.string(),
+        }),
+        async resolve({ ctx, input }) {
+            const resetToken = await ctx.prisma.verificationToken.findUnique({
+                where: { token: input.token },
+            });
+
+            if (!resetToken)
+                throw new TRPCError({
+                    code: "NOT_FOUND",
+                    message: "Token not found",
+                });
+
+            await ctx.prisma.user.update({
+                where: {
+                    email: resetToken.identifier,
+                },
+                data: {
+                    password: input.password,
+                },
+            });
+
+            await ctx.prisma.verificationToken.delete({
+                where: { token: input.token },
+            });
+
+            return true;
         },
     });
