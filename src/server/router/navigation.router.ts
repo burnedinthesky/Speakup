@@ -1,6 +1,7 @@
 import { createRouter } from "../createRouter";
 import { z } from "zod";
 import { Prisma } from "@prisma/client";
+import { algoliaSearch, articleIndex } from "../../utils/algolia";
 import { ArticleBlock } from "../../types/article.types";
 import {
     CollectionSet,
@@ -109,9 +110,30 @@ export const navigationRouter = createRouter()
             onPage: z.number().min(1).nullable(),
         }),
         async resolve({ ctx, input }) {
-            const page = input.onPage ? input.onPage : 1;
+            const page = input.onPage ? input.onPage - 1 : 0;
+
+            let keyword: string | null | undefined = input.keyword;
+            if (!input.keyword) keyword = input.tags?.join("");
+            if (!keyword)
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message: "Keyword & Tags not provided",
+                });
+
+            const result = await articleIndex.search(keyword, {
+                attributesToRetrieve: ["objectID"],
+                hitsPerPage: 20,
+                page: page,
+                filters: input.tags?.map((ele) => `tags:${ele}`).join(" OR "),
+            });
+
+            const hitIDs = result.hits.map((ele) => ele.objectID);
+            const hasPages = result.nbPages;
 
             const articles = await ctx.prisma.articles.findMany({
+                where: {
+                    id: { in: hitIDs },
+                },
                 select: {
                     id: true,
                     title: true,
@@ -138,7 +160,7 @@ export const navigationRouter = createRouter()
 
             return {
                 data,
-                hasPages: 2,
+                hasPages: hasPages,
             };
         },
     })

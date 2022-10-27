@@ -106,24 +106,22 @@ const SearchResults = () => {
         return <AppShell title="Speakup搜尋" />;
     }
 
+    const searchedKeyword = `${
+        searchParams.keyword ? searchParams.keyword : ""
+    } ${
+        searchParams.tags
+            ? searchParams.tags.map((ele) => `#${ele}`).join(" ")
+            : ""
+    }`;
+
     return (
         <AppShell title="Speakup 搜尋">
             <div className="flex h-screen w-full flex-col items-center pt-14 lg:ml-64 lg:w-[calc(100%-16rem)]">
                 <div className="mx-5 mt-10 max-w-3xl md:mt-16 md:w-[calc(100%-160px)] ">
                     <h1 className="text-2xl text-primary-800 md:text-3xl">
                         {results.data.length > 0
-                            ? `以下為${
-                                  searchParams.keyword
-                                      ? searchParams.keyword
-                                      : ""
-                              } ${
-                                  searchParams.tags
-                                      ? searchParams.tags
-                                            .map((ele) => `#${ele}`)
-                                            .join(" ")
-                                      : ""
-                              }的搜尋結果`
-                            : `很抱歉，我們找不到符合${searchParams.keyword}的結果`}
+                            ? `以下為${searchedKeyword}的搜尋結果`
+                            : `很抱歉，我們找不到符合${searchedKeyword}的結果`}
                     </h1>
                     <div className="mt-5 flex flex-col gap-5">
                         {results.data.map((cardContent, i) => (

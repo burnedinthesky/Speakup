@@ -27,6 +27,7 @@
         "@trpc/next": "^9.26.2",
         "@trpc/react": "^9.26.2",
         "@trpc/server": "^9.26.2",
+        "algoliasearch": "^4.14.2",
         "framer-motion": "^7.5.3",
         "lodash": "^4.17.21",
         "next": "^12.3.0",
