@@ -1,9 +1,21 @@
 import { createRouter } from "../createRouter";
 import { Comment, Stances } from "../../types/comments.types";
-import { SampleUser } from "../../templateData/users";
+
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 
 export const commentsRouter = createRouter()
+    .middleware(async ({ ctx, next }) => {
+        if (!ctx.user) {
+            throw new TRPCError({ code: "UNAUTHORIZED" });
+        }
+        return next({
+            ctx: {
+                ...ctx,
+                user: ctx.user,
+            },
+        });
+    })
     .mutation("createComment", {
         input: z.object({
             content: z.string(),
@@ -29,7 +41,7 @@ export const commentsRouter = createRouter()
                     content: input.content,
                     author: {
                         connect: {
-                            id: SampleUser.id,
+                            id: ctx.user.id,
                         },
                     },
                     stance: input.stance,
@@ -61,17 +73,17 @@ export const commentsRouter = createRouter()
                     },
                     likedUsers: {
                         where: {
-                            id: SampleUser.id,
+                            id: ctx.user.id,
                         },
                     },
                     supportedUsers: {
                         where: {
-                            id: SampleUser.id,
+                            id: ctx.user.id,
                         },
                     },
                     dislikedUsers: {
                         where: {
-                            id: SampleUser.id,
+                            id: ctx.user.id,
                         },
                     },
                 },
@@ -149,17 +161,17 @@ export const commentsRouter = createRouter()
                     },
                     likedUsers: {
                         where: {
-                            id: SampleUser.id,
+                            id: ctx.user.id,
                         },
                     },
                     supportedUsers: {
                         where: {
-                            id: SampleUser.id,
+                            id: ctx.user.id,
                         },
                     },
                     dislikedUsers: {
                         where: {
-                            id: SampleUser.id,
+                            id: ctx.user.id,
                         },
                     },
                 },
@@ -180,7 +192,7 @@ export const commentsRouter = createRouter()
                     ({
                         id: element.id,
                         author: element.author,
-                        isAuthor: element.author.id === SampleUser.id,
+                        isAuthor: element.author.id === ctx.user.id,
                         content: element.content,
                         stance: element.stance as Stances,
                         thread: element.inThread,
@@ -212,17 +224,17 @@ export const commentsRouter = createRouter()
                     select: {
                         likedUsers: {
                             where: {
-                                id: SampleUser.id,
+                                id: ctx.user.id,
                             },
                         },
                         supportedUsers: {
                             where: {
-                                id: SampleUser.id,
+                                id: ctx.user.id,
                             },
                         },
                         dislikedUsers: {
                             where: {
-                                id: SampleUser.id,
+                                id: ctx.user.id,
                             },
                         },
                     },
@@ -260,7 +272,7 @@ export const commentsRouter = createRouter()
             }
 
             const UserObject = {
-                id: SampleUser.id,
+                id: ctx.user.id,
             };
 
             await ctx.prisma.comments.update({

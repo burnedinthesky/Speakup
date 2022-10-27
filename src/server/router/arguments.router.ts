@@ -1,6 +1,5 @@
 import { createRouter } from "../createRouter";
 import { Argument, Stances } from "../../types/comments.types";
-import { SampleUser } from "../../templateData/users";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 

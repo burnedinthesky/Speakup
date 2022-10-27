@@ -20,8 +20,8 @@ const NavCard = ({ cardContent, showDetails }: NavCardProps) => {
     return (
         <div className="flex w-full justify-between overflow-hidden rounded-lg bg-white pr-4 md:pr-7 lg:rounded-2xl">
             <div className="flex w-[4.5rem] flex-shrink-0 flex-col items-center justify-center bg-primary-700 text-white md:w-24">
-                {cardContent.tags.map((ele) => (
-                    <p>#{ele}</p>
+                {cardContent.tags.map((ele, i) => (
+                    <p key={i}>#{ele}</p>
                 ))}
             </div>
             <div className="h-full flex-grow py-3 pl-4 md:pr-4">

@@ -1,16 +1,20 @@
 import { XIcon } from "@heroicons/react/outline";
 import { showNotification } from "@mantine/notifications";
-import { Argument, ArgumentThread } from "../../types/comments.types";
-import { SampleUser } from "../../templateData/users";
+import { Argument } from "../../types/comments.types";
 import { trpc } from "../../utils/trpc";
+import { useSession } from "next-auth/react";
 
 interface useAddArgumentMutationProps {
     viewingStance: "sup" | "agn" | "both";
+    sort: "default" | "time" | "replies";
 }
 
 const useAddArgumentMutation = ({
     viewingStance,
+    sort,
 }: useAddArgumentMutationProps) => {
+    const { data: session } = useSession();
+
     const trpcUtils = trpc.useContext();
 
     interface ContextType {
@@ -29,7 +33,7 @@ const useAddArgumentMutation = ({
                     {
                         articleId: variables.articleId,
                         limit: 20,
-                        sort: "",
+                        sort: "default",
                         stance: viewingStance,
                     },
                 ],
@@ -66,7 +70,9 @@ const useAddArgumentMutation = ({
             const formattedNewArg = {
                 id: -1,
                 author: {
-                    ...SampleUser,
+                    id: session?.user.id,
+                    name: session?.user.name,
+                    profileImg: session?.user.profileImg,
                 },
                 content: variables.content,
                 isAuthor: false,
@@ -88,7 +94,7 @@ const useAddArgumentMutation = ({
                     {
                         articleId: variables.articleId,
                         limit: 20,
-                        sort: "",
+                        sort: sort,
                         stance: viewingStance,
                     },
                 ],

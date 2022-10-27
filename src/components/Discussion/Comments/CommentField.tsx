@@ -64,7 +64,10 @@ const CommentField = ({
         }
     }, [lastCardInView]);
 
-    const addArgumentMutation = useAddArgumentMutation({ viewingStance });
+    const addArgumentMutation = useAddArgumentMutation({
+        viewingStance,
+        sort: sortMethod,
+    });
 
     const deleteArgumentMutation = trpc.useMutation(
         "arguments.deleteArgument",

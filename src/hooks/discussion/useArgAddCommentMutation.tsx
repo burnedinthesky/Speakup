@@ -1,7 +1,7 @@
 import { showNotification } from "@mantine/notifications";
 import { ArgumentThread, Comment } from "../../types/comments.types";
-import { SampleUser } from "../../templateData/users";
 import { trpc } from "../../utils/trpc";
+import { useSession } from "next-auth/react";
 
 interface useArgAddCommentMutationProps {
     threads: ArgumentThread[];
@@ -12,6 +12,7 @@ const useArgAddCommentMutation = ({
     threads,
     selectedThread,
 }: useArgAddCommentMutationProps) => {
+    const { data: session } = useSession();
     const trpcUtils = trpc.useContext();
 
     interface ContextType {
@@ -109,7 +110,9 @@ const useArgAddCommentMutation = ({
             const formattedNewCmt = {
                 id: -1,
                 author: {
-                    ...SampleUser,
+                    id: session?.user.id,
+                    name: session?.user.name,
+                    profileImg: session?.user.profileImg,
                 },
                 content: newComment.content,
                 isAuthor: false,

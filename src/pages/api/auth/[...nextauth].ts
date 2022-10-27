@@ -59,6 +59,7 @@ export default NextAuth({
         async session({ session, token }) {
             if (session) {
                 session.user = {
+                    id: token.id,
                     name: token.name,
                     email: token.email,
                     profileImg: token.picture,
