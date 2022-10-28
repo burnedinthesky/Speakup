@@ -308,7 +308,7 @@ export const userRouter = createRouter()
                     },
                 });
 
-                const resetUrl = `https://speakup.place/user/resetpwd?token=${verToken.token}`;
+                const resetUrl = `https://speakup.place/user/password/new?token=${verToken.token}`;
 
                 const msg = {
                     to: user.email,
@@ -337,7 +337,7 @@ export const userRouter = createRouter()
                     message: "Token not found",
                 });
 
-            await ctx.prisma.user.update({
+            const user = await ctx.prisma.user.update({
                 where: {
                     email: resetToken.identifier,
                 },
@@ -350,6 +350,10 @@ export const userRouter = createRouter()
                 where: { token: input.token },
             });
 
-            return true;
+            return {
+                userId: user.id,
+                email: user.email,
+                password: user.password,
+            };
         },
     });
