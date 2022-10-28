@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { trpc } from "../../utils/trpc";
 import { z } from "zod";
 
@@ -21,12 +21,12 @@ const RequestResetPwdPage = ({ setDisplayPage, setDivHeight }: PageProps) => {
 
     const [userEmail, setUserEmail] = useState("");
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         if (rootDivRef.current && firstRender) setDivHeight(192);
         setFirstRender(false);
     }, []);
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         if (!firstRender && rootDivRef.current)
             setDivHeight(rootDivRef.current.clientHeight);
     });

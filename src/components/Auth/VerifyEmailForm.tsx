@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useLayoutEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import { showNotification } from "@mantine/notifications";
 
@@ -6,14 +6,10 @@ import { Button, TextInput, LoadingOverlay } from "@mantine/core";
 import Head from "next/head";
 import { trpc } from "../../utils/trpc";
 import useTimeoutEmail from "../../hooks/navigation/useTimeoutEmail";
-import { SignUpPageIDs } from "../../types/auth.types";
+import { AuthPageProps } from "../../types/auth.types";
+import { signIn } from "next-auth/react";
 
-interface PageProps {
-    setDisplayPage: (value: SignUpPageIDs) => void;
-    setDivHeight: (value: number) => void;
-}
-
-const VerifyEmailPage = ({ setDisplayPage, setDivHeight }: PageProps) => {
+const VerifyEmailPage = ({ setDisplayPage, setDivHeight }: AuthPageProps) => {
     const router = useRouter();
     const rootDivRef = useRef<HTMLDivElement | null>(null);
 
@@ -28,13 +24,13 @@ const VerifyEmailPage = ({ setDisplayPage, setDivHeight }: PageProps) => {
 
     const [valId, setValId] = useState<string | null>(null);
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         if (rootDivRef.current && firstRender) setDivHeight(232);
         setFirstRender(false);
         resetEmailCD();
     }, []);
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         if (!firstRender && rootDivRef.current)
             setDivHeight(rootDivRef.current.clientHeight);
     });
@@ -54,8 +50,19 @@ const VerifyEmailPage = ({ setDisplayPage, setDivHeight }: PageProps) => {
     });
 
     const verifyTokenMutation = trpc.useMutation(["users.verifyEmail"], {
-        onSuccess: (data) => {
-            router.push("/onboarding");
+        onSuccess: async (data) => {
+            const res = await signIn("credentials", {
+                email: data.email,
+                password: data.password,
+                callbackUrl: "/user/onboarding",
+            });
+            if (res?.ok) return;
+            else {
+                showNotification({
+                    message: "註冊成功，請登入",
+                });
+                router.push("/user/signin");
+            }
         },
         onError: (error) => {
             if (error.message === "Failed too many times") {

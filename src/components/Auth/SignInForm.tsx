@@ -113,7 +113,7 @@ const SignInPage = ({ setDisplayPage, setDivHeight }: PageProps) => {
                 請輸入帳號密碼
                 <br />
                 沒有帳號密碼？
-                <Link href="/auth/signup">
+                <Link href="/user/signup">
                     <span className="cursor-pointer text-primary-600">
                         立刻註冊
                     </span>

@@ -203,6 +203,15 @@ export const userRouter = createRouter()
         async resolve({ ctx, input }) {
             const verifier = await ctx.prisma.credEmailVerToken.findUnique({
                 where: { id: input.verId },
+                include: {
+                    user: {
+                        select: {
+                            id: true,
+                            email: true,
+                            password: true,
+                        },
+                    },
+                },
             });
 
             if (!verifier)
@@ -259,7 +268,11 @@ export const userRouter = createRouter()
                 },
             });
 
-            return verifier.userId;
+            return {
+                userId: verifier.userId,
+                email: verifier.user.email,
+                password: verifier.user.password,
+            };
         },
     })
     .mutation("sendResetPwdLink", {
@@ -295,7 +308,7 @@ export const userRouter = createRouter()
                     },
                 });
 
-                const resetUrl = `https://speakup.place/auth/resetpwd?token=${verToken.token}`;
+                const resetUrl = `https://speakup.place/user/resetpwd?token=${verToken.token}`;
 
                 const msg = {
                     to: user.email,

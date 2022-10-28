@@ -52,6 +52,7 @@ export default NextAuth({
         async jwt({ token, user }) {
             if (user) {
                 token.picture = user.profileImg;
+                token.id = user.id;
             }
 
             return token;
@@ -69,7 +70,7 @@ export default NextAuth({
         },
     },
     pages: {
-        signIn: "/auth/signin",
+        signIn: "/user/signin",
     },
     session: {
         strategy: "jwt",

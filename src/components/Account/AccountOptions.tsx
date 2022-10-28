@@ -79,7 +79,7 @@ const AccountOptions = () => {
                     icon={<LogoutIcon className="h-7 w-7" />}
                     onClick={() => {
                         signOut({
-                            callbackUrl: "/auth/login",
+                            callbackUrl: "/user/signin",
                         });
                     }}
                 >

@@ -37,7 +37,7 @@ const SignUp = () => {
                 <div className="mx-8 w-full max-w-md overflow-hidden rounded-3xl bg-white py-14 px-12">
                     <motion.div
                         className="flex w-full"
-                        initial={{ height: 630 }}
+                        initial={{ height: 518 }}
                         animate={{
                             height: divHeight,
                         }}

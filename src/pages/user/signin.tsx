@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 
 import Head from "next/head";
@@ -14,7 +14,7 @@ const SignIn = () => {
     const [divHeight, setDivHeight] = useState<number>(312);
     const [firstRender, setFirstRender] = useState<boolean>(true);
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         setFirstRender(false);
     }, []);
 

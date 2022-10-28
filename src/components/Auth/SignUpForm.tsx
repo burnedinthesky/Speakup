@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { z } from "zod";
 import { showNotification } from "@mantine/notifications";
 import { trpc } from "../../utils/trpc";
@@ -15,18 +15,13 @@ import { UserIcon, InboxIcon, LockClosedIcon } from "@heroicons/react/outline";
 import { useRouter } from "next/router";
 import { useForm, zodResolver } from "@mantine/form";
 
-import { SignUpPageIDs } from "../../types/auth.types";
+import { AuthPageProps } from "../../types/auth.types";
 
-interface PageProps {
-    setDisplayPage: (value: SignUpPageIDs) => void;
-    setDivHeight: (value: number) => void;
-}
-
-const SignUpPage = ({ setDisplayPage, setDivHeight }: PageProps) => {
+const SignUpPage = ({ setDisplayPage, setDivHeight }: AuthPageProps) => {
     const router = useRouter();
     const rootDivRef = useRef<HTMLDivElement | null>(null);
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         if (rootDivRef.current) setDivHeight(rootDivRef.current.clientHeight);
     }, []);
 
@@ -124,7 +119,7 @@ const SignUpPage = ({ setDisplayPage, setDivHeight }: PageProps) => {
                 請輸入您的資料
                 <br />
                 註冊過了？
-                <Link href="/auth/signin">
+                <Link href="/user/signin">
                     <span className="cursor-pointer text-primary-600">
                         登入
                     </span>
