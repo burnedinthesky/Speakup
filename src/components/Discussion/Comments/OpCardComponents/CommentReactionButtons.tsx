@@ -7,6 +7,7 @@ import { ArrowCircleUpIcon } from "@heroicons/react/outline";
 import { Argument, Comment } from "../../../../types/comments.types";
 
 import styles from "../../../../styles/CommentCard.module.css";
+import useLoggedInAction from "../../../../hooks/authProtected/useLoggedInAction";
 
 interface InteractionIconProps {
     status: boolean;
@@ -87,6 +88,8 @@ export function CommentReactionButtons({
         "liked" | "supported" | "disliked" | null
     >(null);
 
+    const logInAction = useLoggedInAction();
+
     const submitArgumentInteraction = trpc.useMutation(
         "arguments.updateArgumentInteraction",
         {
@@ -131,7 +134,6 @@ export function CommentReactionButtons({
         if (!enableAnim) setEnableAnim(true);
         const updatedVal = interaction == updatevar ? null : updatevar;
         setPreviousState(interaction);
-        console.log(updatedVal);
         submitInteractionDB(updatedVal);
         setInteraction(updatedVal);
     };
@@ -141,7 +143,9 @@ export function CommentReactionButtons({
             <div className="flex items-center">
                 <button
                     onClick={() => {
-                        updateUserStatus("liked");
+                        logInAction(() => {
+                            updateUserStatus("liked");
+                        });
                     }}
                 >
                     <LikeIcon
@@ -159,8 +163,9 @@ export function CommentReactionButtons({
                 <button
                     className="mr-1 overflow-hidden"
                     onClick={() => {
-                        console.log("yo");
-                        updateUserStatus("supported");
+                        logInAction(() => {
+                            updateUserStatus("supported");
+                        });
                     }}
                 >
                     <ArrowCircleUpIcon
@@ -183,7 +188,9 @@ export function CommentReactionButtons({
             <div className="flex items-center">
                 <button
                     onClick={() => {
-                        updateUserStatus("disliked");
+                        logInAction(() => {
+                            updateUserStatus("supported");
+                        });
                     }}
                 >
                     <DislikeIcon

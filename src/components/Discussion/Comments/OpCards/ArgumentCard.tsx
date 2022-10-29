@@ -10,6 +10,8 @@ import ThreadsMenu from "../Threads/ThreadsMenu";
 import ReportModal from "../../../../common/components/Report/ReportModal";
 
 import { Argument } from "../../../../types/comments.types";
+import useLoggedInAction from "../../../../hooks/authProtected/useLoggedInAction";
+import { useSession } from "next-auth/react";
 interface ArgumentCardProps {
     data: Argument;
     selectedThread: number | null;
@@ -47,6 +49,9 @@ const ArgumentCard = forwardRef<HTMLDivElement, ArgumentCardProps>(
                 : null
         );
 
+        const { data: session } = useSession();
+        const logInAction = useLoggedInAction();
+
         return (
             <>
                 <div className="flex w-full gap-3" ref={ref}>
@@ -83,7 +88,9 @@ const ArgumentCard = forwardRef<HTMLDivElement, ArgumentCardProps>(
                                 <button
                                     className=" hidden -translate-y-[1px] text-neutral-500 2xl:block"
                                     onClick={() => {
-                                        setReplyInputOpen(!replyInputOpen);
+                                        logInAction(() => {
+                                            setReplyInputOpen(!replyInputOpen);
+                                        });
                                     }}
                                 >
                                     {replyInputOpen ? (
@@ -112,18 +119,19 @@ const ArgumentCard = forwardRef<HTMLDivElement, ArgumentCardProps>(
                                     </div>
                                 )}
                             </div>
-
-                            <div>
-                                <ExtendedMenu
-                                    dataId={data.id}
-                                    isAuthor={data.isAuthor}
-                                    setShowReportMenu={setShowReportMenu}
-                                    deleteFunction={deleteFunction}
-                                    allowReply={true}
-                                    showReplyBox={replyInputOpen}
-                                    setShowReplyBox={setReplyInputOpen}
-                                />
-                            </div>
+                            {session && (
+                                <div>
+                                    <ExtendedMenu
+                                        dataId={data.id}
+                                        isAuthor={data.isAuthor}
+                                        setShowReportMenu={setShowReportMenu}
+                                        deleteFunction={deleteFunction}
+                                        allowReply={true}
+                                        showReplyBox={replyInputOpen}
+                                        setShowReplyBox={setReplyInputOpen}
+                                    />
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

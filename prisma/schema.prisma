@@ -168,7 +168,7 @@ model ArticleViews {
 model Argument {
     id             Int      @id @default(autoincrement())
     content        String   @db.Text
-    author         User     @relation("postedArguments", fields: [authorId], references: [id])
+    author         User     @relation("postedArguments", fields: [authorId], references: [id], onDelete: Cascade)
     authorId       String
     createdTime    DateTime @default(now())
     stance         String   @db.Text
@@ -178,7 +178,7 @@ model Argument {
 
     pagnationSequence Int @unique @default(autoincrement())
 
-    article   Articles @relation(fields: [articleId], references: [id])
+    article   Articles @relation(fields: [articleId], references: [id], onDelete: Cascade)
     articleId String
 
     comments        Comments[]
@@ -198,7 +198,7 @@ model ArgumentThread {
 model Comments {
     id             Int      @id @default(autoincrement())
     content        String   @db.Text
-    author         User     @relation("postedComments", fields: [authorId], references: [id])
+    author         User     @relation("postedComments", fields: [authorId], references: [id], onDelete: Cascade)
     authorId       String
     createdTime    DateTime @default(now())
     stance         String   @db.Text

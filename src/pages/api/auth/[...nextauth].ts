@@ -2,6 +2,11 @@ import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "../../../utils/prisma";
+import { createHash } from "crypto";
+
+const hashPassword = (pwd: string) => {
+    return createHash("sha256").update(pwd).digest("hex");
+};
 
 export default NextAuth({
     adapter: PrismaAdapter(prisma),
@@ -18,6 +23,7 @@ export default NextAuth({
             },
             async authorize(credentials, req) {
                 if (!credentials) throw new Error("Credentials not provided");
+
                 const user = await prisma.user.findUniqueOrThrow({
                     where: {
                         email: credentials?.email,
@@ -34,7 +40,7 @@ export default NextAuth({
                 let date = new Date();
                 date.setDate(date.getDate() + 30);
 
-                if (user.password !== credentials.password)
+                if (user.password !== hashPassword(credentials.password))
                     throw new Error("Incorrect Password");
 
                 if (user) {

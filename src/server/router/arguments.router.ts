@@ -97,7 +97,12 @@ export const argumentsRouter = createRouter()
             cursor: z.number().nullish(),
         }),
         async resolve({ input, ctx }) {
-            if (!ctx.user) throw new TRPCError({ code: "UNAUTHORIZED" });
+            const user = ctx.user
+                ? ctx.user
+                : {
+                      id: "",
+                  };
+
             const allowedStance = [];
             if (input.stance == "sup" || input.stance == "both")
                 allowedStance.push("sup");
@@ -111,12 +116,8 @@ export const argumentsRouter = createRouter()
                 userArgs = await ctx.prisma.argument.findMany({
                     where: {
                         articleId: input.articleId,
-                        stance: {
-                            in: allowedStance,
-                        },
-                        authorId: {
-                            equals: ctx.user.id,
-                        },
+                        stance: { in: allowedStance },
+                        authorId: { equals: user.id },
                     },
                     select: {
                         id: true,
@@ -137,21 +138,9 @@ export const argumentsRouter = createRouter()
                                 comments: true,
                             },
                         },
-                        likedUsers: {
-                            where: {
-                                id: ctx.user.id,
-                            },
-                        },
-                        supportedUsers: {
-                            where: {
-                                id: ctx.user.id,
-                            },
-                        },
-                        dislikedUsers: {
-                            where: {
-                                id: ctx.user.id,
-                            },
-                        },
+                        likedUsers: { where: { id: user.id } },
+                        supportedUsers: { where: { id: user.id } },
+                        dislikedUsers: { where: { id: user.id } },
                         argumentThreads: {
                             select: {
                                 id: true,
@@ -162,9 +151,7 @@ export const argumentsRouter = createRouter()
                         pagnationSequence: true,
                     },
 
-                    orderBy: {
-                        createdTime: "desc",
-                    },
+                    orderBy: { createdTime: "desc" },
                 });
             }
 
@@ -176,7 +163,7 @@ export const argumentsRouter = createRouter()
                     },
                     NOT: {
                         authorId: {
-                            equals: ctx.user.id,
+                            equals: user.id,
                         },
                     },
                 },
@@ -199,21 +186,9 @@ export const argumentsRouter = createRouter()
                             comments: true,
                         },
                     },
-                    likedUsers: {
-                        where: {
-                            id: ctx.user.id,
-                        },
-                    },
-                    supportedUsers: {
-                        where: {
-                            id: ctx.user.id,
-                        },
-                    },
-                    dislikedUsers: {
-                        where: {
-                            id: ctx.user.id,
-                        },
-                    },
+                    likedUsers: { where: { id: user.id } },
+                    supportedUsers: { where: { id: user.id } },
+                    dislikedUsers: { where: { id: user.id } },
                     argumentThreads: {
                         select: {
                             id: true,

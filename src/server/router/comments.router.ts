@@ -5,17 +5,6 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 
 export const commentsRouter = createRouter()
-    .middleware(async ({ ctx, next }) => {
-        if (!ctx.user) {
-            throw new TRPCError({ code: "UNAUTHORIZED" });
-        }
-        return next({
-            ctx: {
-                ...ctx,
-                user: ctx.user,
-            },
-        });
-    })
     .mutation("createComment", {
         input: z.object({
             content: z.string(),
@@ -24,6 +13,9 @@ export const commentsRouter = createRouter()
             thread: z.number().nullable(),
         }),
         async resolve({ input, ctx }) {
+            if (!ctx.user) {
+                throw new TRPCError({ code: "UNAUTHORIZED" });
+            }
             const comment = await ctx.prisma.comments.create({
                 data: {
                     inArgument: {
@@ -122,6 +114,12 @@ export const commentsRouter = createRouter()
                 allowedStance.push("agn");
             if (input.stance == "both") allowedStance.push("neu");
 
+            const user = ctx.user
+                ? ctx.user
+                : {
+                      id: "",
+                  };
+
             const data = await ctx.prisma.comments.findMany({
                 where: {
                     inArgumentId: input.argumentId,
@@ -159,21 +157,9 @@ export const commentsRouter = createRouter()
                             dislikedUsers: true,
                         },
                     },
-                    likedUsers: {
-                        where: {
-                            id: ctx.user.id,
-                        },
-                    },
-                    supportedUsers: {
-                        where: {
-                            id: ctx.user.id,
-                        },
-                    },
-                    dislikedUsers: {
-                        where: {
-                            id: ctx.user.id,
-                        },
-                    },
+                    likedUsers: { where: { id: user.id } },
+                    supportedUsers: { where: { id: user.id } },
+                    dislikedUsers: { where: { id: user.id } },
                 },
                 orderBy: {
                     id: "asc",
@@ -192,7 +178,7 @@ export const commentsRouter = createRouter()
                     ({
                         id: element.id,
                         author: element.author,
-                        isAuthor: element.author.id === ctx.user.id,
+                        isAuthor: element.author.id === user.id,
                         content: element.content,
                         stance: element.stance as Stances,
                         thread: element.inThread,
@@ -216,6 +202,9 @@ export const commentsRouter = createRouter()
             status: z.enum(["liked", "supported", "disliked"]).nullable(),
         }),
         async resolve({ input, ctx }) {
+            if (!ctx.user) {
+                throw new TRPCError({ code: "UNAUTHORIZED" });
+            }
             const originalComment = await ctx.prisma.comments.findUniqueOrThrow(
                 {
                     where: {
@@ -315,6 +304,15 @@ export const commentsRouter = createRouter()
             id: z.number(),
         }),
         async resolve({ input, ctx }) {
+            if (!ctx.user) {
+                throw new TRPCError({ code: "UNAUTHORIZED" });
+            }
+            const deletingComment = await ctx.prisma.comments.findUnique({
+                where: { id: input.id },
+            });
+            if (ctx.user.id !== deletingComment?.authorId) {
+                throw new TRPCError({ code: "UNAUTHORIZED" });
+            }
             const data = await ctx.prisma.comments.delete({
                 where: {
                     id: input.id,

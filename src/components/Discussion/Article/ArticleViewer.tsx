@@ -1,48 +1,17 @@
-import { useState } from "react";
 import Link from "next/link";
-import { Avatar, Spoiler } from "@mantine/core";
+import { Avatar } from "@mantine/core";
 
-import { BookmarkIcon, FlagIcon, ShareIcon } from "@heroicons/react/outline";
-import { Article, ArticleBlock } from "../../../types/article.types";
-import ShareDialog from "./ShareDialog";
-import { useRouter } from "next/router";
-import AddToCollection from "../../Navigation/Collections/AddToCollection";
+import type { Article } from "../../../types/article.types";
+import ArticleInteractions from "./ArticleInteractions";
+import ArticleBlock from "./ArticleBlock";
+import { useSession } from "next-auth/react";
 
 interface ArticleViewerProps {
     article: Article;
 }
 
-const ArticleBlock = ({ type, content, spoilerTitle }: ArticleBlock) => {
-    const textSize =
-        type === "h1"
-            ? "text-2xl text-primary-800"
-            : type === "h2"
-            ? "text-xl text-primary-800"
-            : type === "h3"
-            ? "text-lg text-primary-800"
-            : "text-base";
-    if (type === "spoiler")
-        return (
-            <Spoiler
-                maxHeight={0}
-                showLabel={`展開${spoilerTitle}`}
-                hideLabel={`收合${spoilerTitle}`}
-                classNames={{
-                    control: "text-xl leading-10 text-primary-800",
-                }}
-            >
-                <p className="mb-2 text-base text-neutral-700">{content}</p>
-            </Spoiler>
-        );
-    return <p className={`${textSize}`}>{content}</p>;
-};
-
 const ArticleViewer = ({ article }: ArticleViewerProps) => {
-    const [userSaved, setUserSaved] = useState<boolean>(false);
-    const [openShareMenu, setOpenShareMenu] = useState<boolean>(false);
-    const [openReportMenu, setOpenReportMenu] = useState<boolean>(false);
-
-    const router = useRouter();
+    const { data: session } = useSession();
 
     return (
         <div>
@@ -64,13 +33,22 @@ const ArticleViewer = ({ article }: ArticleViewerProps) => {
                     <div className="w-4" />
                 </div>
                 <div className="flex flex-wrap justify-start gap-4">
-                    {article.tags.map((tag, i) => (
-                        <Link href={`/search/results?tags=${tag}`} key={i}>
-                            <div className="flex h-8 flex-shrink-0 cursor-pointer items-center rounded-2xl border-[1.5px] border-neutral-400 px-4">
+                    {article.tags.map((tag, i) =>
+                        session ? (
+                            <Link href={`/search/results?tags=${tag}`} key={i}>
+                                <div className="flex h-8 flex-shrink-0 cursor-pointer items-center rounded-2xl border-[1.5px] border-neutral-400 px-4">
+                                    <p className="text-center text-sm text-neutral-500">{`#${tag}`}</p>
+                                </div>
+                            </Link>
+                        ) : (
+                            <div
+                                className="flex h-8 flex-shrink-0 items-center rounded-2xl border-[1.5px] border-neutral-400 px-4"
+                                key={i}
+                            >
                                 <p className="text-center text-sm text-neutral-500">{`#${tag}`}</p>
                             </div>
-                        </Link>
-                    ))}
+                        )
+                    )}
                 </div>
                 <article className="mt-6 flex flex-col gap-4 text-neutral-700">
                     {article.content.map((contentBlock, i) => (
@@ -90,44 +68,12 @@ const ArticleViewer = ({ article }: ArticleViewerProps) => {
                         </a>
                     ))}
                 </div>
-                <hr className="my-5 border-neutral-700" />
-                <div className="flex gap-2">
-                    <button
-                        onClick={() => {
-                            setUserSaved(!userSaved);
-                        }}
-                    >
-                        <AddToCollection
-                            articleId={article.id}
-                            classNames={{
-                                bookmarkIcon: "h-7 text-primary-700",
-                                collectText: "hidden",
-                            }}
-                        />
-                    </button>
-                    <button
-                        onClick={async () => {
-                            if (navigator.share) {
-                                await navigator.share({
-                                    title: "分享這則議題",
-                                    url: `https://speakup.place/${router.pathname}`,
-                                });
-                            } else setOpenShareMenu(true);
-                        }}
-                    >
-                        <ShareIcon className="h-7 w-7 text-primary-700" />
-                    </button>
-                    <ShareDialog
-                        opened={openShareMenu}
-                        closeFn={() => {
-                            setOpenShareMenu(false);
-                        }}
-                        url={`https://speakup.place/${router.pathname}`}
-                    />
-                    <button>
-                        <FlagIcon className="h-7 w-7 text-primary-700" />
-                    </button>
-                </div>
+                {session && (
+                    <>
+                        <hr className="my-5 border-neutral-700" />
+                        <ArticleInteractions articleId={article.id} />
+                    </>
+                )}
             </div>
         </div>
     );

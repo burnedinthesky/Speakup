@@ -3,6 +3,7 @@ import { useState } from "react";
 import BaseCommentInput from "./BaseOpInput";
 
 import { Stances } from "../../../../types/comments.types";
+import useLoggedInAction from "../../../../hooks/authProtected/useLoggedInAction";
 
 interface ArgumentInputProps {
     addComment: (cmtContent: string, cmtSide: Stances) => void;
@@ -10,6 +11,7 @@ interface ArgumentInputProps {
 
 const ArgumentInput = ({ addComment }: ArgumentInputProps) => {
     const [isCommenting, setIsCommenting] = useState<boolean>(false);
+    const logInAction = useLoggedInAction();
 
     return (
         <div className="mt-2 mb-4 flex w-full flex-col items-end justify-center">
@@ -23,7 +25,9 @@ const ArgumentInput = ({ addComment }: ArgumentInputProps) => {
                 <button
                     className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border border-primary-800 `}
                     onClick={() => {
-                        setIsCommenting(true);
+                        logInAction(() => {
+                            setIsCommenting(true);
+                        });
                     }}
                 >
                     <svg

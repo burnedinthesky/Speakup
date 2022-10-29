@@ -1,15 +1,16 @@
-import { SyntheticEvent, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/router";
 import { Popover } from "@mantine/core";
 
 import { SearchIcon } from "@heroicons/react/outline";
 import { ArticleTagValues } from "../../../types/article.types";
+import { isEqual } from "lodash";
 
 const SearchBar = () => {
     const [opened, setOpened] = useState(false);
     const [searchKeyword, setSearchKeyword] = useState<string>("");
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
-    const [selTagUpdated, setSelTagUpdated] = useState<boolean>(false);
+    const [prevSelectedTags, setPrevSelectedTags] = useState<string[]>([""]);
 
     const router = useRouter();
 
@@ -48,8 +49,8 @@ const SearchBar = () => {
                                 setOpened(true);
                             }}
                             onBlur={() => {
-                                if (selTagUpdated) {
-                                    setSelTagUpdated(false);
+                                if (!isEqual(selectedTags, prevSelectedTags)) {
+                                    setPrevSelectedTags(selectedTags);
                                 } else setOpened(false);
                             }}
                             onKeyDown={(e) => {
@@ -72,7 +73,6 @@ const SearchBar = () => {
                                 <button
                                     key={i}
                                     onClick={() => {
-                                        setSelTagUpdated(true);
                                         if (selectedTags.includes(tag)) {
                                             setSelectedTags(
                                                 selectedTags.filter(

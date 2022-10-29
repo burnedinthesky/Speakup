@@ -13,6 +13,7 @@ import SortSelector from "../../components/Discussion/Selectors/SortSelector";
 
 import { Article } from "../../types/article.types";
 import { trpc } from "../../utils/trpc";
+import { useSession } from "next-auth/react";
 
 interface DiscussionProps {
     article: Article;
@@ -26,6 +27,8 @@ const DiscussionBoard = ({ article }: DiscussionProps) => {
     const [screenSize, setScreenSize] = useState<"mob" | "des">("mob");
     const [articleViewQueryFetched, setArticleViewQueryFetched] =
         useState<boolean>(false);
+
+    const { data: session } = useSession();
 
     trpc.useQuery(["articles.register-view", article.id], {
         enabled: !articleViewQueryFetched,
@@ -69,8 +72,12 @@ const DiscussionBoard = ({ article }: DiscussionProps) => {
 
             <main className="fixed top-0 left-0 right-0 bottom-0 overflow-y-auto bg-neutral-100 pt-14 pb-16 scrollbar-hide overflow-x-hidden">
                 <Header />
-                <Navbar retractable={true} />
-                <Footbar />
+                {session && (
+                    <>
+                        <Navbar retractable={true} />
+                        <Footbar />
+                    </>
+                )}
                 <div className="mx-auto w-11/12 max-w-3xl scrollbar-hide lg:px-4">
                     <div className="mt-6 w-full lg:mt-10">
                         <ArticleViewer article={article} />

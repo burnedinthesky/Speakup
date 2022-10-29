@@ -18,9 +18,14 @@ import { SignInPageIDs } from "../../types/auth.types";
 interface PageProps {
     setDisplayPage: (value: SignInPageIDs) => void;
     setDivHeight: (value: number) => void;
+    signInSuccessCallback?: Function;
 }
 
-const SignInPage = ({ setDisplayPage, setDivHeight }: PageProps) => {
+const SignInPage = ({
+    setDisplayPage,
+    setDivHeight,
+    signInSuccessCallback,
+}: PageProps) => {
     const router = useRouter();
     const rootDivRef = useRef<HTMLDivElement | null>(null);
 
@@ -53,14 +58,15 @@ const SignInPage = ({ setDisplayPage, setDivHeight }: PageProps) => {
         setLoading(true);
         let response = await signIn("credentials", {
             redirect: false,
-            callbackUrl: "/home",
             email: values.email,
             password: values.password,
         });
         try {
             if (!response) throw new Error("No response from auth servers");
-            if (!response.error) router.push("/home");
-            else if (response.error === "No User found") {
+            if (!response.error) {
+                if (signInSuccessCallback) signInSuccessCallback();
+                else router.push("/home");
+            } else if (response.error === "No User found") {
                 loginForm.setErrors({
                     email: "該帳號不存在",
                 });
