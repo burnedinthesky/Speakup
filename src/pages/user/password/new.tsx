@@ -39,7 +39,7 @@ const ResetPwd = () => {
             }
         },
         onError: (error) => {
-            if (error.message === "Reset key invalid")
+            if (error.message === "Token not found")
                 showNotification({
                     title: "發生錯誤",
                     message: "請確定您的網址完全與信中網址完全相同",

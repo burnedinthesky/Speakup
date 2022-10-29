@@ -25,17 +25,6 @@ const SignUpPage = ({ setDisplayPage, setDivHeight }: AuthPageProps) => {
         if (rootDivRef.current) setDivHeight(rootDivRef.current.clientHeight);
     }, []);
 
-    const hash = async (text: string) => {
-        const utf8 = new TextEncoder().encode(text);
-        return crypto.subtle.digest("SHA-256", utf8).then((hashBuffer) => {
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            const hashHex = hashArray
-                .map((bytes) => bytes.toString(16).padStart(2, "0"))
-                .join("");
-            return hashHex;
-        });
-    };
-
     const signupMutation = trpc.useMutation(["users.registerUser"], {
         onSuccess: async (data) => {
             const params = new URLSearchParams();
@@ -100,12 +89,10 @@ const SignUpPage = ({ setDisplayPage, setDivHeight }: AuthPageProps) => {
             return;
         }
 
-        const hashedPwd = await hash(values.password);
-
         signupMutation.mutate({
             name: values.username,
             email: values.email,
-            password: hashedPwd,
+            password: values.password,
         });
     };
 

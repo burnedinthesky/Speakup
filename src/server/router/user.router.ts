@@ -1,9 +1,14 @@
 import { createRouter } from "../createRouter";
 import { TRPCError } from "@trpc/server";
+import { createHash } from "crypto";
 
 import { z } from "zod";
 
 import { sendgrid } from "../../utils/sendgrid";
+
+const hashPassword = (pwd: string) => {
+    return createHash("sha256").update(pwd).digest("hex");
+};
 
 export const userRouter = createRouter()
     .mutation("registerUser", {
@@ -35,11 +40,13 @@ export const userRouter = createRouter()
                     message: "Email registered",
                 });
 
+            const hashedPassword = hashPassword(password);
+
             const user = await ctx.prisma.user.create({
                 data: {
                     name,
                     email,
-                    password,
+                    password: hashedPassword,
                 },
             });
 
@@ -336,6 +343,24 @@ export const userRouter = createRouter()
                     code: "NOT_FOUND",
                     message: "Token not found",
                 });
+
+            const hashedPassword = hashPassword(input.password);
+
+            const prevUser = await ctx.prisma.user.findUniqueOrThrow({
+                where: {
+                    email: resetToken.identifier,
+                },
+                select: {
+                    password: true,
+                },
+            });
+
+            if (prevUser.password === hashedPassword) {
+                throw new TRPCError({
+                    code: "CONFLICT",
+                    message: "Password same as previous",
+                });
+            }
 
             const user = await ctx.prisma.user.update({
                 where: {

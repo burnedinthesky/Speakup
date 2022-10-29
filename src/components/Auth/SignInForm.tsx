@@ -36,17 +36,6 @@ const SignInPage = ({ setDisplayPage, setDivHeight }: PageProps) => {
         if (session) router.push("/home");
     }, [session]);
 
-    const hash = (text: string) => {
-        const utf8 = new TextEncoder().encode(text);
-        return crypto.subtle.digest("SHA-256", utf8).then((hashBuffer) => {
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            const hashHex = hashArray
-                .map((bytes) => bytes.toString(16).padStart(2, "0"))
-                .join("");
-            return hashHex;
-        });
-    };
-
     const emailTest =
         /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
@@ -66,7 +55,7 @@ const SignInPage = ({ setDisplayPage, setDivHeight }: PageProps) => {
             redirect: false,
             callbackUrl: "/home",
             email: values.email,
-            password: await hash(values.password),
+            password: values.password,
         });
         try {
             if (!response) throw new Error("No response from auth servers");
