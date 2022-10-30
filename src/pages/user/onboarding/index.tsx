@@ -100,8 +100,9 @@ const UserOnboarding = () => {
                 }));
             }}
         />,
-        <Comments prevPage={prevPage} nextPage={nextPage} />,
+        <Comments key="comments" prevPage={prevPage} nextPage={nextPage} />,
         <AllDone
+            key="alldone"
             prevPage={prevPage}
             nextPage={submitOnboarding}
             isLoading={onboardMutation.isLoading}

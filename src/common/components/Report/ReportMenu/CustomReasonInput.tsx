@@ -36,4 +36,6 @@ const CustomReasonInput = forwardRef<HTMLInputElement, CustomReasonInputProps>(
     }
 );
 
+CustomReasonInput.displayName = "CustomReasonInput";
+
 export default CustomReasonInput;

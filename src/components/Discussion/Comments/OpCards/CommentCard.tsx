@@ -2,7 +2,6 @@ import { useState, forwardRef } from "react";
 
 import { CommentReactionButtons } from "../OpCardComponents/CommentReactionButtons";
 import ExtendedMenu from "../OpCardComponents/ExtendedMenu";
-import ReportModal from "../../../../common/components/Report/ReportModal";
 
 import { Comment } from "../../../../types/comments.types";
 import { Badge } from "@mantine/core";
@@ -27,8 +26,6 @@ const CommentCard = forwardRef<HTMLDivElement, CommentCardProps>(
                 : null
         );
 
-        const [showReportMenu, setShowReportMenu] = useState<boolean>(false);
-        const [reportModalKey, setReportModalKey] = useState<number>(0);
         const [enableAnim, setEnableAnim] = useState<boolean>(false);
 
         return (
@@ -81,7 +78,6 @@ const CommentCard = forwardRef<HTMLDivElement, CommentCardProps>(
                                 <ExtendedMenu
                                     dataId={data.id}
                                     isAuthor={data.isAuthor}
-                                    setShowReportMenu={setShowReportMenu}
                                     deleteFunction={deleteFunction}
                                     allowReply={false}
                                 />
@@ -89,37 +85,6 @@ const CommentCard = forwardRef<HTMLDivElement, CommentCardProps>(
                         </div>
                     </div>
                 </div>
-
-                <ReportModal
-                    key={reportModalKey}
-                    open={showReportMenu}
-                    closeFunction={() => {
-                        setShowReportMenu(false);
-                        setTimeout(() => {
-                            setReportModalKey(reportModalKey + 1);
-                        }, 500);
-                    }}
-                    title="請問您認為此留言有什麼問題？"
-                    options={[
-                        { key: "irrelevant", text: "內容與討論無關" },
-                        { key: "spam", text: "廣告或洗版訊息" },
-                        { key: "hatred", text: "散播仇恨言論或人生攻擊" },
-                        { key: "sexual", text: "含有煽情露骨內容" },
-                        { key: "terrorism", text: "散播恐怖主義" },
-                    ]}
-                    allowOther
-                    maxReasons={3}
-                    submitFunction={async (
-                        value: string[],
-                        content?: string
-                    ) => {
-                        return new Promise(function (resolve, reject) {
-                            setTimeout(() => {
-                                resolve("success");
-                            }, 200);
-                        });
-                    }}
-                />
             </>
         );
     }
