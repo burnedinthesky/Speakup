@@ -381,4 +381,27 @@ export const userRouter = createRouter()
                 password: user.password,
             };
         },
+    })
+    .mutation("onboard", {
+        input: z.object({
+            birthDate: z.date(),
+            gender: z.enum(["m", "f", "o"]),
+        }),
+        async resolve({ ctx, input }) {
+            if (!ctx.user)
+                throw new TRPCError({
+                    code: "UNAUTHORIZED",
+                });
+
+            await ctx.prisma.user.update({
+                where: {
+                    id: ctx.user.id,
+                },
+                data: {
+                    onBoarded: true,
+                    birthday: input.birthDate,
+                    gender: input.gender,
+                },
+            });
+        },
     });

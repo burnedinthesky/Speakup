@@ -14,6 +14,7 @@ export async function middleware(request: NextRequest) {
         if (request.url[i] == "/") slashCounter += 1;
     }
     rootURL = rootURL.substring(0, rootURL.length - 1);
+    const URLPath = request.url.substring(rootURL.length, request.url.length);
 
     const res = await fetch(`${rootURL}/api/auth/validateuser`, {
         method: "POST",
@@ -34,6 +35,9 @@ export async function middleware(request: NextRequest) {
             new URL(`/user/signup?token=${valData.Token}`, request.url)
         );
     }
+
+    if (valData.Message === "Onboard" && URLPath !== "/user/onboarding")
+        return NextResponse.redirect(new URL(`/user/onboarding`, request.url));
 }
 
 export const config = {
@@ -41,7 +45,7 @@ export const config = {
         "/user/onboarding",
         "/home",
         "/search",
-        "/search/:path",
+        "/search/results",
         "/collections",
     ],
 };

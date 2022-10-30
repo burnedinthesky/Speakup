@@ -43,6 +43,12 @@ model Session {
     user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+enum Gender {
+    m
+    f
+    o
+}
+
 model User {
     id            String    @id @unique @default(uuid())
     name          String    @unique
@@ -51,9 +57,10 @@ model User {
     password      String?   @db.Char(64)
 
     profileImg String?
-    birthday   String?
-    gender     Int?
-    role       UserRole @default(USER)
+    birthday   DateTime?
+    gender     Gender?
+    role       UserRole  @default(USER)
+    onBoarded  Boolean   @default(false)
 
     accounts Account[]
     sessions Session[]

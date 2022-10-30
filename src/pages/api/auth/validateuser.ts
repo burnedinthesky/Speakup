@@ -86,5 +86,9 @@ export default async function handler(
         return res.status(201).json({ Token: tokenId });
     }
 
+    if (!user.onBoarded) {
+        return res.status(200).json({ Message: "Onboard" });
+    }
+
     res.status(200).json({ Message: "Valid" });
 }
