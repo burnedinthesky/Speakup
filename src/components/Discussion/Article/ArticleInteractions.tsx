@@ -6,6 +6,8 @@ import ShareDialog from "./ShareDialog";
 import AddToCollection from "../../Navigation/Collections/AddToCollection";
 
 import { useRouter } from "next/router";
+import { useSetRecoilState } from "recoil";
+import { openDisccusionModal } from "../../../atoms/discussionModal";
 
 interface ArticleInteractionProps {
     articleId: string;
@@ -14,6 +16,8 @@ interface ArticleInteractionProps {
 const ArticleInteractions = ({ articleId }: ArticleInteractionProps) => {
     const router = useRouter();
     const [openShareMenu, setOpenShareMenu] = useState<boolean>(false);
+
+    const setReportModalData = useSetRecoilState(openDisccusionModal);
 
     return (
         <div className="flex gap-2">
@@ -45,7 +49,15 @@ const ArticleInteractions = ({ articleId }: ArticleInteractionProps) => {
                 }}
                 url={`https://speakup.place/${router.pathname}`}
             />
-            <button>
+            <button
+                onClick={() => {
+                    setReportModalData({
+                        opened: true,
+                        type: "article",
+                        identifier: articleId,
+                    });
+                }}
+            >
                 <FlagIcon className="h-7 w-7 text-primary-700" />
             </button>
         </div>

@@ -7,7 +7,6 @@ import { CommentReactionButtons } from "../OpCardComponents/CommentReactionButto
 import ExtendedMenu from "../OpCardComponents/ExtendedMenu";
 
 import ThreadsMenu from "../Threads/ThreadsMenu";
-import ReportModal from "../../../../common/components/Report/ReportModal";
 
 import { Argument } from "../../../../types/comments.types";
 import useLoggedInAction from "../../../../hooks/authProtected/useLoggedInAction";
@@ -33,8 +32,6 @@ const ArgumentCard = forwardRef<HTMLDivElement, ArgumentCardProps>(
         },
         ref
     ) => {
-        const [showReportMenu, setShowReportMenu] = useState<boolean>(false);
-        const [reportModalKey, setReportModalKey] = useState<number>(0);
         const [enableAnim, setEnableAnim] = useState<boolean>(false);
 
         const [interaction, setInteraction] = useState<
@@ -124,7 +121,6 @@ const ArgumentCard = forwardRef<HTMLDivElement, ArgumentCardProps>(
                                     <ExtendedMenu
                                         dataId={data.id}
                                         isAuthor={data.isAuthor}
-                                        setShowReportMenu={setShowReportMenu}
                                         deleteFunction={deleteFunction}
                                         allowReply={true}
                                         showReplyBox={replyInputOpen}
@@ -135,37 +131,6 @@ const ArgumentCard = forwardRef<HTMLDivElement, ArgumentCardProps>(
                         </div>
                     </div>
                 </div>
-
-                <ReportModal
-                    key={reportModalKey}
-                    open={showReportMenu}
-                    closeFunction={() => {
-                        setShowReportMenu(false);
-                        setTimeout(() => {
-                            setReportModalKey(reportModalKey + 1);
-                        }, 500);
-                    }}
-                    title="請問您認為此留言有什麼問題？"
-                    options={[
-                        { key: "irrelevant", text: "內容與討論無關" },
-                        { key: "spam", text: "廣告或洗版訊息" },
-                        { key: "hatred", text: "散播仇恨言論或人生攻擊" },
-                        { key: "sexual", text: "含有煽情露骨內容" },
-                        { key: "terrorism", text: "散播恐怖主義" },
-                    ]}
-                    allowOther
-                    maxReasons={3}
-                    submitFunction={async (
-                        value: string[],
-                        content?: string
-                    ) => {
-                        return new Promise(function (resolve, reject) {
-                            setTimeout(() => {
-                                resolve("success");
-                            }, 200);
-                        });
-                    }}
-                />
             </>
         );
     }

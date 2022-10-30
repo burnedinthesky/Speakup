@@ -7,11 +7,12 @@ import {
     ReplyIcon,
     DotsVerticalIcon,
 } from "@heroicons/react/outline";
+import { useSetRecoilState } from "recoil";
+import { openDisccusionModal } from "../../../../atoms/discussionModal";
 
 interface ExtendedMenuProps {
     dataId: number;
     isAuthor: boolean;
-    setShowReportMenu: (value: boolean) => void;
     deleteFunction: (value: number) => void;
     allowReply: boolean;
     showReplyBox?: boolean;
@@ -21,12 +22,13 @@ interface ExtendedMenuProps {
 const ExtendedMenu = ({
     dataId,
     isAuthor,
-    setShowReportMenu,
     deleteFunction,
     allowReply,
     showReplyBox,
     setShowReplyBox,
 }: ExtendedMenuProps) => {
+    const setReportModalData = useSetRecoilState(openDisccusionModal);
+
     return (
         <Menu position="bottom-end">
             <Menu.Target>
@@ -36,7 +38,11 @@ const ExtendedMenu = ({
                 {!isAuthor && (
                     <Menu.Item
                         onClick={() => {
-                            setShowReportMenu(true);
+                            setReportModalData({
+                                opened: true,
+                                identifier: dataId,
+                                type: allowReply ? "argument" : "comment",
+                            });
                         }}
                         className="text-primary-800"
                         icon={

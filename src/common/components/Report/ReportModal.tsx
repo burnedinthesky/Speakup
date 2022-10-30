@@ -1,112 +1,118 @@
-import { useEffect, useRef, useState } from "react";
-import { Button, Modal } from "@mantine/core";
+import { useEffect, useState } from "react";
+import { Modal } from "@mantine/core";
+import { useRecoilState } from "recoil";
+import { openDisccusionModal } from "../../../atoms/discussionModal";
 
 import ReportMenu from "./ReportMenu";
+import { motion, AnimatePresence } from "framer-motion";
+import ReportSuccess from "./ReportSuccess";
+import ReportFailure from "./ReportFailure";
+import { trpc } from "../../../utils/trpc";
 
-interface ReportModalProps {
-    open: boolean;
-    closeFunction: () => void;
-    title: string;
-    options: {
-        key: string;
-        text: string;
-    }[];
-    allowOther: boolean;
-    maxReasons: number;
-    submitFunction: (
-        value: string[],
-        content?: string
-    ) => Promise<"success" | "failed">;
-}
+function ReportModal() {
+    const [data, setData] = useRecoilState(openDisccusionModal);
 
-function ReportModal({
-    open,
-    closeFunction,
-    title,
-    options,
-    allowOther,
-    maxReasons,
-    submitFunction,
-}: ReportModalProps) {
-    const [submittionStatus, setSubmittionStatus] = useState<
-        "" | "success" | "failed"
-    >("");
+    const [divHeight, setDivHeight] = useState<number>(0);
+    const [firstRender, setFirstRender] = useState<boolean>(true);
 
-    const ReportMenuRef = useRef<HTMLDivElement>(null);
-    const ReportResultRef = useRef<HTMLDivElement>(null);
+    const [displayPage, setDisplayPage] = useState<
+        "submission" | "submitSuccess" | "submitFailure"
+    >("submission");
 
-    const ReportResult = () => {
-        return (
-            <div ref={ReportResultRef}>
-                <h3 className="mb-3 text-xl text-neutral-800">
-                    {submittionStatus == "success"
-                        ? "我們已經收到您的檢舉"
-                        : "發生錯誤，請再次一次"}
-                </h3>
-                <div className="mt-4 flex w-full justify-end">
-                    <Button
-                        className="ml-auto bg-primary-700 hover:bg-primary-800"
-                        onClick={closeFunction}
-                    >
-                        關閉檢舉介面
-                    </Button>
-                </div>
-            </div>
-        );
+    useEffect(() => setFirstRender(false));
+
+    const submitReport = trpc.useMutation(["report.submitReport"], {
+        onSuccess() {
+            setDisplayPage("submitSuccess");
+        },
+        onError() {
+            setDisplayPage("submitFailure");
+        },
+        onSettled() {
+            setDivHeight(80);
+        },
+    });
+
+    const submitFunction = (reasons: string[]) => {
+        if (!data.type || !data.identifier)
+            throw new Error("Invalid Report Data");
+        submitReport.mutate({
+            identifier: data.identifier,
+            type: data.type,
+            reasons: reasons,
+        });
     };
 
     return (
-        <>
-            <Modal
-                opened={open}
-                onClose={closeFunction}
-                withCloseButton={false}
-                centered
-                size="sm"
-                classNames={{ modal: "bg-neutral-50" }}
-            >
-                <div
-                    className="relative w-full overflow-y-auto overflow-x-hidden transition-height duration-300 "
-                    style={{
-                        height:
-                            submittionStatus == "success" ||
-                            submittionStatus == "failed"
-                                ? ReportResultRef.current?.offsetHeight
-                                : ReportMenuRef.current?.offsetHeight,
+        <Modal
+            opened={data.opened}
+            onClose={() => {
+                setData({
+                    opened: false,
+                    identifier: null,
+                    type: null,
+                });
+            }}
+            withCloseButton={false}
+            centered
+            size="sm"
+            classNames={{ modal: "bg-neutral-50" }}
+        >
+            {data.type && data.identifier && (
+                <motion.div
+                    className="relative flex w-full scrollbar-hide overflow-x-hidden"
+                    initial={{ height: 392 }}
+                    animate={{
+                        height: divHeight,
                     }}
+                    transition={{ ease: "easeOut" }}
                 >
-                    <div
-                        className={`w-full ${
-                            submittionStatus == "success" ||
-                            submittionStatus == "failed"
-                                ? "-translate-x-full"
-                                : ""
-                        } transition-transform duration-300 `}
-                    >
-                        <ReportMenu
-                            ref={ReportMenuRef}
-                            title={title}
-                            options={options}
-                            maxReasons={maxReasons}
-                            allowOther={allowOther}
-                            submitFunction={submitFunction}
-                            setMenuSubmittionStatus={setSubmittionStatus}
-                        />
-                    </div>
-
-                    <div
-                        className={`absolute top-0 w-full ${
-                            submittionStatus == "success" ||
-                            submittionStatus == "failed"
-                                ? "translate-x-0"
-                                : "translate-x-full"
-                        } transition-transform duration-300 `}
-                    >
-                        <ReportResult />
-                    </div>
-                </div>
-            </Modal>
-        </>
+                    <AnimatePresence>
+                        {displayPage === "submission" && (
+                            <motion.div
+                                key={0}
+                                className="absolute top-0 w-full"
+                                animate={{ x: 0 }}
+                                initial={{ x: firstRender ? 0 : 400 }}
+                                transition={{ ease: "easeOut" }}
+                                exit={{ x: -400 }}
+                            >
+                                <ReportMenu
+                                    type={data.type}
+                                    submitFunction={submitFunction}
+                                    setDivHeight={setDivHeight}
+                                    submissionLoading={submitReport.isLoading}
+                                />
+                            </motion.div>
+                        )}
+                        {displayPage === "submitSuccess" && (
+                            <motion.div
+                                key={1}
+                                className="absolute top-0 w-full"
+                                animate={{ x: 0 }}
+                                initial={{ x: 400 }}
+                                transition={{ ease: "easeOut" }}
+                                exit={{ x: -400 }}
+                            >
+                                <ReportSuccess />
+                            </motion.div>
+                        )}
+                        {displayPage === "submitFailure" && (
+                            <motion.div
+                                key={2}
+                                className="absolute top-0 w-full"
+                                animate={{ x: 0 }}
+                                initial={{ x: 400 }}
+                                transition={{ ease: "easeOut" }}
+                                exit={{ x: -400 }}
+                            >
+                                <ReportFailure />
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </motion.div>
+            )}
+        </Modal>
     );
 }
 

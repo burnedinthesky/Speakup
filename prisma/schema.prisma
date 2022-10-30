@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
     provider = "prisma-client-js"
 }
@@ -79,6 +76,9 @@ model User {
     CollectionSet     CollectionSet[]
     CredEmailVerToken CredEmailVerToken?
     CredEmailLimiter  CredEmailLimiter?
+    ArgumentReports   ArgumentReports[]
+    CommentReports    CommentReports[]
+    ArticleReports    ArticleReports[]
 }
 
 model VerificationToken {
@@ -143,17 +143,18 @@ model Collections {
 }
 
 model Articles {
-    id          String        @id @default(cuid())
-    title       String        @unique
-    tags        String[]
-    createdTime DateTime      @default(now())
-    author      User          @relation(fields: [authorId], references: [id])
-    authorId    String
-    viewCount   Int           @default(0)
-    content     Json
-    references  Json
-    arguments   Argument[]
-    Collections Collections[]
+    id             String           @id @default(cuid())
+    title          String           @unique
+    tags           String[]
+    createdTime    DateTime         @default(now())
+    author         User             @relation(fields: [authorId], references: [id])
+    authorId       String
+    viewCount      Int              @default(0)
+    content        Json
+    references     Json
+    arguments      Argument[]
+    Collections    Collections[]
+    ArticleReports ArticleReports[]
 }
 
 model ArticleViews {
@@ -163,6 +164,18 @@ model ArticleViews {
     userId String?
 
     @@unique([ip, userId])
+}
+
+model ArticleReports {
+    id          Int      @id @default(autoincrement())
+    reasons     String[]
+    user        User     @relation(fields: [userId], references: [id])
+    article     Articles @relation(fields: [articlesId], references: [id])
+    createdTime DateTime @default(now())
+    userId      String
+    articlesId  String
+
+    @@unique([userId, articlesId])
 }
 
 model Argument {
@@ -183,6 +196,7 @@ model Argument {
 
     comments        Comments[]
     argumentThreads ArgumentThread[]
+    ArgumentReports ArgumentReports[]
 }
 
 model ArgumentThread {
@@ -193,6 +207,18 @@ model ArgumentThread {
     comments   Comments[]
 
     @@unique([argumentId, name])
+}
+
+model ArgumentReports {
+    id          Int      @id @default(autoincrement())
+    reasons     String[]
+    user        User     @relation(fields: [userId], references: [id])
+    argument    Argument @relation(fields: [argumentId], references: [id])
+    createdTime DateTime @default(now())
+    userId      String
+    argumentId  Int
+
+    @@unique([userId, argumentId])
 }
 
 model Comments {
@@ -206,8 +232,21 @@ model Comments {
     dislikedUsers  User[]   @relation("supportedComments")
     supportedUsers User[]   @relation("dislikedComments")
 
-    inArgument       Argument        @relation(fields: [inArgumentId], references: [id], onDelete: Cascade)
+    inArgument       Argument         @relation(fields: [inArgumentId], references: [id], onDelete: Cascade)
     inArgumentId     Int
-    inThread         ArgumentThread? @relation(fields: [argumentThreadId], references: [id])
+    inThread         ArgumentThread?  @relation(fields: [argumentThreadId], references: [id])
     argumentThreadId Int?
+    CommentReports   CommentReports[]
+}
+
+model CommentReports {
+    id          Int      @id @default(autoincrement())
+    reasons     String[]
+    user        User     @relation(fields: [userId], references: [id])
+    comment     Comments @relation(fields: [commentsId], references: [id])
+    createdTime DateTime @default(now())
+    userId      String
+    commentsId  Int
+
+    @@unique([userId, commentsId])
 }
