@@ -20,6 +20,7 @@ export default NextAuth({
                     placeholder: "jsmith",
                 },
                 password: { label: "Password", type: "password" },
+                additionalParams: { type: "ob" },
             },
             async authorize(credentials, req) {
                 if (!credentials) throw new Error("Credentials not provided");
@@ -40,7 +41,14 @@ export default NextAuth({
                 let date = new Date();
                 date.setDate(date.getDate() + 30);
 
-                if (user.password !== hashPassword(credentials.password))
+                let password = "";
+                if (credentials.additionalParams === "useRawKey") {
+                    password = credentials.password;
+                } else {
+                    password = hashPassword(credentials.password);
+                }
+
+                if (user.password !== password)
                     throw new Error("Incorrect Password");
 
                 if (user) {

@@ -54,6 +54,7 @@ const VerifyEmailPage = ({ setDisplayPage, setDivHeight }: AuthPageProps) => {
             const res = await signIn("credentials", {
                 email: data.email,
                 password: data.password,
+                additionalParams: "useRawKey",
                 callbackUrl: "/user/onboarding",
             });
             if (res?.ok) return;

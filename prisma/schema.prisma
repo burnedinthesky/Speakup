@@ -176,8 +176,8 @@ model ArticleViews {
 model ArticleReports {
     id          Int      @id @default(autoincrement())
     reasons     String[]
-    user        User     @relation(fields: [userId], references: [id])
-    article     Articles @relation(fields: [articlesId], references: [id])
+    user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    article     Articles @relation(fields: [articlesId], references: [id], onDelete: Cascade)
     createdTime DateTime @default(now())
     userId      String
     articlesId  String
@@ -219,8 +219,8 @@ model ArgumentThread {
 model ArgumentReports {
     id          Int      @id @default(autoincrement())
     reasons     String[]
-    user        User     @relation(fields: [userId], references: [id])
-    argument    Argument @relation(fields: [argumentId], references: [id])
+    user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    argument    Argument @relation(fields: [argumentId], references: [id], onDelete: Cascade)
     createdTime DateTime @default(now())
     userId      String
     argumentId  Int
@@ -249,8 +249,8 @@ model Comments {
 model CommentReports {
     id          Int      @id @default(autoincrement())
     reasons     String[]
-    user        User     @relation(fields: [userId], references: [id])
-    comment     Comments @relation(fields: [commentsId], references: [id])
+    user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    comment     Comments @relation(fields: [commentsId], references: [id], onDelete: Cascade)
     createdTime DateTime @default(now())
     userId      String
     commentsId  Int
