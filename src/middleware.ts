@@ -38,6 +38,8 @@ export async function middleware(request: NextRequest) {
 
     if (valData.Message === "Onboard" && URLPath !== "/user/onboarding")
         return NextResponse.redirect(new URL(`/user/onboarding`, request.url));
+    else if (valData.Message !== "Onboard" && URLPath === "/user/onboarding")
+        return NextResponse.redirect(new URL(`/home`, request.url));
 }
 
 export const config = {
