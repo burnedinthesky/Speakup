@@ -29,17 +29,16 @@ const useTimeoutEmail = ({ localStorageId }: hookProps) => {
     };
 
     const overrideEmailCD = (time: number) => {
-        console.log("yoo");
         localStorage.setItem(localStorageId, time.toString());
         setEmailCD(time);
         if (!emailCDInterval.current) {
-            emailCDInterval.current = setInterval(updateEmailCD, 200);
+            emailCDInterval.current = setInterval(updateEmailCD, 1000);
         }
     };
 
     useEffect(() => {
         if (!emailCDInterval.current) {
-            emailCDInterval.current = setInterval(updateEmailCD, 200);
+            emailCDInterval.current = setInterval(updateEmailCD, 1000);
         }
 
         return () => {
