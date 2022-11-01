@@ -51,8 +51,6 @@ const CommentField = ({
     );
 
     useEffect(() => {
-        console.log("Whoa");
-        console.log(sortMethod);
         trpcUtils.invalidateQueries(["arguments.getArticleArguments"]);
     }, [viewingStance, sortMethod]);
 

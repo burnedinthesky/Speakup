@@ -13,12 +13,27 @@ import superjson from "superjson";
 
 import "../styles/globals.css";
 import { RecoilRoot } from "recoil";
+import Router from "next/router";
+
+import NProgress from "nprogress";
 
 interface AppPropsInterface {
     session: Session | null | undefined;
 }
 
 const Speakup = ({ Component, pageProps }: AppProps<AppPropsInterface>) => {
+    Router.events.on("routeChangeStart", () => {
+        NProgress.start();
+    });
+
+    Router.events.on("routeChangeComplete", () => {
+        NProgress.done();
+    });
+
+    Router.events.on("routeChangeError", () => {
+        NProgress.done();
+    });
+
     return (
         <SessionProvider session={pageProps.session}>
             <RecoilRoot>
