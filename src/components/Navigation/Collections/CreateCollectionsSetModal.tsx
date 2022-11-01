@@ -11,7 +11,13 @@ const CreateColSetModal = ({ opened, setOpened }: CreateColSetModalProps) => {
     const [colSetName, setColSetName] = useState<string>("");
     const [inputError, setInputError] = useState<string | null>(null);
 
-    const createColSetMutation = useCreateColSetMutation();
+    const completeFn = () => {
+        setColSetName("");
+        setInputError(null);
+        setOpened(false);
+    };
+
+    const createColSetMutation = useCreateColSetMutation(completeFn);
 
     const submitCollectionSet = () => {
         setInputError(null);
@@ -23,9 +29,6 @@ const CreateColSetModal = ({ opened, setOpened }: CreateColSetModalProps) => {
             createColSetMutation.mutate({
                 name: colSetName,
             });
-            setColSetName("");
-            setInputError(null);
-            setOpened(false);
         }
     };
 
@@ -52,6 +55,7 @@ const CreateColSetModal = ({ opened, setOpened }: CreateColSetModalProps) => {
                         onClick={() => {
                             submitCollectionSet();
                         }}
+                        loading={createColSetMutation.isLoading}
                     >
                         新增
                     </Button>

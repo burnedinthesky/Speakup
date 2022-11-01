@@ -65,11 +65,6 @@ const ArgumentDisplay = forwardRef<HTMLDivElement, ArgumentDisplay>(
             }
         );
 
-        const createThreadMutation = useArgCreateThreadMutation({
-            setAddedThreads,
-            selectedThread,
-        });
-
         const addCommentMutation = useArgAddCommentMutation({
             threads: data.threads.concat(addedThreads),
             selectedThread,
@@ -185,17 +180,9 @@ const ArgumentDisplay = forwardRef<HTMLDivElement, ArgumentDisplay>(
                                 setOpenCreateThreadModalCount((cur) => cur + 1);
                             setOpenCreateThreadModal(val);
                         }}
+                        argumentId={data.id}
+                        setAddedThreads={setAddedThreads}
                         comments={cmtDataFormatted}
-                        createNewThread={(
-                            updateingIds: number[],
-                            name: string
-                        ) => {
-                            createThreadMutation.mutate({
-                                argumentId: data.id,
-                                name: name,
-                                updatingComments: updateingIds,
-                            });
-                        }}
                     />
                 </div>
             </div>

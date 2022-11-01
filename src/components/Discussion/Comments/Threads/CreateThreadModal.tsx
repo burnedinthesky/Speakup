@@ -1,7 +1,7 @@
 import { Button, Checkbox, Modal, TextInput } from "@mantine/core";
-import { cloneDeep } from "lodash";
 import { useEffect, useState } from "react";
-import { Comment } from "../../../../types/comments.types";
+import useArgCreateThreadMutation from "../../../../hooks/discussion/useArgCreateThreadMutation";
+import { ArgumentThread, Comment } from "../../../../types/comments.types";
 
 interface ChoseCommentCardProps {
     checked: boolean;
@@ -38,14 +38,18 @@ interface CommentCardData {
 interface CreateThreadModalProps {
     opened: boolean;
     setOpened: (value: boolean) => void;
-    createNewThread: (selectedCommentIds: number[], name: string) => void;
+    argumentId: number;
+    setAddedThreads: (
+        mutateFn: (value: ArgumentThread[]) => ArgumentThread[]
+    ) => void;
     comments?: Comment[];
 }
 
 const CreateThreadModal = ({
     opened,
     setOpened,
-    createNewThread,
+    argumentId,
+    setAddedThreads,
     comments,
 }: CreateThreadModalProps) => {
     const [threadName, setThreadName] = useState<string>("");
@@ -53,25 +57,32 @@ const CreateThreadModal = ({
 
     const [stage, setStage] = useState<1 | 2>(1);
 
+    const createThreadMutation = useArgCreateThreadMutation(
+        (data?: ArgumentThread) => {
+            if (data) setAddedThreads((cur) => [...cur, data]);
+            setOpened(false);
+        }
+    );
+
     const [currentComments, setCurrentComments] = useState<CommentCardData[]>(
         []
     );
 
     useEffect(() => {
-        if (stage !== 2)
-            setCurrentComments(
-                comments
-                    ? comments.map(
-                          (element) =>
-                              ({
-                                  checked: false,
-                                  disabled: element.thread ? true : false,
-                                  id: element.id,
-                                  content: element.content,
-                              } as CommentCardData)
-                      )
-                    : []
+        if (stage === 2) return;
+        let curComments: CommentCardData[] = [];
+        if (comments) {
+            curComments = comments.map(
+                (element) =>
+                    ({
+                        checked: false,
+                        disabled: element.thread ? true : false,
+                        id: element.id,
+                        content: element.content,
+                    } as CommentCardData)
             );
+        }
+        setCurrentComments(curComments);
     }, [comments, stage]);
 
     const submitStage1 = () => {
@@ -87,13 +98,13 @@ const CreateThreadModal = ({
     };
 
     const submitNewThread = () => {
-        createNewThread(
-            currentComments
+        createThreadMutation.mutate({
+            argumentId: argumentId,
+            name: threadName,
+            updatingComments: currentComments
                 .filter((element) => element.checked)
                 .map((element) => element.id),
-            threadName
-        );
-        setOpened(false);
+        });
     };
 
     return (
@@ -154,6 +165,7 @@ const CreateThreadModal = ({
                                 onClick={() => {
                                     submitNewThread();
                                 }}
+                                loading={createThreadMutation.isLoading}
                             >
                                 提交
                             </Button>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { trpc } from "../../../utils/trpc";
 
-import { LoadingOverlay, Popover } from "@mantine/core";
+import { Loader, LoadingOverlay, Popover } from "@mantine/core";
 import { BookmarkIcon, PlusIcon, XIcon } from "@heroicons/react/outline";
 
 import ColSetSelector from "./ColSetSelector";
@@ -20,6 +20,16 @@ interface AddToCollectionProps {
     articleId: string;
     classNames?: Styles;
 }
+
+const LoadingIconWrapper = ({
+    children,
+    loading,
+}: {
+    loading: boolean;
+    children: JSX.Element;
+}) => {
+    return <>{loading ? <Loader className="mr-2" size={16} /> : children}</>;
+};
 
 const AddToCollection = ({ articleId, classNames }: AddToCollectionProps) => {
     const [openSelectingContent, setOpenSelectingContent] =
@@ -74,7 +84,11 @@ const AddToCollection = ({ articleId, classNames }: AddToCollectionProps) => {
                                 });
                             }}
                         >
-                            <XIcon className="mr-2 inline h-4" />
+                            <LoadingIconWrapper
+                                loading={deleteCollectionMutation.isLoading}
+                            >
+                                <XIcon className="mr-2 inline h-4" />
+                            </LoadingIconWrapper>
                             <p className="inline text-sm">移除</p>
                         </button>
                     ) : (
@@ -87,7 +101,11 @@ const AddToCollection = ({ articleId, classNames }: AddToCollectionProps) => {
                                 });
                             }}
                         >
-                            <PlusIcon className="mr-2 inline h-4" />
+                            <LoadingIconWrapper
+                                loading={upsertCollectionMutation.isLoading}
+                            >
+                                <PlusIcon className="mr-2 inline h-4" />
+                            </LoadingIconWrapper>
                             <p className="inline text-sm">收藏</p>
                         </button>
                     )}

@@ -1,6 +1,5 @@
 import { ChatAlt2Icon, CheckIcon, PlusSmIcon } from "@heroicons/react/outline";
-import { Button, Menu, Modal, TextInput } from "@mantine/core";
-import { useState } from "react";
+import { Menu } from "@mantine/core";
 import { ArgumentThread } from "../../../../types/comments.types";
 
 interface ThreadsMenuProps {
