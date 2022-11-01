@@ -83,7 +83,7 @@ const ArgumentCard = forwardRef<HTMLDivElement, ArgumentCardProps>(
                                 />
 
                                 <button
-                                    className=" hidden -translate-y-[1px] text-neutral-500 2xl:block"
+                                    className=" hidden -translate-y-[1px] text-neutral-500 xl:block"
                                     onClick={() => {
                                         logInAction(() => {
                                             setReplyInputOpen(!replyInputOpen);

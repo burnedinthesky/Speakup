@@ -73,7 +73,7 @@ const ExtendedMenu = ({
                             onClick={() => {
                                 setShowReplyBox(!showReplyBox);
                             }}
-                            className="text-primary-800 lg:hidden"
+                            className="text-primary-800 xl:hidden"
                             icon={
                                 showReplyBox ? (
                                     <XIcon className="inline h-6 w-6 text-primary-800" />
