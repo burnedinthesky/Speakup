@@ -8,6 +8,7 @@ interface AppShellProps {
     title: string;
     rootDivStyle?: string;
     highlight?: "home" | "search" | "collections";
+    navbarRetractable?: boolean;
 }
 
 const AppShell = ({
@@ -15,6 +16,7 @@ const AppShell = ({
     title,
     rootDivStyle,
     highlight,
+    navbarRetractable,
 }: AppShellProps) => {
     return (
         <>
@@ -34,7 +36,13 @@ const AppShell = ({
                 }
             >
                 <Header />
-                <Navbar retractable={false} />
+                <Navbar
+                    retractable={
+                        navbarRetractable !== undefined
+                            ? navbarRetractable
+                            : false
+                    }
+                />
                 <Footbar highlight={highlight} />
                 {children}
             </div>

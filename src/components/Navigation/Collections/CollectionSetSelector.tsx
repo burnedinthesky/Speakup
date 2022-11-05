@@ -29,7 +29,7 @@ const CollectionSetSelector = ({
 
     return (
         <>
-            <div className="block xl:hidden">
+            <div className="block lg:hidden">
                 <div className="fixed bottom-12 left-0 z-10 flex h-10 w-screen items-center justify-center bg-neutral-100 lg:bottom-0 lg:pl-64">
                     <button
                         className="flex items-center"
@@ -62,7 +62,7 @@ const CollectionSetSelector = ({
                     setMobileDrawerOpened={setMobileDrawerOpened}
                 />
             </div>
-            <div className="fixed top-[136px] right-6 hidden max-h-[calc(100vh-216px)] w-56 overflow-y-auto rounded-lg bg-white py-5 px-6 text-primary-800 xl:block 2xl:right-14 2xl:w-64">
+            <div className="fixed top-[136px] right-6 hidden max-h-[calc(100vh-216px)] w-56 overflow-y-auto rounded-lg bg-white py-5 px-6 text-primary-800 lg:block 2xl:right-14 2xl:w-64">
                 <h2 className="text-xl">您的收藏</h2>
                 <div className="mt-5 flex flex-col items-start gap-2 text-lg">
                     {sets

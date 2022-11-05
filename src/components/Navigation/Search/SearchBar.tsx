@@ -21,6 +21,10 @@ const SearchBar = () => {
             if (selectedTags.length)
                 params.set("tags", selectedTags.toString());
 
+            setOpened(false);
+            setSearchKeyword("");
+            setSelectedTags([]);
+            setPrevSelectedTags([""]);
             router.push(`/search/results?${params.toString()}`);
         }
     };
@@ -42,7 +46,7 @@ const SearchBar = () => {
                             onChange={(e) => {
                                 setSearchKeyword(e.target.value);
                             }}
-                            className="h-9 w-full rounded-3xl bg-neutral-50 p-5 text-base text-neutral-600 focus:outline-0"
+                            className="h-9 w-full rounded-3xl bg-neutral-50 p-5 text-base text-neutral-600 focus:outline-none"
                             placeholder="搜尋你感興趣的議題"
                             type="text"
                             onFocus={() => {
