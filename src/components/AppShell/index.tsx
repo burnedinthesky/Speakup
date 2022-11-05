@@ -2,15 +2,20 @@ import Head from "next/head";
 import Header from "./Header";
 import Navbar from "./Navbar";
 import Footbar from "./Footbar";
-import { useSession } from "next-auth/react";
 
 interface AppShellProps {
     children?: JSX.Element;
     title: string;
     rootDivStyle?: string;
+    highlight?: "home" | "search" | "collections";
 }
 
-const AppShell = ({ children, title, rootDivStyle }: AppShellProps) => {
+const AppShell = ({
+    children,
+    title,
+    rootDivStyle,
+    highlight,
+}: AppShellProps) => {
     return (
         <>
             <Head>
@@ -30,7 +35,7 @@ const AppShell = ({ children, title, rootDivStyle }: AppShellProps) => {
             >
                 <Header />
                 <Navbar retractable={false} />
-                <Footbar />
+                <Footbar highlight={highlight} />
                 {children}
             </div>
         </>

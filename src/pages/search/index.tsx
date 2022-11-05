@@ -27,7 +27,7 @@ const SearchMenu = () => {
     };
 
     return (
-        <AppShell title="Speakup - 搜尋">
+        <AppShell title="Speakup - 搜尋" highlight="search">
             <div className="lg:ml-64">
                 <div className="mx-auto mt-14 max-w-3xl px-8 py-5 md:mt-[20vh] lg:rounded-2xl">
                     <div className="relative flex h-8 w-full items-center lg:h-14">

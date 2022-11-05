@@ -21,6 +21,7 @@ const AccountOptions = () => {
                             src={session?.user.profileImg}
                             radius="xl"
                             size="sm"
+                            color="cyan"
                         >
                             {session?.user.name[0]}
                         </Avatar>

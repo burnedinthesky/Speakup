@@ -4,9 +4,15 @@ interface MobileDrawerProps {
     children?: JSX.Element;
     opened: boolean;
     onClose: () => void;
+    maxWidth?: number;
 }
 
-const MobileDrawer = ({ opened, onClose, children }: MobileDrawerProps) => {
+const MobileDrawer = ({
+    opened,
+    onClose,
+    children,
+    maxWidth,
+}: MobileDrawerProps) => {
     return (
         <Drawer
             opened={opened}
@@ -18,14 +24,17 @@ const MobileDrawer = ({ opened, onClose, children }: MobileDrawerProps) => {
             <div className="flex h-full w-full items-stretch">
                 <span
                     className="h-full w-full cursor-pointer"
-                    onClick={onClose}
+                    // onClick={onClose}
                 />
-                <div className="h-full w-full max-w-md flex-shrink-0 bg-white p-4">
+                <div
+                    style={{ maxWidth: maxWidth ? maxWidth : 448 }}
+                    className="h-full w-full flex-shrink-0 bg-white p-4"
+                >
                     {children}
                 </div>
                 <span
                     className=" h-full w-full cursor-pointer"
-                    onClick={onClose}
+                    // onClick={onClose}
                 />
             </div>
         </Drawer>

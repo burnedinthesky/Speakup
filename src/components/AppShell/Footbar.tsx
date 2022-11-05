@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import {
     HomeIcon,
@@ -14,50 +13,52 @@ import {
     BookmarkIcon as BookmarkIconSolid,
     UserCircleIcon as UserCircleIconSolid,
 } from "@heroicons/react/solid";
-import { useRouter } from "next/router";
+
 import AccountOptions from "../Account/AccountOptions";
-// import MobileNotifications from './header/MobileNotificationHandler';
 
-const Footbar = () => {
-    const router = useRouter();
-    const [showNtfModal, setShowNtfModal] = useState(false);
+interface FootbarProps {
+    highlight?: "home" | "search" | "collections";
+}
 
-    const pageUrl = (() => {
-        let url = "",
-            len = router.pathname.length;
-        for (let i = 0; i < len; i++) {
-            let currentChar = router.pathname[len - i - 1];
-            if (i == 0 && currentChar == "/") {
-            } else if (currentChar == "/") break;
-            url += currentChar;
-        }
-        return url.split("").reverse().join("");
-    })();
+interface HighlightableProps {
+    highlight: boolean;
+    normal: JSX.Element;
+    highlighted: JSX.Element;
+}
 
+const Highlightable = ({
+    highlight,
+    normal,
+    highlighted,
+}: HighlightableProps) => {
+    return <>{highlight ? highlighted : normal}</>;
+};
+
+const Footbar = ({ highlight }: FootbarProps) => {
     return (
         <nav
             className={`fixed left-0 bottom-0 z-20 flex h-12 w-full items-center justify-around border-t border-gray-400 bg-neutral-50 px-5 text-primary-900 lg:hidden`}
         >
             <Link href="/home">
-                {pageUrl == "home" ? (
-                    <HomeIconSolid className="h-7" />
-                ) : (
-                    <HomeIcon className="h-7" />
-                )}
+                <Highlightable
+                    highlight={highlight == "home"}
+                    normal={<HomeIcon className="h-7" />}
+                    highlighted={<HomeIconSolid className="h-7" />}
+                />
             </Link>
             <Link href="/search">
-                {pageUrl == "search" || pageUrl == "results" ? (
-                    <SearchIconSolid className="h-7" />
-                ) : (
-                    <SearchIcon className="h-7" />
-                )}
+                <Highlightable
+                    highlight={highlight == "search"}
+                    normal={<SearchIcon className="h-7" />}
+                    highlighted={<SearchIconSolid className="h-7" />}
+                />
             </Link>
             <Link href="/collections">
-                {pageUrl == "collections" ? (
-                    <BookmarkIconSolid className="h-7" />
-                ) : (
-                    <BookmarkIcon className="h-7" />
-                )}
+                <Highlightable
+                    highlight={highlight == "collections"}
+                    normal={<BookmarkIcon className="h-7" />}
+                    highlighted={<BookmarkIconSolid className="h-7" />}
+                />
             </Link>
             {/* <MobileNotifications /> */}
             {/* <Link href="/aboutuser">

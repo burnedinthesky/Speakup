@@ -87,7 +87,11 @@ export const navigationRouter = createRouter()
                 },
             });
 
-            const processedArticles = processArticles(articles);
+            const processedArticles = processArticles(articles).concat(
+                processArticles(articles).concat(
+                    processArticles(articles).concat(processArticles(articles))
+                )
+            );
 
             const data: HomeRecommendations = {
                 recommended: {

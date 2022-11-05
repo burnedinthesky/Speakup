@@ -145,8 +145,9 @@ const AddToCollection = ({ articleId, classNames }: AddToCollectionProps) => {
                 <MobileDrawer
                     opened={screenWidth < 1024 && openSelectingContent}
                     onClose={() => {
-                        setOpenSelectingContent(false);
+                        // setOpenSelectingContent(false);
                     }}
+                    maxWidth={340}
                 >
                     <SelectingContent />
                 </MobileDrawer>
