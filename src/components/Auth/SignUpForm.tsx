@@ -107,9 +107,7 @@ const SignUpPage = ({ setDisplayPage, setDivHeight }: AuthPageProps) => {
                 <br />
                 註冊過了？
                 <Link href="/user/signin">
-                    <span className="cursor-pointer text-primary-600">
-                        登入
-                    </span>
+                    <span className="text-primary-600">登入</span>
                 </Link>
             </p>
             <form

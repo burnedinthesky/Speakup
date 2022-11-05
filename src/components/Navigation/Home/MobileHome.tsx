@@ -31,7 +31,7 @@ const MobileHome = ({ data }: MobileHomeProps) => {
                     href={"/search"}
                     // href={`/search/results?searchterm=${data?.tracks[0]?.title}`}
                 >
-                    <div className="cursor-pointer text-center text-primary-900">
+                    <div className="text-center text-primary-900">
                         <p>探索更多</p>
                         <ChevronDownIcon className=" mx-auto w-6" />
                     </div>

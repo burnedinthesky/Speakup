@@ -109,9 +109,7 @@ const SignInPage = ({
                 <br />
                 沒有帳號密碼？
                 <Link href="/user/signup">
-                    <span className="cursor-pointer text-primary-600">
-                        立刻註冊
-                    </span>
+                    <span className="text-primary-600">立刻註冊</span>
                 </Link>
             </p>
             <form

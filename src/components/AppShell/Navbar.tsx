@@ -10,7 +10,6 @@ import {
 import { ArticleTagValues } from "../../types/article.types";
 import { ScrollArea } from "@mantine/core";
 
-//prettier-ignore
 const tags = ArticleTagValues;
 
 interface NavbarSectionProps {
@@ -28,7 +27,7 @@ const NavbarSection = ({
 }: NavbarSectionProps) => {
     return (
         <Link href={link}>
-            <li className="flex cursor-pointer list-none gap-4 py-3">
+            <li className="flex  list-none gap-4 py-3">
                 {icon}
                 <p
                     className={`whitespace-nowrap text-xl leading-8 ${
@@ -119,7 +118,7 @@ const Navbar = ({ retractable }: { retractable: boolean }) => {
                             target="_blank"
                             rel="noopener noreferrer"
                         >
-                            <p className="text-sm text-neutral-700">
+                            <p className="w-[160px] text-sm text-neutral-700">
                                 Speakup目前正在測試階段，請到 Canny
                                 回報錯誤，協助我們改進
                             </p>

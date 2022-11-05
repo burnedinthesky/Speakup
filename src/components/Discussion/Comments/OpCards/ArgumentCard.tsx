@@ -11,6 +11,8 @@ import ThreadsMenu from "../Threads/ThreadsMenu";
 import { Argument } from "../../../../types/comments.types";
 import useLoggedInAction from "../../../../hooks/authProtected/useLoggedInAction";
 import { useSession } from "next-auth/react";
+import { Avatar } from "@mantine/core";
+
 interface ArgumentCardProps {
     data: Argument;
     selectedThread: number | null;
@@ -49,20 +51,28 @@ const ArgumentCard = forwardRef<HTMLDivElement, ArgumentCardProps>(
         const { data: session } = useSession();
         const logInAction = useLoggedInAction();
 
+        const borderColor = (stance: string) =>
+            stance === "sup" || true
+                ? "border-green-300"
+                : stance === "agn"
+                ? "border-red-400"
+                : "border-neutral-300";
+
         return (
             <>
                 <div className="flex w-full gap-3" ref={ref}>
-                    <img
-                        className={`h-7 w-7 flex-shrink-0 border-2 p-1 ${
-                            data.stance === "sup"
-                                ? "border-green-300"
-                                : data.stance === "agn"
-                                ? "border-red-400"
-                                : "border-neutral-300"
-                        } overflow-hidden rounded-full`}
+                    <Avatar
+                        classNames={{
+                            root: `border-2 ${borderColor(data.stance)}`,
+                        }}
+                        className="border-2"
                         src={data.author.profileImg}
                         alt="Profile"
-                    />
+                        radius="xl"
+                        size="md"
+                    >
+                        {data.author.name}
+                    </Avatar>
                     <div className="flex-grow">
                         <h3 className="text-base text-primary-800">
                             {data.author.name}

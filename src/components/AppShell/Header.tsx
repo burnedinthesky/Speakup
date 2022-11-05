@@ -11,10 +11,10 @@ const Header = () => {
     return (
         <>
             <div className="fixed top-0 z-20 h-14 w-screen bg-primary-700 px-6 xl:px-14">
-                <div className="flex h-full cursor-pointer items-center lg:hidden">
+                <div className="flex h-full items-center lg:hidden">
                     <Link href="/home">
                         <img
-                            className="my-auto h-10 cursor-pointer"
+                            className="my-auto h-10 "
                             src="/assets/logo-white.svg"
                             alt="logo"
                         />

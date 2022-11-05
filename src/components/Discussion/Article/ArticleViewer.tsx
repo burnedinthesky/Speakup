@@ -52,7 +52,7 @@ const ArticleViewer = ({ article }: ArticleViewerProps) => {
                                     href={`/search/results?tags=${tag}`}
                                     key={i}
                                 >
-                                    <div className="flex h-8 flex-shrink-0 cursor-pointer items-center rounded-2xl border-[1.5px] border-neutral-400 px-4">
+                                    <div className="flex h-8 flex-shrink-0 items-center rounded-2xl border-[1.5px] border-neutral-400 px-4">
                                         <p className="text-center text-sm text-neutral-500">{`#${tag}`}</p>
                                     </div>
                                 </Link>

@@ -26,7 +26,7 @@ const NavCard = ({ cardContent, showDetails }: NavCardProps) => {
             </div>
             <div className="h-full flex-grow py-3 pl-4 md:pr-4">
                 <Link href={`/discussion/${cardContent.id}`}>
-                    <h3 className="cursor-pointer text-lg text-neutral-800 md:text-xl">
+                    <h3 className="text-lg text-neutral-800 md:text-xl">
                         {cardContent.title}
                     </h3>
                 </Link>
@@ -60,7 +60,7 @@ const NavCard = ({ cardContent, showDetails }: NavCardProps) => {
                     />
                 </div>
                 <Link href={`/discussion/${cardContent.id}`}>
-                    <p className="mt-1 cursor-pointer text-ellipsis text-sm text-neutral-700 line-clamp-3 md:text-base">
+                    <p className="mt-1 text-ellipsis text-sm text-neutral-700 line-clamp-3 md:text-base">
                         {cardContent.brief}
                     </p>
                 </Link>

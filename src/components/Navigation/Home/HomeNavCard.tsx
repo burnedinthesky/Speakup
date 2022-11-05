@@ -5,7 +5,7 @@ import { NavCardData } from "../../../types/navigation.types";
 const HomeNavCard = ({ cardContent }: { cardContent: NavCardData }) => {
     return (
         <Link href={`/discussion/${cardContent.id}`}>
-            <div className="flex h-40 w-full flex-shrink-0 cursor-pointer justify-between overflow-hidden rounded-2xl border-2 border-primary-800 bg-neutral-50 pr-4 md:pr-7 xl:border-2 ">
+            <div className="flex h-40 w-full flex-shrink-0 justify-between overflow-hidden rounded-2xl border-2 border-primary-800 bg-neutral-50 pr-4 md:pr-7 xl:border-2 ">
                 <div className="flex w-[4.5rem] flex-shrink-0 flex-col items-center justify-center bg-primary-800 text-white md:w-24">
                     {cardContent.tags.map((tag, i) => (
                         <p key={i}>#{tag}</p>

@@ -4,7 +4,7 @@ import { CommentReactionButtons } from "../OpCardComponents/CommentReactionButto
 import ExtendedMenu from "../OpCardComponents/ExtendedMenu";
 
 import { Comment } from "../../../../types/comments.types";
-import { Badge } from "@mantine/core";
+import { Avatar, Badge } from "@mantine/core";
 import { ChatAlt2Icon } from "@heroicons/react/outline";
 
 interface CommentCardProps {
@@ -28,20 +28,28 @@ const CommentCard = forwardRef<HTMLDivElement, CommentCardProps>(
 
         const [enableAnim, setEnableAnim] = useState<boolean>(false);
 
+        const borderColor = (stance: string) =>
+            stance === "sup" || true
+                ? "border-green-300"
+                : stance === "agn"
+                ? "border-red-400"
+                : "border-neutral-300";
+
         return (
             <>
                 <div className="flex w-full gap-3" ref={ref}>
-                    <img
-                        className={`h-7 w-7 flex-shrink-0 border-2 p-1 ${
-                            data.stance === "sup"
-                                ? "border-green-300"
-                                : data.stance === "agn"
-                                ? "border-red-400"
-                                : "border-neutral-300"
-                        } overflow-hidden rounded-full`}
+                    <Avatar
+                        classNames={{
+                            root: `border-2 ${borderColor(data.stance)}`,
+                        }}
+                        className="border-2"
                         src={data.author.profileImg}
                         alt="Profile"
-                    />
+                        radius="xl"
+                        size="md"
+                    >
+                        {data.author.name}
+                    </Avatar>
                     <div className="flex-grow">
                         <div className="flex items-center gap-2">
                             <h3 className="text-base text-primary-800">

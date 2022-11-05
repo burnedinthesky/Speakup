@@ -39,31 +39,25 @@ const Footbar = () => {
             className={`fixed left-0 bottom-0 z-20 flex h-12 w-full items-center justify-around border-t border-gray-400 bg-neutral-50 px-5 text-primary-900 lg:hidden`}
         >
             <Link href="/home">
-                <a>
-                    {pageUrl == "home" ? (
-                        <HomeIconSolid className="h-7" />
-                    ) : (
-                        <HomeIcon className="h-7" />
-                    )}
-                </a>
+                {pageUrl == "home" ? (
+                    <HomeIconSolid className="h-7" />
+                ) : (
+                    <HomeIcon className="h-7" />
+                )}
             </Link>
             <Link href="/search">
-                <a>
-                    {pageUrl == "search" || pageUrl == "results" ? (
-                        <SearchIconSolid className="h-7" />
-                    ) : (
-                        <SearchIcon className="h-7" />
-                    )}
-                </a>
+                {pageUrl == "search" || pageUrl == "results" ? (
+                    <SearchIconSolid className="h-7" />
+                ) : (
+                    <SearchIcon className="h-7" />
+                )}
             </Link>
             <Link href="/collections">
-                <a>
-                    {pageUrl == "collections" ? (
-                        <BookmarkIconSolid className="h-7" />
-                    ) : (
-                        <BookmarkIcon className="h-7" />
-                    )}
-                </a>
+                {pageUrl == "collections" ? (
+                    <BookmarkIconSolid className="h-7" />
+                ) : (
+                    <BookmarkIcon className="h-7" />
+                )}
             </Link>
             {/* <MobileNotifications /> */}
             {/* <Link href="/aboutuser">
