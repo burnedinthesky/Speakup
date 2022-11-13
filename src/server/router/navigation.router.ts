@@ -115,6 +115,8 @@ export const navigationRouter = createRouter()
                 return Math.random() > 0.5;
             };
 
+            const orderBy = Math.round(Math.random() * 4);
+
             let fetchedArticles = await ctx.prisma.articles.findMany({
                 where: { tags: { hasSome: takeTagVals } },
                 select: {
@@ -129,13 +131,12 @@ export const navigationRouter = createRouter()
                     _count: { select: { arguments: true } },
                 },
                 orderBy: {
-                    arguments: randomBool() ? { _count: "desc" } : undefined,
-                    articleScore: randomBool() ? "desc" : undefined,
-                    createdTime: randomBool() ? "desc" : undefined,
-                    viewCount: randomBool() ? "desc" : undefined,
-                    articleReports: randomBool()
-                        ? { _count: "asc" }
-                        : undefined,
+                    arguments: orderBy === 0 ? { _count: "desc" } : undefined,
+                    articleScore: orderBy === 1 ? "desc" : undefined,
+                    createdTime: orderBy === 2 ? "desc" : undefined,
+                    viewCount: orderBy === 3 ? "desc" : undefined,
+                    articleReports:
+                        orderBy === 4 ? { _count: "asc" } : undefined,
                 },
                 take: 50,
             });
