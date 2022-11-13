@@ -14,7 +14,7 @@ const Settings = () => {
 
     return (
         <>
-            <AppShell title="Speakup設定">
+            <AppShell title="Speakup - 設定">
                 <div className="lg:ml-64">
                     <div className="mx-auto mt-14 max-w-3xl rounded-md bg-white px-8 py-5 md:mt-28 ">
                         <h1 className="text-2xl text-primary-700">您的設定</h1>

@@ -9,6 +9,7 @@
         "lint": "next lint",
         "migrate": "dotenv -e .env.development -- npx prisma migrate dev",
         "migrate-prod": "dotenv -e .env.production -- npx prisma migrate deploy",
+        "pmstd-prod": "dotenv -e .env.production -- npx prisma studio",
         "postinstall": "prisma generate"
     },
     "dependencies": {
