@@ -54,7 +54,7 @@ export default async function handler(
             id: id,
         },
         include: {
-            CredEmailVerToken: {
+            credEmailVerToken: {
                 select: {
                     id: true,
                     expiers: true,
@@ -70,17 +70,17 @@ export default async function handler(
 
     if (!user.emailVerified) {
         let tokenId: string = "";
-        if (!user.CredEmailVerToken?.id) {
+        if (!user.credEmailVerToken?.id) {
             tokenId = await createNewCredVal(user.id, user.email);
         } else {
-            if (user.CredEmailVerToken.expiers < new Date()) {
+            if (user.credEmailVerToken.expiers < new Date()) {
                 await prisma.credEmailVerToken.delete({
                     where: {
-                        id: user.CredEmailVerToken.id,
+                        id: user.credEmailVerToken.id,
                     },
                 });
                 tokenId = await createNewCredVal(user.id, user.email);
-            } else tokenId = user.CredEmailVerToken.id;
+            } else tokenId = user.credEmailVerToken.id;
         }
 
         return res.status(201).json({ Token: tokenId });

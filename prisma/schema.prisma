@@ -16,6 +16,7 @@ enum UserRole {
 
 // https://next-auth.js.org/adapters/models
 
+// Auth
 model Account {
     id                String  @id @default(cuid())
     userId            String
@@ -41,51 +42,6 @@ model Session {
     userId       String
     expires      DateTime
     user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-enum Gender {
-    m
-    f
-    o
-}
-
-model User {
-    id            String    @id @unique @default(uuid())
-    name          String    @unique
-    email         String    @unique
-    emailVerified DateTime?
-    password      String?   @db.Char(64)
-
-    profileImg String?
-    birthday   DateTime?
-    gender     Gender?
-    role       UserRole  @default(USER)
-    onBoarded  Boolean   @default(false)
-
-    accounts Account[]
-    sessions Session[]
-
-    Articles  Articles[]
-    Arguments Argument[] @relation("postedArguments")
-    Comments  Comments[] @relation("postedComments")
-
-    likedArguments     Argument[] @relation("likedArguments")
-    dislikedArguments  Argument[] @relation("supportedArguments")
-    supportedArguments Argument[] @relation("dislikedArguments")
-
-    likedComments     Comments[] @relation("likedComments")
-    dislikedComments  Comments[] @relation("supportedComments")
-    supportedComments Comments[] @relation("dislikedComments")
-
-    PrivateUser       PrivateUser?
-    ArticleViews      ArticleViews[]
-    Collections       Collections[]
-    CollectionSet     CollectionSet[]
-    CredEmailVerToken CredEmailVerToken?
-    CredEmailLimiter  CredEmailLimiter?
-    ArgumentReports   ArgumentReports[]
-    CommentReports    CommentReports[]
-    ArticleReports    ArticleReports[]
 }
 
 model VerificationToken {
@@ -114,6 +70,55 @@ model CredEmailVerToken {
     expiers     DateTime
 }
 
+enum Gender {
+    m
+    f
+    o
+}
+
+// User
+
+model User {
+    id            String    @id @unique @default(uuid())
+    name          String    @unique
+    email         String    @unique
+    emailVerified DateTime?
+    password      String?   @db.Char(64)
+
+    profileImg String?
+    birthday   DateTime?
+    gender     Gender?
+    role       UserRole  @default(USER)
+    onBoarded  Boolean   @default(false)
+
+    tagPreference Json @default("[{\"slug\": \"ent\", \"pref\": 0.1}, {\"slug\": \"env\", \"pref\": 0.1}, {\"slug\": \"jus\", \"pref\": 0.1}, {\"slug\": \"cnd\", \"pref\": 0.1}, {\"slug\": \"eco\", \"pref\": 0.1}, {\"slug\": \"min\", \"pref\": 0.1}, {\"slug\": \"mda\", \"pref\": 0.1}, {\"slug\": \"med\", \"pref\": 0.1}, {\"slug\": \"eth\", \"pref\": 0.1}, {\"slug\": \"pol\", \"pref\": 0.1}, {\"slug\": \"edu\", \"pref\": 0.1}, {\"slug\": \"fam\", \"pref\": 0.1}, {\"slug\": \"fem\", \"pref\": 0.1}, {\"slug\": \"lib\", \"pref\": 0.1}, {\"slug\": \"rel\", \"pref\": 0.1}, {\"slug\": \"tec\", \"pref\": 0.1}, {\"slug\": \"plc\", \"pref\": 0.1}, {\"slug\": \"scm\", \"pref\": 0.1}, {\"slug\": \"spr\", \"pref\": 0.1}]")
+
+    accounts Account[]
+    sessions Session[]
+
+    articles  Articles[]
+    arguments Argument[] @relation("postedArguments")
+    comments  Comments[] @relation("postedComments")
+
+    likedArguments     Argument[] @relation("likedArguments")
+    dislikedArguments  Argument[] @relation("supportedArguments")
+    supportedArguments Argument[] @relation("dislikedArguments")
+
+    likedComments     Comments[] @relation("likedComments")
+    dislikedComments  Comments[] @relation("supportedComments")
+    supportedComments Comments[] @relation("dislikedComments")
+
+    privateUser       PrivateUser?
+    articleViews      ArticleViews[]
+    collections       Collections[]
+    collectionSet     CollectionSet[]
+    credEmailVerToken CredEmailVerToken?
+    credEmailLimiter  CredEmailLimiter?
+    argumentReports   ArgumentReports[]
+    commentReports    CommentReports[]
+    articleReports    ArticleReports[]
+}
+
 enum PrivateUserRole {
     USER
     SYSTEMADMIN
@@ -124,8 +129,8 @@ model PrivateUser {
     UserInstance User   @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId       String @unique
 
-    Role      PrivateUserRole @default(USER)
-    AuthToken String?         @unique @db.VarChar(64)
+    role      PrivateUserRole @default(USER)
+    authToken String?         @unique @db.VarChar(64)
 }
 
 model CollectionSet {
@@ -150,18 +155,24 @@ model Collections {
 }
 
 model Articles {
-    id             String           @id @default(cuid())
-    title          String           @unique
-    tags           String[]
-    createdTime    DateTime         @default(now())
-    author         User             @relation(fields: [authorId], references: [id])
-    authorId       String
-    viewCount      Int              @default(0)
-    content        Json
-    references     Json
+    id String @id @default(cuid())
+
+    title String   @unique
+    tags  String[]
+
+    author   User   @relation(fields: [authorId], references: [id])
+    authorId String
+
+    content    Json
+    references Json
+
     arguments      Argument[]
-    Collections    Collections[]
-    ArticleReports ArticleReports[]
+    collections    Collections[]
+    articleReports ArticleReports[]
+
+    createdTime  DateTime @default(now())
+    viewCount    Int      @default(0)
+    articleScore Float    @default(20)
 }
 
 model ArticleViews {
@@ -203,7 +214,7 @@ model Argument {
 
     comments        Comments[]
     argumentThreads ArgumentThread[]
-    ArgumentReports ArgumentReports[]
+    argumentReports ArgumentReports[]
 }
 
 model ArgumentThread {
@@ -243,7 +254,7 @@ model Comments {
     inArgumentId     Int
     inThread         ArgumentThread?  @relation(fields: [argumentThreadId], references: [id])
     argumentThreadId Int?
-    CommentReports   CommentReports[]
+    commentReports   CommentReports[]
 }
 
 model CommentReports {

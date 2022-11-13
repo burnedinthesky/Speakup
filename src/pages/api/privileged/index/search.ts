@@ -28,7 +28,7 @@ export default async function handler(
             _count: {
                 select: {
                     arguments: true,
-                    Collections: true,
+                    collections: true,
                 },
             },
             createdTime: true,
@@ -47,7 +47,7 @@ export default async function handler(
                     content: rawContent.map((ele) => ele.content).join("\n"),
                     createdDate: ele.createdTime,
                     interaction:
-                        ele._count.arguments * 3 + ele._count.Collections,
+                        ele._count.arguments * 3 + ele._count.collections,
                 };
             })
         )

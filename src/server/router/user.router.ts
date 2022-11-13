@@ -93,7 +93,7 @@ export const userRouter = createRouter()
                 select: {
                     user: {
                         include: {
-                            CredEmailLimiter: true,
+                            credEmailLimiter: true,
                         },
                     },
                 },
@@ -117,29 +117,29 @@ export const userRouter = createRouter()
                 );
             }
 
-            if (user.CredEmailLimiter) {
-                if (user.CredEmailLimiter.id) {
-                    credEmailLimiterId = user.CredEmailLimiter.id;
-                    prevCount = user.CredEmailLimiter.emailsSentInDay;
-                    if (user.CredEmailLimiter.dayStartTime < prevDay) {
+            if (user.credEmailLimiter) {
+                if (user.credEmailLimiter.id) {
+                    credEmailLimiterId = user.credEmailLimiter.id;
+                    prevCount = user.credEmailLimiter.emailsSentInDay;
+                    if (user.credEmailLimiter.dayStartTime < prevDay) {
                         prevCount = 0;
                         await ctx.prisma.credEmailLimiter.update({
                             where: {
-                                id: user.CredEmailLimiter.id,
+                                id: user.credEmailLimiter.id,
                             },
                             data: {
                                 dayStartTime: new Date(),
                                 emailsSentInDay: 0,
                             },
                         });
-                    } else if (user.CredEmailLimiter.emailsSentInDay >= 5) {
+                    } else if (user.credEmailLimiter.emailsSentInDay >= 5) {
                         throw new TRPCError({
                             code: "TIMEOUT",
                             message: "Day quota exhausted",
                         });
                     } else if (
                         getSecDiff(
-                            user.CredEmailLimiter.lastEmailSent,
+                            user.credEmailLimiter.lastEmailSent,
                             new Date()
                         ) < 60
                     ) {
