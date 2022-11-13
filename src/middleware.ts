@@ -43,5 +43,6 @@ export const config = {
         "/search",
         "/search/results",
         "/collections",
+        "/user/settings",
     ],
 };

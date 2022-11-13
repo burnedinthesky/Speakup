@@ -28,12 +28,13 @@ const ResetPwd = () => {
             const res = await signIn("credentials", {
                 email: data.email,
                 password: data.password,
+                additionalParams: "useRawKey",
                 callbackUrl: "/home",
             });
             if (res?.ok) return;
             else {
                 showNotification({
-                    message: "註冊成功，請登入",
+                    message: "密碼修改成功，請登入",
                 });
                 router.push("/user/signin");
             }
@@ -99,7 +100,7 @@ const ResetPwd = () => {
 
     return (
         <div className="fixed top-0 left-0 flex h-screen w-screen items-center justify-center bg-primary-50">
-            <div className="relative mx-8 w-full max-w-lg rounded-3xl bg-white py-14 px-12">
+            <div className="relative mx-8 w-full max-w-md overflow-hidden rounded-3xl bg-white py-14 px-10">
                 <LoadingOverlay visible={authToken ? false : true} />
                 <h1 className="text-2xl text-primary-500">重設密碼</h1>
                 <form className="relative">
