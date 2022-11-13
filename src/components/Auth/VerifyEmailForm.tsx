@@ -125,20 +125,11 @@ const VerifyEmailPage = ({ setDisplayPage, setDivHeight }: AuthPageProps) => {
 
     return (
         <>
-            <Head>
-                <title>{"Speakup 驗證信箱"}</title>
-                <meta
-                    name="viewport"
-                    content="initial-scale=1.0, width=device-width"
-                />
-                <link rel="manifest" href="/site.webmanifest" />
-            </Head>
-
             <div className="relative w-full" ref={rootDivRef}>
                 <LoadingOverlay visible={valId ? false : true} />
                 <h1 className="text-2xl text-primary-500">信箱驗證</h1>
                 <p className="mt-2 text-sm text-neutral-700">
-                    請檢查您用來註冊的信箱，Speakup有寄送一封有驗證碼的信給您
+                    請檢查您的信箱，Speakup有寄送一封含有驗證碼的信給您
                 </p>
 
                 <p className="mt-2 text-sm text-neutral-700">

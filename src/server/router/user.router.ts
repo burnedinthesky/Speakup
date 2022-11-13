@@ -320,8 +320,14 @@ export const userRouter = createRouter()
                 const msg = {
                     to: user.email,
                     from: "noreply@speakup.place",
-                    subject: "Speakup 驗證碼",
-                    html: `您申請的密碼重設連結 <a href=${resetUrl}>${resetUrl}</a>`,
+                    subject: "Speakup 重設密碼",
+                    html: `
+                    ${user.name} 您好
+
+                    您申請的密碼重設連結為 <a href=${resetUrl}>${resetUrl}</a>
+                    
+                    若您沒有申請重設密碼，請忽略本信件
+                    `,
                 };
 
                 await sendgrid.send(msg);

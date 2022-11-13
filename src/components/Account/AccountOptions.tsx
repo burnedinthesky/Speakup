@@ -62,19 +62,6 @@ const AccountOptions = () => {
                 >
                     設定
                 </Menu.Item>
-                <a
-                    href="https://speakup-team.notion.site/Speakup-ff4943ac425a430ebc06e74982d18968"
-                    rel="noreferrer noopener"
-                    target="_blank"
-                >
-                    <Menu.Item
-                        className="text-primary-900"
-                        icon={<InformationCircleIcon className="h-7 w-7" />}
-                    >
-                        關於
-                    </Menu.Item>
-                </a>
-
                 <Menu.Item
                     className="text-primary-900"
                     icon={<LogoutIcon className="h-7 w-7" />}
