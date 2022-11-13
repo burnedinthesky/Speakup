@@ -10,6 +10,7 @@ import {
 import HomeNavCard from "./HomeNavCard";
 
 import { NavCardData } from "../../../types/navigation.types";
+import Link from "next/link";
 
 interface CardTrackProps {
     title: string;
@@ -45,12 +46,11 @@ const CardTrack = ({ title, cards }: CardTrackProps) => {
                 </ScrollArea>
                 <div className="flex w-20 flex-shrink-0 items-center justify-center">
                     {inView ? (
-                        <a
-                            href={`/search/results?tags=${title}`}
-                            className="w-8 rounded-full text-primary-700"
-                        >
-                            <SearchCircleIcon />
-                        </a>
+                        title !== "為您推薦" && (
+                            <Link href={`/search/results?tags=${title}`}>
+                                <SearchCircleIcon className="w-8 text-primary-700" />
+                            </Link>
+                        )
                     ) : (
                         <button
                             className="text-primary-600"

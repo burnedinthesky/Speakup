@@ -2,7 +2,7 @@ import { createRouter } from "../createRouter";
 import { z } from "zod";
 import { Prisma } from "@prisma/client";
 import { algoliaSearch, articleIndex } from "../../utils/algolia";
-import { ArticleBlock } from "../../types/article.types";
+import { ArticleBlock, ArticleTagSlugsToVals } from "../../types/article.types";
 import {
     CollectionSet,
     HomeRecommendations,
@@ -66,45 +66,110 @@ export const navigationRouter = createRouter()
     })
     .query("home", {
         async resolve({ ctx }) {
-            const articles = await ctx.prisma.articles.findMany({
+            let userPrefs = ctx.user.tagPreference as {
+                slug: string;
+                pref: number;
+            }[];
+
+            userPrefs = userPrefs.map((ele) => ({
+                ...ele,
+                pref: ele.pref ** 2,
+            }));
+
+            let takeTags: { slug: string; pref: number }[] = [];
+
+            for (let i = 0; i < 8; i++) {
+                let totalSum = 0;
+                userPrefs.forEach((tag) => {
+                    totalSum += tag.pref;
+                });
+
+                let targetTagCount = Math.random() * totalSum;
+                let curCounter = 0;
+                let tagSlug: string = "";
+
+                userPrefs.forEach((tag) => {
+                    curCounter += tag.pref;
+                    if (targetTagCount >= 0 && curCounter > targetTagCount) {
+                        takeTags.push({
+                            slug: tag.slug,
+                            pref: tag.pref,
+                        });
+                        tagSlug = tag.slug;
+                        targetTagCount = -1;
+                    }
+                });
+
+                userPrefs = userPrefs.filter((pref) => pref.slug !== tagSlug);
+            }
+
+            takeTags = takeTags.sort((a, b) => (a.pref > b.pref ? -1 : 1));
+
+            let takeTagVals = takeTags.map(
+                (ele) => ArticleTagSlugsToVals[ele.slug] as string
+            );
+
+            console.log("Here");
+
+            const randomBool = () => {
+                return Math.random() > 0.5;
+            };
+
+            let fetchedArticles = await ctx.prisma.articles.findMany({
+                where: { tags: { hasSome: takeTagVals } },
                 select: {
                     id: true,
                     title: true,
                     tags: true,
                     author: {
-                        select: {
-                            name: true,
-                            profileImg: true,
-                        },
+                        select: { name: true, profileImg: true },
                     },
                     content: true,
                     viewCount: true,
-                    _count: {
-                        select: {
-                            arguments: true,
-                        },
-                    },
+                    _count: { select: { arguments: true } },
                 },
+                orderBy: {
+                    arguments: randomBool() ? { _count: "desc" } : undefined,
+                    articleScore: randomBool() ? "desc" : undefined,
+                    createdTime: randomBool() ? "desc" : undefined,
+                    viewCount: randomBool() ? "desc" : undefined,
+                    articleReports: randomBool()
+                        ? { _count: "asc" }
+                        : undefined,
+                },
+                take: 50,
             });
 
-            const processedArticles = processArticles(articles).concat(
-                processArticles(articles).concat(
-                    processArticles(articles).concat(processArticles(articles))
-                )
-            );
+            console.log("Feteched");
 
-            const data: HomeRecommendations = {
+            const ret: HomeRecommendations = {
                 recommended: {
                     title: "為您推薦",
-                    cards: [...processedArticles],
-                },
-                med: {
-                    title: "讚喔",
-                    cards: [...processedArticles],
+                    cards: [],
                 },
             };
+            let hasTags = 0;
 
-            return data;
+            for (let i = 0; i < 8 && hasTags < 4; i++) {
+                let tag = takeTagVals[i] as string;
+                let articlesWithTag = fetchedArticles.filter((article) =>
+                    article.tags.includes(tag)
+                );
+                if (!articlesWithTag.length) continue;
+                hasTags++;
+                ret[tag] = {
+                    title: tag,
+                    cards: processArticles(articlesWithTag),
+                };
+                ret["recommended"]?.cards.push(
+                    processArticles(articlesWithTag)[0] as NavCardData
+                );
+                fetchedArticles = fetchedArticles.filter(
+                    (article) => !article.tags.includes(tag)
+                );
+            }
+
+            return ret;
         },
     })
     .query("search", {
