@@ -7,6 +7,8 @@
         "build": "next build",
         "start": "next start",
         "lint": "next lint",
+        "migrate": "dotenv -e .env.development -- npx prisma migrate dev",
+        "migrate-prod": "dotenv -e .env.production -- npx prisma migrate deploy",
         "postinstall": "prisma generate"
     },
     "dependencies": {
@@ -30,6 +32,7 @@
         "@trpc/server": "^9.26.2",
         "algoliasearch": "^4.14.2",
         "dayjs": "^1.11.6",
+        "dotenv-cli": "^6.0.0",
         "framer-motion": "^7.5.3",
         "lodash": "^4.17.21",
         "next": "^13.0.2",
