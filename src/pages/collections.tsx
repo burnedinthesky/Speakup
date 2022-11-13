@@ -26,7 +26,7 @@ const Collections = () => {
 
     if (isLoading || colSetsLoading) {
         return (
-            <AppShell title="Speakup收藏">
+            <AppShell title="Speakup - 首頁">
                 <div className="fixed top-0 left-0 h-screen w-screen bg-neutral-100 scrollbar-hide overflow-x-hidden">
                     <div className="flex h-screen w-full flex-col items-center pt-14 lg:ml-64 lg:w-[calc(100%-16rem)]">
                         <div className="mt-10 w-[calc(100%-56px)] max-w-3xl md:mt-16 md:w-[calc(100%-160px)] ">
@@ -47,7 +47,7 @@ const Collections = () => {
             disallowClose: true,
             autoClose: false,
         });
-        return <AppShell title="Speakup收藏" />;
+        return <AppShell title="Speakup - 首頁" />;
     }
 
     return (

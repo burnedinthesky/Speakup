@@ -83,7 +83,7 @@ const SearchResults = () => {
 
     if (!isFetched || isLoading) {
         return (
-            <AppShell title="Speakup搜尋" highlight="search">
+            <AppShell title="Speakup - 搜尋" highlight="search">
                 <div className="flex h-screen w-full flex-col items-center pt-14 lg:ml-64 lg:w-[calc(100%-16rem)]">
                     <div className="mt-10 w-[calc(100vw-56px)] max-w-3xl md:mt-16 md:w-[calc(100%-160px)] ">
                         <div className="h-10 w-full max-w-sm animate-pulse rounded-xl bg-neutral-200" />
@@ -103,7 +103,7 @@ const SearchResults = () => {
             disallowClose: true,
             autoClose: false,
         });
-        return <AppShell title="Speakup搜尋" />;
+        return <AppShell title="Speakup - 搜尋" />;
     }
 
     const searchedKeyword = `${
@@ -115,7 +115,7 @@ const SearchResults = () => {
     }`;
 
     return (
-        <AppShell title="Speakup 搜尋" highlight="search">
+        <AppShell title="Speakup - 搜尋" highlight="search">
             <div className="flex h-screen w-full flex-col items-center pt-14 lg:ml-64 lg:w-[calc(100%-16rem)]">
                 <div className="mx-5 mt-10 max-w-3xl md:mt-16 md:w-[calc(100%-160px)] ">
                     <h1 className="text-2xl text-primary-800 md:text-3xl">
