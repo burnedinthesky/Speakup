@@ -25,17 +25,14 @@ const DiscussionBoard = ({ article }: DiscussionProps) => {
         "default" | "time" | "replies"
     >("default");
     const [screenSize, setScreenSize] = useState<"mob" | "des">("mob");
-    const [articleViewQueryFetched, setArticleViewQueryFetched] =
-        useState<boolean>(false);
 
     const { data: session } = useSession();
 
-    trpc.useQuery(["articles.register-view", article.id], {
-        enabled: !articleViewQueryFetched,
-        onSettled: () => {
-            setArticleViewQueryFetched(true);
-        },
-    });
+    const registerViewMutation = trpc.useMutation(["articles.register-view"]);
+
+    useEffect(() => {
+        registerViewMutation.mutate(article.id);
+    }, []);
 
     const updateSortMethod = (e: MouseEvent<HTMLButtonElement>) => {
         const updateMode = e.currentTarget.innerText as
