@@ -12,7 +12,6 @@ import {
 import MobileHome from "../components/Navigation/Home/MobileHome";
 import DesktopHome from "../components/Navigation/Home/DesktopHome";
 import { showNotification } from "@mantine/notifications";
-import { useSession } from "next-auth/react";
 
 const UserHome = () => {
     const [homeVer, setHomeVer] = useState<"mob" | "des">("mob");

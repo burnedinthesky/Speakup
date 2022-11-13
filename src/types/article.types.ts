@@ -61,8 +61,10 @@ export type ArticleAuthor = {
 };
 
 export type ReferencesLink = {
-    title: string;
     link: string;
+    title: string;
+    description: string;
+    img: string;
 };
 
 export type Article = {

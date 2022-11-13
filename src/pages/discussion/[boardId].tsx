@@ -122,7 +122,14 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
             title: true,
             tags: true,
             content: true,
-            references: true,
+            references: {
+                select: {
+                    title: true,
+                    description: true,
+                    img: true,
+                    link: true,
+                },
+            },
             viewCount: true,
             author: {
                 select: {
