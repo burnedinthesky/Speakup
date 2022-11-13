@@ -330,25 +330,57 @@ export const userRouter = createRouter()
     })
     .mutation("resetPwd", {
         input: z.object({
-            token: z.string(),
+            token: z.string().nullish(),
+            oldPwd: z.string().nullish(),
             password: z.string(),
         }),
         async resolve({ ctx, input }) {
-            const resetToken = await ctx.prisma.verificationToken.findUnique({
-                where: { token: input.token },
-            });
+            let userId: string = "";
 
-            if (!resetToken)
-                throw new TRPCError({
-                    code: "NOT_FOUND",
-                    message: "Token not found",
+            if (input.token) {
+                const resetToken =
+                    await ctx.prisma.verificationToken.findUnique({
+                        where: { token: input.token },
+                    });
+
+                if (!resetToken)
+                    throw new TRPCError({
+                        code: "NOT_FOUND",
+                        message: "Token not found",
+                    });
+
+                const tokenUser = await ctx.prisma.user.findUniqueOrThrow({
+                    where: {
+                        email: resetToken.identifier,
+                    },
+                    select: {
+                        id: true,
+                    },
                 });
+
+                userId = tokenUser.id;
+            } else if (ctx.user && input.oldPwd) {
+                const hashedOldPwd = hashPassword(input.oldPwd);
+                if (ctx.user.password !== hashedOldPwd) {
+                    throw new TRPCError({
+                        code: "BAD_REQUEST",
+                        message: "Current password incorrect",
+                    });
+                }
+
+                userId = ctx.user.id;
+            } else {
+                throw new TRPCError({
+                    code: "FORBIDDEN",
+                    message: "Invalid credentials",
+                });
+            }
 
             const hashedPassword = hashPassword(input.password);
 
             const prevUser = await ctx.prisma.user.findUniqueOrThrow({
                 where: {
-                    email: resetToken.identifier,
+                    id: userId,
                 },
                 select: {
                     password: true,
@@ -364,16 +396,17 @@ export const userRouter = createRouter()
 
             const user = await ctx.prisma.user.update({
                 where: {
-                    email: resetToken.identifier,
+                    id: userId,
                 },
                 data: {
-                    password: input.password,
+                    password: hashedPassword,
                 },
             });
 
-            await ctx.prisma.verificationToken.delete({
-                where: { token: input.token },
-            });
+            if (input.token)
+                await ctx.prisma.verificationToken.delete({
+                    where: { token: input.token },
+                });
 
             return {
                 userId: user.id,
