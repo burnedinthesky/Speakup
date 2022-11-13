@@ -1,14 +1,18 @@
+import { useEffect, useState } from "react";
+import { useRecoilValue } from "recoil";
+import { useSession } from "next-auth/react";
+
 import Link from "next/link";
+
 import { Avatar } from "@mantine/core";
 
-import type { Article } from "../../../types/article.types";
-import ArticleInteractions from "./ArticleInteractions";
 import ArticleBlock from "./ArticleBlock";
-import { useSession } from "next-auth/react";
+import ArticleInteractions from "./ArticleInteractions";
 import ReportModal from "../../../common/components/Report/ReportModal";
-import { useRecoilValue } from "recoil";
+
+import type { Article } from "../../../types/article.types";
 import { openDisccusionModal } from "../../../atoms/discussionModal";
-import { useEffect, useState } from "react";
+import ReferenceCard from "./ReferenceCard";
 
 interface ArticleViewerProps {
     article: Article;
@@ -73,15 +77,8 @@ const ArticleViewer = ({ article }: ArticleViewerProps) => {
                     </article>
                     <div className="mt-6 flex flex-col gap-2 text-neutral-700">
                         <h2 className="text-2xl text-primary-800">延伸閱讀</h2>
-                        {article.references.map((readLink, i) => (
-                            <a
-                                href={readLink.link}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                key={i}
-                            >
-                                <p>{readLink.title}</p>
-                            </a>
+                        {article.references.map((cardData, i) => (
+                            <ReferenceCard data={cardData} key={i} />
                         ))}
                     </div>
                     {session && (
