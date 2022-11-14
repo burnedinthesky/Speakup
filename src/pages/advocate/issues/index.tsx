@@ -1,4 +1,6 @@
 import { AppShell } from "../../../components/Advocate/AppShell";
+import { trpc } from "../../../utils/trpc";
+import { useInView } from "react-intersection-observer";
 
 import {
     Table,
@@ -9,17 +11,35 @@ import {
 } from "@tremor/react";
 import { Button } from "@mantine/core";
 import { PlusIcon } from "@heroicons/react/outline";
+
 import IssueRow from "../../../components/Advocate/Issues/Table/IssueRow";
-import { SampleAvcArticle } from "../../../templateData/advocate/issues";
+import IssueRowLoading from "../../../components/Advocate/Issues/Table/IssueRowLoading";
+import { useEffect } from "react";
 
 const Issues = () => {
-    const data = [
-        SampleAvcArticle,
-        SampleAvcArticle,
-        SampleAvcArticle,
-        SampleAvcArticle,
-        SampleAvcArticle,
-    ];
+    const { data, isLoading, hasNextPage, fetchNextPage } =
+        trpc.useInfiniteQuery([
+            "advocate.articles.all-articles",
+            { limit: 20 },
+        ]);
+
+    const issues = data?.pages.flatMap((page) => page.data);
+
+    const {
+        ref: lastRowRef,
+        entry,
+        inView: lastRowInView,
+    } = useInView({
+        threshold: 0.8,
+    });
+
+    useEffect(() => {
+        if (entry !== undefined) {
+            if (entry.isIntersecting && hasNextPage && !isLoading) {
+                fetchNextPage();
+            }
+        }
+    }, [lastRowInView]);
 
     return (
         <AppShell title="Speakup - 議題管理" highlight="issues">
@@ -58,9 +78,21 @@ const Issues = () => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {data.map((issue) => (
-                                <IssueRow issue={issue} />
-                            ))}
+                            {issues ? (
+                                issues.map((issue, i, arr) => (
+                                    <IssueRow
+                                        key={i}
+                                        ref={
+                                            i === arr.length - 1
+                                                ? lastRowRef
+                                                : undefined
+                                        }
+                                        issue={issue}
+                                    />
+                                ))
+                            ) : (
+                                <IssueRowLoading />
+                            )}
                         </TableBody>
                     </Table>
                 </div>

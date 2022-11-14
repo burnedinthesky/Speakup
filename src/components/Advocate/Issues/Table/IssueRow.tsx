@@ -1,51 +1,66 @@
-import { PencilIcon } from "@heroicons/react/outline";
-import { Badge } from "@mantine/core";
-import { TableCell, TableRow } from "@tremor/react";
+import { forwardRef } from "react";
+
 import Link from "next/link";
+import { TableCell, TableRow } from "@tremor/react";
+import { Badge } from "@mantine/core";
+import { CheckIcon, ClockIcon, PencilIcon } from "@heroicons/react/outline";
+
+import { AvcArticleCard } from "../../../../types/advocate/article.types";
 
 interface IssueRowProps {
-    issue: {
-        id: string;
-        title: string;
-        tags: string[];
-        argumentCount: number;
-        status: "passed";
-        modPending: number;
-    };
+    issue: AvcArticleCard;
 }
 
-const StatusBadge = ({ status }: { status: "passed" }) => {
-    if (status === "passed") return <Badge color="green">審核通過</Badge>;
+const StatusBadge = ({ status }: { status: "pending_mod" | "passed" }) => {
+    if (status === "pending_mod")
+        return (
+            <Badge leftSection={<ClockIcon className="w-4" />} color="yellow">
+                審核中
+            </Badge>
+        );
+    if (status === "passed")
+        return (
+            <Badge leftSection={<CheckIcon className="w-4" />} color="green">
+                審核通過
+            </Badge>
+        );
     return <Badge />;
 };
 
-const IssueRow = ({ issue }: IssueRowProps) => {
-    const formatter = Intl.NumberFormat("en", { notation: "compact" });
+const IssueRow = forwardRef<HTMLSpanElement, IssueRowProps>(
+    ({ issue }, ref) => {
+        const formatter = Intl.NumberFormat("en", { notation: "compact" });
 
-    return (
-        <TableRow>
-            <TableCell textAlignment="text-left">{issue.title}</TableCell>
-            <TableCell textAlignment="text-center">
-                {issue.tags.map((tag, i) => (
-                    <Badge key={i}>#{tag}</Badge>
-                ))}
-            </TableCell>
-            <TableCell textAlignment="text-center">
-                {formatter.format(issue.argumentCount)}
-            </TableCell>
-            <TableCell textAlignment="text-center">
-                <StatusBadge status={issue.status} />
-            </TableCell>
-            <TableCell textAlignment="text-center">
-                {formatter.format(issue.modPending)}
-            </TableCell>
-            <TableCell textAlignment="text-center">
-                <Link href={`/advocate/issues/${issue.id}`}>
-                    <PencilIcon className="w-5" />
-                </Link>
-            </TableCell>
-        </TableRow>
-    );
-};
+        return (
+            <TableRow>
+                <TableCell textAlignment="text-left">
+                    <Link href={`/advocate/issues/${issue.id}`}>
+                        <p>{issue.title}</p>
+                    </Link>
+                </TableCell>
+                <TableCell textAlignment="text-center">
+                    {issue.tags.map((tag, i) => (
+                        <Badge key={i}>#{tag}</Badge>
+                    ))}
+                </TableCell>
+                <TableCell textAlignment="text-center">
+                    {formatter.format(issue.argumentCount)}
+                </TableCell>
+                <TableCell textAlignment="text-center">
+                    <StatusBadge status={issue.status} />
+                </TableCell>
+                <TableCell textAlignment="text-center">
+                    {formatter.format(issue.modPending)}
+                </TableCell>
+                <TableCell textAlignment="text-center">
+                    <span className="hidden" ref={ref}></span>
+                    <Link href={`/advocate/issues/${issue.id}`}>
+                        <PencilIcon className="w-5" />
+                    </Link>
+                </TableCell>
+            </TableRow>
+        );
+    }
+);
 
 export default IssueRow;

@@ -173,6 +173,7 @@ model Articles {
     createdTime  DateTime @default(now())
     viewCount    Int      @default(0)
     articleScore Float    @default(20)
+    status       Json     @default("{\"status\": \"pending_mod\", \"desc\": \"正在等候審核\"}")
 }
 
 model ArticleViews {
