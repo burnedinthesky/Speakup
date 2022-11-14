@@ -9,8 +9,8 @@ datasource db {
 
 enum UserRole {
     USER
-    CREATOR
-    SENIORCREATOR
+    ADVOCATE
+    SENIOR_ADVOCATE
     ADMIN
 }
 
