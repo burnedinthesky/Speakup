@@ -1,9 +1,11 @@
-import { Article } from "../types/article.types";
+import { AvcArticle } from "../../types/advocate/article.types";
 
-export const SampleArticle: Article = {
+export const SampleAvcArticle: AvcArticle = {
     id: "cl90vkxcc0000v5tlvac9c1i2",
     title: "台灣應該廢除早自習嗎？",
     tags: ["教育"],
+    modPending: 13432,
+    status: "passed",
     content: [
         {
             type: "h1",
