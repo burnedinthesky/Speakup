@@ -17,6 +17,8 @@ import Router from "next/router";
 
 import NProgress from "nprogress";
 
+import "@tremor/react/dist/esm/tremor.css";
+
 interface AppPropsInterface {
     session: Session | null | undefined;
 }
