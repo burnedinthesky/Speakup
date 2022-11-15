@@ -15,7 +15,7 @@ import { UserIcon, InboxIcon, LockClosedIcon } from "@heroicons/react/outline";
 import { useRouter } from "next/router";
 import { useForm, zodResolver } from "@mantine/form";
 
-import { AuthPageProps } from "../../types/auth.types";
+import { AuthPageProps, passwordSchema } from "../../types/auth.types";
 
 const SignUpPage = ({ setDisplayPage, setDivHeight }: AuthPageProps) => {
     const router = useRouter();
@@ -65,13 +65,7 @@ const SignUpPage = ({ setDisplayPage, setDivHeight }: AuthPageProps) => {
             z.object({
                 username: z.string().min(2, "名稱過短").max(16, "名稱過長"),
                 email: z.string().email("信箱格式錯誤"),
-                password: z
-                    .string()
-                    .min(10, "密碼需至少包含十個字元")
-                    .regex(
-                        /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{10,}$/,
-                        "密碼必須含有一個大寫字母、小寫字母以及一個數字"
-                    ),
+                password: passwordSchema,
             })
         ),
     });
