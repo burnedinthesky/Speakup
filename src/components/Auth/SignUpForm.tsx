@@ -16,14 +16,21 @@ import { useRouter } from "next/router";
 import { useForm, zodResolver } from "@mantine/form";
 
 import { AuthPageProps, passwordSchema } from "../../types/auth.types";
+import { useSession } from "next-auth/react";
 
 const SignUpPage = ({ setDisplayPage, setDivHeight }: AuthPageProps) => {
     const router = useRouter();
     const rootDivRef = useRef<HTMLDivElement | null>(null);
 
+    const { data: session } = useSession();
+
     useEffect(() => {
         if (rootDivRef.current) setDivHeight(rootDivRef.current.clientHeight);
     }, []);
+
+    useEffect(() => {
+        if (session) router.push("/home");
+    }, [session]);
 
     const signupMutation = trpc.useMutation(["users.registerUser"], {
         onSuccess: async (data) => {
