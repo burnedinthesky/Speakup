@@ -50,28 +50,38 @@ const BoardEditor = ({ article }: { article: AvcArticle }) => {
                 tags: null,
             },
         });
-    }, []);
+    }, [article]);
 
     return (
-        <AppShell title={`Speakup -`} highlight="issues">
+        <AppShell
+            title={`Speakup - ${article ? article.title : "新議題"}`}
+            highlight="issues"
+        >
             <div className="ml-64 flex h-full w-[calc(100%-256px)]">
                 <div className="h-full w-full flex-grow-0 overflow-y-auto px-12 pt-10 pb-20">
-                    <ArticleEditor
-                        articleId={article.id}
-                        initialTitle={article.title}
-                        initialContent={article.content.map(
-                            (block) => block.content
-                        )}
-                        blockStyles={blockStyles}
-                        setBlockStyles={setBlockStyles}
-                        focusBlock={(val) => {
-                            setFocusedBlock(val);
-                            overrideBlur.current = focusedBlock;
-                        }}
-                        blurSelection={() => {
-                            setQueuedBlur(true);
-                        }}
-                    />
+                    <div className="mx-auto h-full max-w-3xl">
+                        <ArticleEditor
+                            articleId={article.id}
+                            initialTitle={article.title}
+                            initialContent={article.content.map(
+                                (block) => block.content
+                            )}
+                            initialRefLinks={article.references.map((ref) => ({
+                                data: ref,
+                                status: "fetched",
+                                url: ref.link,
+                            }))}
+                            blockStyles={blockStyles}
+                            setBlockStyles={setBlockStyles}
+                            focusSelection={(val) => {
+                                setFocusedBlock(val);
+                                overrideBlur.current = focusedBlock;
+                            }}
+                            blurSelection={() => {
+                                setQueuedBlur(true);
+                            }}
+                        />
+                    </div>
                 </div>
                 <div className="relative h-full w-80 flex-shrink-0 px-4">
                     <div className="absolute left-0 top-7 h-[calc(100%-56px)] border-r border-r-slate-300" />
@@ -132,6 +142,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     if (!issue) {
         return { notFound: true };
     }
+
+    console.log(issue.references);
 
     const status = issue.status as {
         status: ArticleStatus;

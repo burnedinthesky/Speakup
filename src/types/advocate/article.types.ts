@@ -1,6 +1,12 @@
-import { Article } from "../article.types";
+import { Article, ReferencesLink } from "../article.types";
 
 export type ArticleStatus = "pending_mod" | "passed";
+
+export interface RawRefLinks {
+    status: "queued" | "loading" | "fetched" | "not_found";
+    data: ReferencesLink | null;
+    url: string;
+}
 
 export interface AvcArticleCard {
     id: string;

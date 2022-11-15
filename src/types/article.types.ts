@@ -66,7 +66,7 @@ export type ReferencesLink = {
     link: string;
     title: string;
     description: string;
-    img: string;
+    img: string | null;
 };
 
 export type Article = {

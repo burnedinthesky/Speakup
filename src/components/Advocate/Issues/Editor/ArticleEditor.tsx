@@ -1,46 +1,45 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
-import { trpc } from "../../../../utils/trpc";
+
 import { useRouter } from "next/router";
+
+import { trpc } from "../../../../utils/trpc";
+
 import { showNotification } from "@mantine/notifications";
+import { checkArticleData } from "../../../../lib/advocate/articleEditor";
 
-import {
-    ActionIcon,
-    Button,
-    LoadingOverlay,
-    Textarea,
-    TextInput,
-} from "@mantine/core";
-import { PlusIcon, TrashIcon } from "@heroicons/react/outline";
+import { Button, LoadingOverlay, TextInput } from "@mantine/core";
 
+import ArticleContent from "./ArticleContent";
+import ArticleReferences from "./ArticleReferences";
 import { articlePropertiesAtom } from "../../../../atoms/advocate/articleEditorAtoms";
 import {
     ArticleBlock,
     ArticleBlockTypes,
 } from "../../../../types/article.types";
+import { RawRefLinks } from "../../../../types/advocate/article.types";
 
-const TypeToSize = {
-    h1: "text-2xl",
-    h2: "text-xl",
-    h3: "text-lg",
-    p: "text-base",
-    spoiler: "text-base",
-};
-
-interface Errors {
+export interface ContentErrors {
     title: string | null;
     content: string | null;
+    refLinks: string | null;
+}
+
+export interface AppendUrlState {
+    text: string;
+    error: string | null;
 }
 
 interface ArticleEditorProps {
     articleId?: string;
     initialTitle?: string;
     initialContent?: string[];
+    initialRefLinks?: RawRefLinks[];
     blockStyles: ArticleBlockTypes[];
     setBlockStyles: (
         fn: (cur: ArticleBlockTypes[]) => ArticleBlockTypes[]
     ) => void;
-    focusBlock: (val: number) => void;
+    focusSelection: (val: number) => void;
     blurSelection: () => void;
 }
 
@@ -48,9 +47,10 @@ const ArticleEditor = ({
     articleId,
     initialTitle,
     initialContent,
+    initialRefLinks,
     blockStyles,
     setBlockStyles,
-    focusBlock,
+    focusSelection,
     blurSelection,
 }: ArticleEditorProps) => {
     const router = useRouter();
@@ -61,13 +61,22 @@ const ArticleEditor = ({
     const [articleContent, setArticleContent] = useState<string[]>(
         initialContent ? initialContent : []
     );
+    const [referencesLinks, setReferenceLinks] = useState<RawRefLinks[]>(
+        initialRefLinks ? initialRefLinks : []
+    );
     const [articleProperties, setArticleProperties] = useRecoilState(
         articlePropertiesAtom
     );
 
-    const [errors, setErrors] = useState<Errors>({
+    const [addRefLinkInput, setAddRefLinkInput] = useState<AppendUrlState>({
+        text: "",
+        error: null,
+    });
+
+    const [contentErrors, setContentErrors] = useState<ContentErrors>({
         title: null,
         content: null,
+        refLinks: null,
     });
 
     const updateArticleMutation = trpc.useMutation(
@@ -94,82 +103,29 @@ const ArticleEditor = ({
     );
 
     const submitData = () => {
-        let passed = 0;
+        const dataErrors = checkArticleData({
+            title: titleText,
+            brief: articleProperties.brief,
+            tags: articleProperties.tags,
+            content: articleContent,
+            refLinks: referencesLinks,
+        });
 
-        if (titleText.length == 0)
-            setErrors((cur) => ({ ...cur, title: "請輸入標題" }));
-        else if (titleText.length > 32)
-            setErrors((cur) => ({
+        if (dataErrors) {
+            setContentErrors({
+                title: dataErrors.title,
+                content: dataErrors.content,
+                refLinks: dataErrors.refLinks,
+            });
+            setArticleProperties((cur) => ({
                 ...cur,
-                title: "標題過長，請縮短至三十二個字",
+                errors: {
+                    brief: dataErrors.brief,
+                    tags: dataErrors.tags,
+                },
             }));
-        else {
-            setErrors((cur) => ({
-                ...cur,
-                title: null,
-            }));
-            passed++;
+            return;
         }
-
-        if (articleContent.some((block) => block.length <= 0))
-            setErrors((cur) => ({ ...cur, content: "請確認每格議題均有文字" }));
-        else if (articleContent.length < 4)
-            setErrors((cur) => ({ ...cur, content: "議題過短" }));
-        else {
-            setErrors((cur) => ({
-                ...cur,
-                content: null,
-            }));
-            passed++;
-        }
-
-        if (articleProperties.tags.length < 1) {
-            setArticleProperties((cur) => ({
-                ...cur,
-                errors: {
-                    ...cur.errors,
-                    tags: "請選擇至少一個標籤",
-                },
-            }));
-        } else {
-            setArticleProperties((cur) => ({
-                ...cur,
-                errors: {
-                    ...cur.errors,
-                    tags: null,
-                },
-            }));
-            passed++;
-        }
-
-        if (articleProperties.brief.length < 10) {
-            setArticleProperties((cur) => ({
-                ...cur,
-                errors: {
-                    ...cur.errors,
-                    brief: "簡介過短，請輸入至少十個字",
-                },
-            }));
-        } else if (articleProperties.brief.length > 60) {
-            setArticleProperties((cur) => ({
-                ...cur,
-                errors: {
-                    ...cur.errors,
-                    brief: "簡介過長，請輸入至多六十個字",
-                },
-            }));
-        } else {
-            setArticleProperties((cur) => ({
-                ...cur,
-                errors: {
-                    ...cur.errors,
-                    brief: null,
-                },
-            }));
-            passed++;
-        }
-
-        if (passed < 4) return;
 
         updateArticleMutation.mutate({
             id: articleId,
@@ -183,12 +139,76 @@ const ArticleEditor = ({
                     } as ArticleBlock)
             ),
             tags: articleProperties.tags,
-            references: [],
+            references: referencesLinks.map((link) => link.url),
         });
     };
 
+    const updateReferenceLinks = () => {
+        referencesLinks.forEach((link) => {
+            if (link.status !== "queued") return;
+            setReferenceLinks((curLinks) =>
+                curLinks.map((curLink) =>
+                    curLink.url === link.url
+                        ? {
+                              ...curLink,
+                              status: "loading",
+                          }
+                        : curLink
+                )
+            );
+            fetch("/api/utils/previewlink/", {
+                method: "POST",
+                body: JSON.stringify({
+                    link: link.url,
+                }),
+            })
+                .then(async (res) => {
+                    if (!res.ok)
+                        throw new Error(
+                            res.status === 404 ? "not_found" : "unknown"
+                        );
+                    const data = await res.json();
+                    setReferenceLinks((curLinks) =>
+                        curLinks.map((ftrLink) =>
+                            ftrLink.url === link.url
+                                ? {
+                                      data: data,
+                                      status: "fetched",
+                                      url: ftrLink.url,
+                                  }
+                                : ftrLink
+                        )
+                    );
+                })
+                .catch((err) => {
+                    if (err.message === "not_found")
+                        setReferenceLinks((curLinks) =>
+                            curLinks.map((ftrLink) =>
+                                ftrLink.url === link.url
+                                    ? {
+                                          data: null,
+                                          status: "not_found",
+                                          url: ftrLink.url,
+                                      }
+                                    : ftrLink
+                            )
+                        );
+                    else
+                        showNotification({
+                            color: "red",
+                            title: "發生錯誤",
+                            message: "於預覽連結時發生錯誤，請檢查連結是否正確",
+                        });
+                });
+        });
+    };
+
+    useEffect(() => {
+        updateReferenceLinks();
+    }, [referencesLinks]);
+
     return (
-        <div className="relative w-full">
+        <div className="relative w-full pb-20">
             <LoadingOverlay visible={updateArticleMutation.isLoading} />
             <TextInput
                 classNames={{
@@ -200,84 +220,31 @@ const ArticleEditor = ({
                 value={titleText}
                 onChange={(e) => {
                     setTitleText(e.currentTarget.value);
+                    setContentErrors((cur) => ({
+                        ...cur,
+                        title: null,
+                    }));
                 }}
-                error={errors.title}
+                error={contentErrors.title}
             />
-            <div className="mt-4 flex w-full flex-col ">
-                {errors.content && (
-                    <p className="text-sm text-red-500">{errors.content}</p>
-                )}
-                {articleContent.map((block, i) => (
-                    <div
-                        key={i}
-                        className="group flex w-full items-center gap-2"
-                    >
-                        <Textarea
-                            value={block}
-                            onChange={(e) => {
-                                const updateString = e.currentTarget.value;
-                                setArticleContent((cur) =>
-                                    cur.map((block, j) =>
-                                        j === i ? updateString : block
-                                    )
-                                );
-                            }}
-                            autosize
-                            className="flex-grow"
-                            classNames={{
-                                input: `${
-                                    TypeToSize[
-                                        blockStyles[i] as ArticleBlockTypes
-                                    ]
-                                } w-full`,
-                            }}
-                            onFocus={() => {
-                                focusBlock(i);
-                            }}
-                            onBlur={() => {
-                                blurSelection();
-                            }}
-                            variant="unstyled"
-                            placeholder="新增段落"
-                        />
-                        <ActionIcon
-                            className="opacity-0 transition-opacity duration-150 group-hover:opacity-100"
-                            onClick={() => {
-                                setArticleContent((cur) =>
-                                    cur.filter((_, j) => j !== i)
-                                );
-                                setBlockStyles((cur) =>
-                                    cur.filter((_, j) => j !== i)
-                                );
-                            }}
-                        >
-                            <TrashIcon className="w-4 text-slate-500" />
-                        </ActionIcon>
-                    </div>
-                ))}
-
-                <button
-                    className={`flex h-8 w-full items-center text-slate-500 ${
-                        articleContent.length === 0 ? "opacity-60" : "opacity-0"
-                    } transition-opacity disabled:invisible hover:opacity-60`}
-                    disabled={
-                        articleContent.length >= 1 &&
-                        articleContent[articleContent.length - 1]?.length === 0
-                    }
-                    onClick={() => {
-                        setArticleContent((cur) => [...cur, ""]);
-                        setBlockStyles((cur) => [...cur, "p"]);
-                    }}
-                >
-                    <div className="flex-grow border-t border-t-slate-500"></div>
-                    <div className="mx-4 flex items-center gap-2 ">
-                        <PlusIcon className="w-4" />
-                        <p className="text-sm">新增段落</p>
-                    </div>
-                    <div className="flex-grow border-t border-t-slate-500"></div>
-                </button>
-            </div>
-            <Button variant="outline" onClick={submitData}>
+            <ArticleContent
+                articleContent={articleContent}
+                setArticleContent={setArticleContent}
+                blockStyles={blockStyles}
+                focusSelection={focusSelection}
+                blurSelection={blurSelection}
+                setBlockStyles={setBlockStyles}
+                contentErrors={contentErrors}
+            />
+            <div className="my-4 w-full border-b border-b-slate-400" />
+            <ArticleReferences
+                referencesLinks={referencesLinks}
+                setReferenceLinks={setReferenceLinks}
+                addRefLinkInput={addRefLinkInput}
+                setAddRefLinkInput={setAddRefLinkInput}
+                contentErrors={contentErrors}
+            />
+            <Button className="mt-6" variant="outline" onClick={submitData}>
                 發布
             </Button>
         </div>
