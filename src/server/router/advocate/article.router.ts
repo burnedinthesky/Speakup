@@ -1,18 +1,45 @@
 import { createRouter } from "../../createRouter";
 import z from "zod";
+import { TRPCError } from "@trpc/server";
+import { getLinkPreview } from "link-preview-js";
 import {
     ArticleStatus,
     AvcArticleCard,
 } from "../../../types/advocate/article.types";
-import { TRPCError } from "@trpc/server";
+import { ReferencesLink } from "../../../types/article.types";
 
-const fetchLinkPreviews = (link: string) => {
-    return {
-        title: "Google",
-        description: "We monitor you",
-        link: link,
-        img: "",
-    };
+export const fetchLinkPreview = async (link: string) => {
+    try {
+        var previewData = await getLinkPreview(link);
+    } catch {
+        return {
+            title: link,
+            description: "",
+            img: null,
+            link: link,
+        };
+    }
+
+    let ret: ReferencesLink;
+
+    if ("title" in previewData) {
+        ret = {
+            title: previewData.title,
+            description: previewData.description
+                ? previewData.description
+                : link,
+            img: previewData.images[0] ? previewData.images[0] : null,
+            link: link,
+        };
+    } else {
+        ret = {
+            title: link,
+            description: "",
+            img: null,
+            link: link,
+        };
+    }
+    return ret;
 };
 
 export const articleRouter = createRouter()
@@ -105,9 +132,16 @@ export const articleRouter = createRouter()
             references: z.array(z.string()),
         }),
         async resolve({ ctx, input }) {
-            const references = input.references.map((link) =>
-                fetchLinkPreviews(link)
-            );
+            let references: ReferencesLink[] = [];
+
+            for (let i = 0; i < input.references.length; i++) {
+                const link = input.references[i] as string;
+                references.push(await fetchLinkPreview(link));
+            }
+
+            console.log(input.references);
+
+            console.log(references);
 
             if (input.id)
                 await ctx.prisma.articles.findFirstOrThrow({
@@ -120,7 +154,7 @@ export const articleRouter = createRouter()
             const data = await ctx.prisma.articles.upsert({
                 where: {
                     id: input.id,
-                    title: input.title,
+                    title: input.id ? undefined : input.title,
                 },
                 create: {
                     title: input.title,

@@ -6,6 +6,7 @@ import {
     CollectionIcon,
     HomeIcon,
 } from "@heroicons/react/outline";
+import AccountOptions from "./AccountOptions";
 
 interface NavbarSectionProps {
     icon: JSX.Element;
@@ -70,6 +71,7 @@ const Navbar = ({ highlight }: { highlight?: string }) => {
                         highlight={highlight === "todo"}
                     />
                 </div>
+                <AccountOptions />
             </div>
         </nav>
     );
