@@ -45,17 +45,19 @@ const BoardEditor = () => {
         <AppShell title={`Speakup -`} highlight="issues">
             <div className="ml-64 flex h-full w-[calc(100%-256px)]">
                 <div className="h-full w-full flex-grow-0 overflow-y-auto px-12 pt-10 pb-20">
-                    <ArticleEditor
-                        blockStyles={blockStyles}
-                        setBlockStyles={setBlockStyles}
-                        focusBlock={(val) => {
-                            setFocusedBlock(val);
-                            overrideBlur.current = focusedBlock;
-                        }}
-                        blurSelection={() => {
-                            setQueuedBlur(true);
-                        }}
-                    />
+                    <div className="mx-auto h-full max-w-3xl">
+                        <ArticleEditor
+                            blockStyles={blockStyles}
+                            setBlockStyles={setBlockStyles}
+                            focusSelection={(val) => {
+                                setFocusedBlock(val);
+                                overrideBlur.current = focusedBlock;
+                            }}
+                            blurSelection={() => {
+                                setQueuedBlur(true);
+                            }}
+                        />
+                    </div>
                 </div>
                 <div className="relative h-full w-80 flex-shrink-0 px-4">
                     <div className="absolute left-0 top-7 h-[calc(100%-56px)] border-r border-r-slate-300" />
