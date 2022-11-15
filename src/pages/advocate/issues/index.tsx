@@ -1,7 +1,8 @@
-import { AppShell } from "../../../components/Advocate/AppShell";
+import { useEffect } from "react";
 import { trpc } from "../../../utils/trpc";
 import { useInView } from "react-intersection-observer";
 
+import Link from "next/link";
 import {
     Table,
     TableHead,
@@ -12,16 +13,13 @@ import {
 import { Button } from "@mantine/core";
 import { PlusIcon } from "@heroicons/react/outline";
 
+import { AppShell } from "../../../components/Advocate/AppShell";
 import IssueRow from "../../../components/Advocate/Issues/Table/IssueRow";
 import IssueRowLoading from "../../../components/Advocate/Issues/Table/IssueRowLoading";
-import { useEffect } from "react";
 
 const Issues = () => {
     const { data, isLoading, hasNextPage, fetchNextPage } =
-        trpc.useInfiniteQuery([
-            "advocate.articles.all-articles",
-            { limit: 20 },
-        ]);
+        trpc.useInfiniteQuery(["advocate.articles.allArticles", { limit: 20 }]);
 
     const issues = data?.pages.flatMap((page) => page.data);
 
@@ -46,12 +44,14 @@ const Issues = () => {
             <div className="ml-64 px-12 pt-10">
                 <div className="flex w-full items-center justify-between">
                     <h1 className="text-3xl font-bold">您的議題</h1>
-                    <Button
-                        className="bg-primary-600"
-                        leftIcon={<PlusIcon className="h-4" />}
-                    >
-                        新增議題
-                    </Button>
+                    <Link href="/advocate/issues/new">
+                        <Button
+                            className="bg-primary-600"
+                            leftIcon={<PlusIcon className="h-4" />}
+                        >
+                            新增議題
+                        </Button>
+                    </Link>
                 </div>
                 <div className="mt-9 rounded-md border border-slate-300">
                     <Table marginTop="mt-0">

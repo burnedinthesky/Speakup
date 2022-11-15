@@ -40,7 +40,9 @@ const IssueRow = forwardRef<HTMLSpanElement, IssueRowProps>(
                 </TableCell>
                 <TableCell textAlignment="text-center">
                     {issue.tags.map((tag, i) => (
-                        <Badge key={i}>#{tag}</Badge>
+                        <Badge className="mx-1" key={i}>
+                            #{tag}
+                        </Badge>
                     ))}
                 </TableCell>
                 <TableCell textAlignment="text-center">
