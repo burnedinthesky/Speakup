@@ -37,6 +37,7 @@
         "dayjs": "^1.11.6",
         "dotenv-cli": "^6.0.0",
         "framer-motion": "^7.5.3",
+        "link-preview-js": "^3.0.4",
         "lodash": "^4.17.21",
         "next": "^13.0.2",
         "next-auth": "^4.14.0",
