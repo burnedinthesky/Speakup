@@ -6,11 +6,15 @@ import BlockProperties from "../../../components/Advocate/Issues/Editor/BlockPro
 
 import { ArticleBlockTypes } from "../../../types/article.types";
 import ArticleProperties from "../../../components/Advocate/Issues/Editor/ArticleProperties";
+import { articlePropertiesAtom } from "../../../atoms/advocate/articleEditorAtoms";
+import { useSetRecoilState } from "recoil";
 
 const BoardEditor = () => {
     const [blockStyles, setBlockStyles] = useState<ArticleBlockTypes[]>([]);
     const [focusedBlock, setFocusedBlock] = useState<number | null>(null);
     const [queuedBlur, setQueuedBlur] = useState<boolean>(false);
+
+    const setArticleProperties = useSetRecoilState(articlePropertiesAtom);
 
     const overrideBlur = useRef<number | null>(null);
 
@@ -25,6 +29,17 @@ const BoardEditor = () => {
             clearTimeout(timeout);
         };
     }, [queuedBlur]);
+
+    useEffect(() => {
+        setArticleProperties({
+            brief: "",
+            tags: [],
+            errors: {
+                brief: null,
+                tags: null,
+            },
+        });
+    }, []);
 
     return (
         <AppShell title={`Speakup -`} highlight="issues">
