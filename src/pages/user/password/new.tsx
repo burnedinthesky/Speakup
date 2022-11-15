@@ -8,6 +8,7 @@ import { Button, LoadingOverlay, PasswordInput } from "@mantine/core";
 
 import { useRouter } from "next/router";
 import { useForm, zodResolver } from "@mantine/form";
+import { passwordSchema } from "../../../types/auth.types";
 
 const ResetPwd = () => {
     const router = useRouter();
@@ -67,13 +68,7 @@ const ResetPwd = () => {
         },
         validate: zodResolver(
             z.object({
-                newpwd: z
-                    .string()
-                    .min(10, "密碼需至少包含十個字元")
-                    .regex(
-                        /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{10,}$/,
-                        "密碼必須含有一個大寫字母、小寫字母以及一個數字"
-                    ),
+                newpwd: passwordSchema,
                 valpwd: z.string(),
             })
         ),

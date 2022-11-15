@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
+import { CheckAvcClearance } from "./types/advocate/user.types";
 
 export async function middleware(request: NextRequest) {
     const token = await getToken({ req: request });
@@ -34,6 +35,13 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL(`/user/onboarding`, request.url));
     else if (valData.Message !== "Onboard" && URLPath === "/user/onboarding")
         return NextResponse.redirect(new URL(`/home`, request.url));
+
+    if (
+        URLPath.substring(0, 9) === "/advocate" &&
+        !CheckAvcClearance(token.role)
+    ) {
+        return NextResponse.redirect(new URL(`/home`, request.url));
+    }
 }
 
 export const config = {
@@ -44,5 +52,7 @@ export const config = {
         "/search/results",
         "/collections",
         "/user/settings",
+        "/advocate",
+        "/advocate/:path*",
     ],
 };
