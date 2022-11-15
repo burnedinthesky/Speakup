@@ -49,15 +49,17 @@ export type ArticleTags =
     | "體育";
 export type ArticleTagSlugs = typeof ArticleTagSlugs[number];
 
+export type ArticleBlockTypes = "h1" | "h2" | "h3" | "p" | "spoiler";
+
 export type ArticleBlock = {
-    type: "h1" | "h2" | "h3" | "p" | "spoiler";
+    type: ArticleBlockTypes;
     content: string;
     spoilerTitle?: string;
 };
 
 export type ArticleAuthor = {
     name: string;
-    profileImg: string;
+    profileImg: string | null;
 };
 
 export type ReferencesLink = {
@@ -70,6 +72,7 @@ export type ReferencesLink = {
 export type Article = {
     id: string;
     title: string;
+    brief: string;
     tags: ArticleTags[];
     author: ArticleAuthor;
     viewCount: number;
