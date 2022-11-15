@@ -163,6 +163,7 @@ model Articles {
     author   User   @relation(fields: [authorId], references: [id])
     authorId String
 
+    brief      String
     content    Json
     references ArticleReferences[]
 
