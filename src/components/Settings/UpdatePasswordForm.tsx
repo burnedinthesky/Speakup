@@ -3,18 +3,13 @@ import { useForm, zodResolver } from "@mantine/form";
 import { showNotification } from "@mantine/notifications";
 import { signOut } from "next-auth/react";
 import { z } from "zod";
+import { passwordSchema } from "../../types/auth.types";
 import { trpc } from "../../utils/trpc";
 
 const UpdatePasswordForm = () => {
     const pwdFormSchema = z.object({
         oldPwd: z.string(),
-        newPwd: z
-            .string()
-            .min(10, "密碼需至少包含十個字元")
-            .regex(
-                /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{10,}$/,
-                "密碼必須含有一個大寫字母、小寫字母以及一個數字"
-            ),
+        newPwd: passwordSchema,
         valPwd: z.string(),
     });
 
