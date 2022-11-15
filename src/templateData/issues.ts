@@ -4,6 +4,7 @@ export const SampleArticle: Article = {
     id: "cl90vkxcc0000v5tlvac9c1i2",
     title: "台灣應該廢除早自習嗎？",
     tags: ["教育"],
+    brief: "Aliquip sit proident nisi labore deserunt labore voluptate commodo eu ad anim voluptate mollit.",
     content: [
         {
             type: "h1",

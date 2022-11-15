@@ -65,4 +65,6 @@ const IssueRow = forwardRef<HTMLSpanElement, IssueRowProps>(
     }
 );
 
+IssueRow.displayName = "IssueRow";
+
 export default IssueRow;
