@@ -1,4 +1,5 @@
 import { createRouter } from "../createRouter";
+import { advocateRouter } from "./advocate/advocate.router";
 import { argumentsRouter } from "./arguments.router";
 import { articleRouter } from "./article.router";
 import { commentsRouter } from "./comments.router";
@@ -12,6 +13,7 @@ export const appRouter = createRouter()
     .merge("comments.", commentsRouter)
     .merge("navigation.", navigationRouter)
     .merge("users.", userRouter)
-    .merge("report.", reportRouter);
+    .merge("report.", reportRouter)
+    .merge("advocate.", advocateRouter);
 
 export type AppRouter = typeof appRouter;

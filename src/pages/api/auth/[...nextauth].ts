@@ -34,6 +34,7 @@ export default NextAuth({
                         name: true,
                         email: true,
                         profileImg: true,
+                        role: true,
                         password: true,
                     },
                 });
@@ -66,6 +67,7 @@ export default NextAuth({
         async jwt({ token, user }) {
             if (user) {
                 token.picture = user.profileImg;
+                token.role = user.role;
                 token.id = user.id;
             }
 
@@ -78,6 +80,7 @@ export default NextAuth({
                     name: token.name,
                     email: token.email,
                     profileImg: token.picture,
+                    role: token.role,
                 };
             }
             return session;

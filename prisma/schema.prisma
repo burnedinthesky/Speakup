@@ -9,8 +9,8 @@ datasource db {
 
 enum UserRole {
     USER
-    CREATOR
-    SENIORCREATOR
+    ADVOCATE
+    SENIOR_ADVOCATE
     ADMIN
 }
 
@@ -163,6 +163,7 @@ model Articles {
     author   User   @relation(fields: [authorId], references: [id])
     authorId String
 
+    brief      String
     content    Json
     references ArticleReferences[]
 
@@ -173,6 +174,7 @@ model Articles {
     createdTime  DateTime @default(now())
     viewCount    Int      @default(0)
     articleScore Float    @default(20)
+    status       Json     @default("{\"status\": \"pending_mod\", \"desc\": \"正在等候審核\"}")
 }
 
 model ArticleViews {
