@@ -73,7 +73,7 @@ const BoardEditor = ({ article }: { article: AvcArticle }) => {
                             }))}
                             blockStyles={blockStyles}
                             setBlockStyles={setBlockStyles}
-                            focusBlock={(val) => {
+                            focusSelection={(val) => {
                                 setFocusedBlock(val);
                                 overrideBlur.current = focusedBlock;
                             }}

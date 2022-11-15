@@ -6,7 +6,6 @@ import {
     CollectionIcon,
     HomeIcon,
 } from "@heroicons/react/outline";
-import { Avatar, Menu } from "@mantine/core";
 import AccountOptions from "./AccountOptions";
 
 interface NavbarSectionProps {
