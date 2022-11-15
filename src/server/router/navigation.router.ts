@@ -109,12 +109,6 @@ export const navigationRouter = createRouter()
                 (ele) => ArticleTagSlugsToVals[ele.slug] as string
             );
 
-            console.log("Here");
-
-            const randomBool = () => {
-                return Math.random() > 0.5;
-            };
-
             const orderBy = Math.round(Math.random() * 4);
 
             let fetchedArticles = await ctx.prisma.articles.findMany({
@@ -140,8 +134,6 @@ export const navigationRouter = createRouter()
                 },
                 take: 50,
             });
-
-            console.log("Feteched");
 
             const ret: HomeRecommendations = {
                 recommended: {
@@ -284,7 +276,6 @@ export const navigationRouter = createRouter()
                 nextCursor = input.cursor ? input.cursor + 1 : 1;
                 data.pop();
             }
-            console.log("here");
             return {
                 data: processArticles(data.map((data) => data.article)),
                 nextCursor,
@@ -432,7 +423,6 @@ export const navigationRouter = createRouter()
             collectionId: z.number(),
         }),
         async resolve({ ctx, input }) {
-            console.log("Updated");
             await ctx.prisma.collections.deleteMany({
                 where: {
                     user: {

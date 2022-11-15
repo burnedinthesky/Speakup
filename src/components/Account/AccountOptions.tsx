@@ -1,12 +1,13 @@
 import {
     CogIcon,
     ChevronDownIcon,
-    InformationCircleIcon,
     LogoutIcon,
+    MicrophoneIcon,
 } from "@heroicons/react/outline";
 import { Avatar, Menu } from "@mantine/core";
 import { useRouter } from "next/router";
 import { signOut, useSession } from "next-auth/react";
+import { CheckAvcClearance } from "../../types/advocate/user.types";
 
 const AccountOptions = () => {
     const router = useRouter();
@@ -26,7 +27,7 @@ const AccountOptions = () => {
                             {session?.user.name[0]}
                         </Avatar>
                     </div>
-                    <div className=" hidden items-center gap-2 rounded-3xl bg-primary-400 py-2 px-3 text-neutral-800 lg:flex">
+                    <div className="hidden items-center gap-2 rounded-3xl bg-primary-400 py-2 px-3 text-neutral-800 lg:flex">
                         <Avatar
                             src={session?.user.profileImg}
                             radius="xl"
@@ -34,24 +35,13 @@ const AccountOptions = () => {
                         >
                             {session?.user.name[0]}
                         </Avatar>
-                        <p className="ml-2 mr-1 text-white">
+                        <p className="ml-2 mr-1 whitespace-nowrap text-white">
                             {session?.user?.name}
                         </p>
                         <ChevronDownIcon className="h-4 w-4 text-white" />
                     </div>
                 </button>
             </Menu.Target>
-            {/* {["creator", "seniorcr", "coop"].includes(session?.role) && (
-                <Menu.Item
-                    className="text-primary-900"
-                    icon={inAdmin ? <HomeIcon className="h-7 w-7" /> : <PencilAltIcon className="h-7 w-7" />}
-                    onClick={() => {
-                        router.push(inAdmin ? "/home" : "/admin");
-                    }}
-                >
-                    {inAdmin ? "Speakup首頁" : "創作者介面"}
-                </Menu.Item>
-            )} */}
             <Menu.Dropdown>
                 <Menu.Item
                     className="text-primary-900"
@@ -62,6 +52,17 @@ const AccountOptions = () => {
                 >
                     設定
                 </Menu.Item>
+                {CheckAvcClearance(session?.user.role) && (
+                    <Menu.Item
+                        className="text-primary-900"
+                        icon={<MicrophoneIcon className="h-7 w-7" />}
+                        onClick={() => {
+                            router.push("/advocate");
+                        }}
+                    >
+                        倡議
+                    </Menu.Item>
+                )}
                 <Menu.Item
                     className="text-primary-900"
                     icon={<LogoutIcon className="h-7 w-7" />}
