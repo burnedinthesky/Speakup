@@ -7,6 +7,7 @@ import {
     AvcArticleCard,
 } from "../../../types/advocate/article.types";
 import { ReferencesLink } from "../../../types/article.types";
+import { CheckAvcClearance } from "../../../types/advocate/user.types";
 
 export const fetchLinkPreview = async (link: string) => {
     try {
@@ -44,10 +45,9 @@ export const fetchLinkPreview = async (link: string) => {
 
 export const articleRouter = createRouter()
     .middleware(async ({ ctx, next }) => {
-        const allowedRoles = ["ADVOCATE", "SENIOR_ADVOCATE", "ADMIN"];
         if (!ctx.user) {
             throw new TRPCError({ code: "UNAUTHORIZED" });
-        } else if (!allowedRoles.includes(ctx.user.role)) {
+        } else if (!CheckAvcClearance(ctx.user.role)) {
             throw new TRPCError({ code: "FORBIDDEN" });
         }
         return next({
