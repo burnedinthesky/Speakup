@@ -118,6 +118,7 @@ export const argumentsRouter = createRouter()
                         articleId: input.articleId,
                         stance: { in: allowedStance },
                         authorId: { equals: user.id },
+                        deleted: false,
                     },
                     select: {
                         id: true,

@@ -192,7 +192,7 @@ model ArticleReferences {
     title       String
     description String
     img         String?
-    Articles    Articles @relation(fields: [articlesId], references: [id])
+    Articles    Articles @relation(fields: [articlesId], references: [id], onDelete: Cascade)
     articlesId  String
 }
 
@@ -223,6 +223,9 @@ model Argument {
 
     article   Articles @relation(fields: [articleId], references: [id], onDelete: Cascade)
     articleId String
+
+    deleted     Boolean   @default(false)
+    deletedTime DateTime?
 
     comments        Comments[]
     argumentThreads ArgumentThread[]
@@ -261,6 +264,9 @@ model Comments {
     likedUsers     User[]   @relation("likedComments")
     dislikedUsers  User[]   @relation("supportedComments")
     supportedUsers User[]   @relation("dislikedComments")
+
+    deleted     Boolean   @default(false)
+    deletedTime DateTime?
 
     inArgument       Argument         @relation(fields: [inArgumentId], references: [id], onDelete: Cascade)
     inArgumentId     Int
