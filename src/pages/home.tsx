@@ -18,7 +18,11 @@ const UserHome = () => {
     const [sentErrorNotification, setSendErrorNotification] =
         useState<boolean>(false);
 
-    const { data, isLoading } = trpc.useQuery(["navigation.home"]);
+    const { data, isLoading } = trpc.useQuery(["navigation.home"], {
+        refetchInterval: 0,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
+    });
 
     useEffect(() => {
         function updateScreen() {
