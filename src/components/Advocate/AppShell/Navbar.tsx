@@ -59,7 +59,7 @@ const Navbar = ({ highlight }: { highlight?: string }) => {
                         highlight={highlight === "issues"}
                     />
                     <NavbarSection
-                        link="/advocate"
+                        link="/advocate/comments"
                         icon={<ChatIcon className="h-6 w-6" />}
                         text="留言管理"
                         highlight={highlight === "comments"}
