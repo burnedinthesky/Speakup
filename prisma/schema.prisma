@@ -224,8 +224,8 @@ model Argument {
     article   Articles @relation(fields: [articleId], references: [id], onDelete: Cascade)
     articleId String
 
-    deleted     Boolean   @default(false)
-    deletedTime DateTime?
+    deleted            Boolean             @default(false)
+    argumentModActions ArgumentModAction[]
 
     comments        Comments[]
     argumentThreads ArgumentThread[]
@@ -254,6 +254,20 @@ model ArgumentReports {
     @@unique([userId, argumentId])
 }
 
+enum ModActionInstances {
+    FIRST
+    SECOND
+}
+
+model ArgumentModAction {
+    id         Int                @id @default(autoincrement())
+    instance   ModActionInstances
+    issuedTime DateTime           @default(now())
+    reason     Json
+    argument   Argument           @relation(fields: [argumentId], references: [id], onDelete: Cascade)
+    argumentId Int
+}
+
 model Comments {
     id             Int      @id @default(autoincrement())
     content        String   @db.Text
@@ -265,8 +279,8 @@ model Comments {
     dislikedUsers  User[]   @relation("supportedComments")
     supportedUsers User[]   @relation("dislikedComments")
 
-    deleted     Boolean   @default(false)
-    deletedTime DateTime?
+    deleted           Boolean            @default(false)
+    commentModActions CommentModAction[]
 
     inArgument       Argument         @relation(fields: [inArgumentId], references: [id], onDelete: Cascade)
     inArgumentId     Int
@@ -285,4 +299,13 @@ model CommentReports {
     commentsId  Int
 
     @@unique([userId, commentsId])
+}
+
+model CommentModAction {
+    id         Int                @id @default(autoincrement())
+    instance   ModActionInstances
+    issuedTime DateTime           @default(now())
+    reason     Json
+    comment    Comments           @relation(fields: [commentsId], references: [id], onDelete: Cascade)
+    commentsId Int
 }

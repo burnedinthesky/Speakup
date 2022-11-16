@@ -1,9 +1,11 @@
-import { ExternalLinkIcon } from "@heroicons/react/outline";
-import { LoadingOverlay, Modal } from "@mantine/core";
 import { useState } from "react";
-import { SampleToModComments } from "../../../templateData/advocate/comments";
-import { ToModComments } from "../../../types/advocate/comments.types";
+import { trpc } from "../../../utils/trpc";
+
+import { LoadingOverlay, Modal } from "@mantine/core";
+import { ExternalLinkIcon } from "@heroicons/react/outline";
 import CommentCard from "./CommentCard";
+
+import { ToModComments } from "../../../types/advocate/comments.types";
 
 interface ArticleCommentsProps {
     articleId: string;
@@ -11,15 +13,36 @@ interface ArticleCommentsProps {
 }
 
 const ArticleComments = ({ articleId, articleTitle }: ArticleCommentsProps) => {
-    const data: ToModComments[] = SampleToModComments;
-
     const [excluded, setExcluded] = useState<number[]>([]);
     const [expandComment, setExpandedComment] = useState<number | null>(null);
     const [modalKey, setModalKey] = useState<number>(0);
 
+    const { data: queryData, isLoading } = trpc.useInfiniteQuery(
+        ["advocate.comments.fetchArticleComments", { id: articleId }],
+        {
+            getNextPageParam: (lastPage) => lastPage.nextCursor,
+        }
+    );
+
+    const data = queryData
+        ? (queryData.pages
+              .flatMap((page) => page.data.arguments)
+              .concat(queryData.pages.flatMap((page) => page.data.comments))
+              .filter((cmt) => typeof cmt !== "undefined")
+              .filter((comment) =>
+                  comment ? !excluded.includes(comment.id) : false
+              ) as ToModComments[])
+        : undefined;
+
     return (
         <>
-            <div className="w-full">
+            <div
+                className={` w-full transition-height duration-1000 ${
+                    !isLoading && (!data || data?.length === 0)
+                        ? "h-0 overflow-hidden"
+                        : "h-auto"
+                }`}
+            >
                 <a
                     href={`/discussion/${articleId}`}
                     target="_blank"
@@ -29,10 +52,14 @@ const ArticleComments = ({ articleId, articleTitle }: ArticleCommentsProps) => {
                     <h2 className="text-2xl font-medium ">{articleTitle}</h2>
                     <ExternalLinkIcon className="ml-2 w-6" />
                 </a>
-                <div className="mt-4 grid grid-cols-4 gap-x-2 gap-y-2">
-                    {data
-                        .filter((comment) => !excluded.includes(comment.id))
-                        .map((comment) => (
+                <div
+                    className={`relative mt-4 grid grid-cols-4 gap-x-2 gap-y-2 ${
+                        isLoading ? "h-40" : data ? "" : "h-0"
+                    }`}
+                >
+                    <LoadingOverlay visible={isLoading} />
+                    {data &&
+                        data.map((comment) => (
                             <CommentCard
                                 key={comment.id}
                                 data={comment}
