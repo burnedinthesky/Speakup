@@ -79,8 +79,9 @@ export const commentsRouter = createRouter()
                             id: arg.id,
                             content: arg.content,
                             daysRemaining:
-                                new Date().getDate() -
-                                arg.createdTime.getDate(),
+                                7 -
+                                (new Date().getDate() -
+                                    arg.createdTime.getDate()),
                             reportedReasons: [],
                             type: "argument",
                         } as ToModComments)
@@ -132,8 +133,9 @@ export const commentsRouter = createRouter()
                             id: cmt.id,
                             content: cmt.content,
                             daysRemaining:
-                                new Date().getDate() -
-                                cmt.createdTime.getDate(),
+                                7 -
+                                (new Date().getDate() -
+                                    cmt.createdTime.getDate()),
                             reportedReasons: [],
                             type: "comment",
                             argument: cmt.inArgument,
@@ -277,10 +279,12 @@ export const commentsRouter = createRouter()
     })
     .query("fetchCommentThread", {
         input: z.object({
-            argId: z.number(),
-            commentId: z.number(),
+            argId: z.number().nullable(),
+            commentId: z.number().nullable(),
         }),
         async resolve({ ctx, input }) {
+            if (input.argId === null || input.commentId === null) return null;
+
             const argument = await ctx.prisma.argument.findUniqueOrThrow({
                 where: { id: input.argId },
                 select: { id: true, content: true },

@@ -8,6 +8,7 @@ import { ReportConfigs } from "../../../common/components/Report/ReportMenu/repo
 import { trpc } from "../../../utils/trpc";
 import { showErrorNotification } from "../../../lib/errorHandling";
 import { useState } from "react";
+import DeleteReasonDropdown from "./DeleteReasonDropdown";
 
 interface DeleteActionPopoverProps {
     id: number;
@@ -51,59 +52,19 @@ const DeleteActionPopover = ({
             </Popover.Target>
             <Popover.Dropdown>
                 <div className="w-64">
-                    <h3 className="text-sm font-bold">移除原因</h3>
-                    <div className="mt-3 flex flex-wrap gap-1">
-                        {ReportConfigs[type]?.options.map((option, i) => (
-                            <Checkbox
-                                key={i}
-                                size="sm"
-                                value={option.key}
-                                label={option.text}
-                                checked={violatedRules.includes(option.text)}
-                                onChange={(e) => {
-                                    if (e.currentTarget.checked)
-                                        setViolatedRules((cur) => [
-                                            ...cur,
-                                            option.text,
-                                        ]);
-                                    else
-                                        setViolatedRules((cur) =>
-                                            cur.filter(
-                                                (rule) => rule !== option.text
-                                            )
-                                        );
-                                }}
-                            />
-                        ))}
-                    </div>
-                    <div className="flex w-full justify-end gap-2">
-                        <Button
-                            size="xs"
-                            radius="xl"
-                            color="gray"
-                            variant="light"
-                            onClick={close}
-                        >
-                            取消
-                        </Button>
-                        <Button
-                            size="xs"
-                            radius="xl"
-                            className="bg-primary-600"
-                            onClick={() => {
-                                deleteCommentMutation.mutate({
-                                    id,
-                                    type,
-                                    instance: "first",
-                                    reasons: violatedRules,
-                                });
-                            }}
-                        >
-                            移除
-                        </Button>
-                    </div>
-                    <hr className="my-2 w-full border-b border-b-slate-300 px-3" />
-                    <ReportedReason />
+                    <DeleteReasonDropdown
+                        type={type}
+                        violatedRules={violatedRules}
+                        setViolatedRules={setViolatedRules}
+                        deleteComment={() => {
+                            deleteCommentMutation.mutate({
+                                id,
+                                type,
+                                instance: "first",
+                                reasons: violatedRules,
+                            });
+                        }}
+                    />
                 </div>
             </Popover.Dropdown>
         </Popover>

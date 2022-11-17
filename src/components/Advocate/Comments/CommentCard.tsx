@@ -3,6 +3,7 @@ import {
     AnnotationIcon,
     ArrowsExpandIcon,
     ChatIcon,
+    ClockIcon,
 } from "@heroicons/react/outline";
 
 import AcceptActionPopover from "./AcceptActionPopover";
@@ -46,9 +47,17 @@ const CommentCard = ({ data, removeCard, expandComment }: CommentCardProps) => {
                 </Spoiler>
             </div>
             <div className="flex w-full items-center justify-between">
-                <ActionIcon onClick={expandComment}>
-                    <ArrowsExpandIcon className="w-4" />
-                </ActionIcon>
+                <div className="flex items-center">
+                    {data.type === "comment" && (
+                        <ActionIcon onClick={expandComment}>
+                            <ArrowsExpandIcon className="w-4" />
+                        </ActionIcon>
+                    )}
+                    <div className="flex items-center gap-1 text-slate-500">
+                        <ClockIcon className="w-4" />
+                        <p className="text-sm">{data.daysRemaining}天</p>
+                    </div>
+                </div>
                 <div className="flex items-center">
                     <AcceptActionPopover
                         id={data.id}
