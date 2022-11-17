@@ -251,12 +251,13 @@ export const commentsRouter = createRouter()
             return true;
         },
     })
-    .query("commentReports", {
+    .query("reportReasons", {
         input: z.object({
             id: z.number(),
             type: z.enum(["argument", "comment"]),
         }),
         async resolve({ ctx, input }) {
+            let reasons;
             if (input.type === "argument") {
                 await ctx.prisma.argument.findFirstOrThrow({
                     where: {
@@ -265,16 +266,63 @@ export const commentsRouter = createRouter()
                     },
                 });
 
-                let reasons;
-
-                const reports = await ctx.prisma.argumentReports.findMany({
-                    where: { id: input.id },
-                    select: {
-                        reasons: true,
+                reasons = await ctx.prisma.argumentReports.groupBy({
+                    by: ["reasons"],
+                    where: {
+                        argumentId: input.id,
                     },
-                    distinct: ["reasons"],
+                    _count: {
+                        userId: true,
+                    },
+                });
+            } else {
+                await ctx.prisma.comments.findFirstOrThrow({
+                    where: {
+                        id: input.id,
+                        inArgument: { article: { authorId: ctx.user.id } },
+                    },
+                });
+
+                reasons = await ctx.prisma.commentReports.groupBy({
+                    by: ["reasons"],
+                    where: {
+                        commentsId: input.id,
+                    },
+                    _count: {
+                        userId: true,
+                    },
                 });
             }
+
+            let totalReports = 0;
+            let other = 100;
+            const reasonCount: { [key: string]: number } = {};
+            reasons.forEach((reason) => {
+                totalReports += reason._count.userId;
+                reason.reasons.forEach((r) => {
+                    if (!(r in reasonCount)) {
+                        reasonCount[r] = 0;
+                    }
+                    reasonCount[r]++;
+                });
+            });
+
+            const ret: { reason: string; percentage: number }[] = [];
+            Object.keys(reasonCount).forEach((key) => {
+                let percentage = Math.round(
+                    ((reasonCount[key] as number) / totalReports) * 100
+                );
+                ret.push({
+                    reason: key,
+                    percentage,
+                });
+                other -= percentage;
+            });
+            ret.push({ reason: "other", percentage: other });
+
+            return ret
+                .filter((ele) => ele.percentage > 5)
+                .sort((a, b) => a.percentage - b.percentage);
         },
     })
     .query("fetchCommentThread", {

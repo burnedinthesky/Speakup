@@ -21,7 +21,6 @@ const ExpandedCommentModal = ({
     setExpandedComment,
 }: ExpandedCommentModalProps) => {
     const [modalKey, setModalKey] = useState<number>(0);
-    const [violatedRules, setViolatedRules] = useState<string[]>([]);
 
     const { data, isLoading } = trpc.useQuery([
         "advocate.comments.fetchCommentThread",
@@ -56,8 +55,9 @@ const ExpandedCommentModal = ({
                             <div className="mt-2 h-80 w-full overflow-y-auto">
                                 <p className="my-2">{data.argument.content}</p>
                                 <div className="ml-4 flex flex-col gap-3 text-slate-600">
-                                    {data.comments.map((comment) => (
+                                    {data.comments.map((comment, i) => (
                                         <p
+                                            key={i}
                                             className={`${
                                                 comment.id ===
                                                 expandComment?.cmtId
@@ -73,15 +73,16 @@ const ExpandedCommentModal = ({
                         )}
                     </div>
                     <div className="flex w-1/2 flex-col justify-between">
-                        <DeleteReasonDropdown
-                            type="comment"
-                            violatedRules={violatedRules}
-                            setViolatedRules={setViolatedRules}
-                            deleteComment={() => {}}
-                            cancelDelete={() => {
-                                setExpandedComment(null);
-                            }}
-                        />
+                        {expandComment && (
+                            <DeleteReasonDropdown
+                                id={expandComment.cmtId}
+                                type="comment"
+                                deleteComment={() => {}}
+                                cancelDelete={() => {
+                                    setExpandedComment(null);
+                                }}
+                            />
+                        )}
                     </div>
                 </div>
             </div>
