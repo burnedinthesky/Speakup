@@ -31,6 +31,7 @@ const CommentField = ({
         data,
         error,
         isLoading,
+        isRefetching,
         fetchNextPage,
         hasNextPage,
         isFetching,
@@ -61,11 +62,6 @@ const CommentField = ({
             }
         }
     }, [lastCardInView]);
-
-    const addArgumentMutation = useAddArgumentMutation({
-        viewingStance,
-        sort: sortMethod,
-    });
 
     const deleteArgumentMutation = trpc.useMutation(
         "arguments.deleteArgument",
@@ -115,13 +111,8 @@ const CommentField = ({
                 {data && (
                     <>
                         <ArgumentInput
-                            addComment={(content: string, stance: Stances) => {
-                                addArgumentMutation.mutate({
-                                    articleId: articleId,
-                                    content: content,
-                                    stance: stance,
-                                });
-                            }}
+                            articleId={articleId}
+                            cmtFieldStance={viewingStance}
                         />
                         <div className="flex w-full flex-col gap-3 pt-4">
                             {data.pages
@@ -160,7 +151,9 @@ const CommentField = ({
                     </>
                 )}
                 {hasComments && <NoCommentsDisplay />}
-                {(isLoading || isFetching) && <LoadingSkeleton />}
+                {(isLoading || isFetching) && !isRefetching && (
+                    <LoadingSkeleton />
+                )}
             </div>
         </div>
     );

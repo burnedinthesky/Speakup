@@ -47,7 +47,7 @@ const ArticleInteractions = ({ articleId }: ArticleInteractionProps) => {
                 closeFn={() => {
                     setOpenShareMenu(false);
                 }}
-                url={`https://speakup.place/${router.pathname}`}
+                url={`${window.location.href}`}
             />
             <button
                 onClick={() => {
