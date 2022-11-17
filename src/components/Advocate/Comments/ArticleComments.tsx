@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { trpc } from "../../../utils/trpc";
 
-import { LoadingOverlay, Modal } from "@mantine/core";
+import { LoadingOverlay } from "@mantine/core";
 import { ExternalLinkIcon } from "@heroicons/react/outline";
-import CommentCard from "./CommentCard";
+import CommentCard from "./Cards/CommentCard";
+import ExpandedCommentModal from "./ExpandedCommentModal";
+import FetchMoreCard from "./Cards/FetchMoreCard";
 
 import { ToModComments } from "../../../types/advocate/comments.types";
-import ExpandedCommentModal from "./ExpandedCommentModal";
+import CommentLoadingCard from "./Cards/CommentLoadingCard";
 
 interface ArticleCommentsProps {
     articleId: string;
@@ -20,7 +22,13 @@ const ArticleComments = ({ articleId, articleTitle }: ArticleCommentsProps) => {
         cmtId: number;
     } | null>(null);
 
-    const { data: queryData, isLoading } = trpc.useInfiniteQuery(
+    const {
+        data: queryData,
+        isLoading,
+        isFetchingNextPage,
+        hasNextPage,
+        fetchNextPage,
+    } = trpc.useInfiniteQuery(
         ["advocate.comments.fetchArticleComments", { id: articleId }],
         {
             getNextPageParam: (lastPage) => lastPage.nextCursor,
@@ -86,6 +94,14 @@ const ArticleComments = ({ articleId, articleTitle }: ArticleCommentsProps) => {
                                 }}
                             />
                         ))}
+                    {isFetchingNextPage && <CommentLoadingCard />}
+                    {hasNextPage && !isFetchingNextPage && (
+                        <FetchMoreCard
+                            fetchMore={() => {
+                                fetchNextPage();
+                            }}
+                        />
+                    )}
                 </div>
             </div>
             <ExpandedCommentModal
