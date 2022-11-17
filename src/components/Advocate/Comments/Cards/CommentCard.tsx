@@ -6,10 +6,10 @@ import {
     ClockIcon,
 } from "@heroicons/react/outline";
 
-import AcceptActionPopover from "./AcceptActionPopover";
-import DeleteActionPopover from "./DeleteActionPopover";
+import AcceptActionPopover from "../AcceptActionPopover";
+import DeleteActionPopover from "../DeleteActionPopover";
 
-import type { ToModComments } from "../../../types/advocate/comments.types";
+import type { ToModComments } from "../../../../types/advocate/comments.types";
 
 interface CommentCardProps {
     data: ToModComments;
