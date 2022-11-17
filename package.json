@@ -3,14 +3,14 @@
     "version": "0.1.0",
     "private": true,
     "scripts": {
-        "dev": "concurrently --kill-others \"next dev\" \"dotenv -e .env.development -- npx prisma studio --browser none\"",
+        "dev": "concurrently --kill-others \"next dev\" \"dotenv -e .env.development.local -- npx prisma studio --browser none\"",
         "build": "next build",
         "start": "next start",
         "lint": "next lint",
-        "push": "dotenv -e .env.development -- npx prisma db push",
-        "migrate": "dotenv -e .env.development -- npx prisma migrate dev",
-        "migrate-prod": "dotenv -e .env.production -- npx prisma migrate deploy",
-        "pmstd-prod": "dotenv -e .env.production -- npx prisma studio",
+        "push": "dotenv -e .env.development.local -- npx prisma db push",
+        "migrate": "dotenv -e .env.development.local -- npx prisma migrate dev",
+        "migrate-prod": "dotenv -e .env.production.local -- npx prisma migrate deploy",
+        "pmstd-prod": "dotenv -e .env.production.local -- npx prisma studio",
         "postinstall": "prisma generate"
     },
     "dependencies": {
