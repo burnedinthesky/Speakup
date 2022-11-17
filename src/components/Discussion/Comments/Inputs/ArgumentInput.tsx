@@ -1,25 +1,53 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import BaseCommentInput from "./BaseOpInput";
 
 import { Stances } from "../../../../types/comments.types";
 import useLoggedInAction from "../../../../hooks/authProtected/useLoggedInAction";
+import useAddArgumentMutation from "../../../../hooks/discussion/useAddArgumentMutation";
 
 interface ArgumentInputProps {
-    addComment: (cmtContent: string, cmtSide: Stances) => void;
+    articleId: string;
+    cmtFieldStance: "sup" | "agn" | "both";
 }
 
-const ArgumentInput = ({ addComment }: ArgumentInputProps) => {
+const ArgumentInput = ({ articleId, cmtFieldStance }: ArgumentInputProps) => {
     const [isCommenting, setIsCommenting] = useState<boolean>(false);
+    const [selectedStance, setSelectedStance] = useState<Stances | null>(
+        cmtFieldStance === "both" ? null : cmtFieldStance
+    );
     const logInAction = useLoggedInAction();
+
+    useEffect(() => {
+        setSelectedStance(cmtFieldStance === "both" ? null : cmtFieldStance);
+    }, [cmtFieldStance]);
+
+    const addArgumentMutation = useAddArgumentMutation({
+        closeCommentInput() {
+            setIsCommenting(false);
+            setSelectedStance(null);
+        },
+    });
 
     return (
         <div className="mt-2 mb-4 flex w-full flex-col items-end justify-center">
             {isCommenting ? (
                 <BaseCommentInput
-                    addComment={addComment}
-                    setCommentEnterStatus={setIsCommenting}
+                    addComment={(content: string, stance: Stances) => {
+                        addArgumentMutation.mutate({
+                            articleId,
+                            content,
+                            stance,
+                        });
+                    }}
+                    isMutationLoading={addArgumentMutation.isLoading}
+                    setCommentEntering={setIsCommenting}
+                    forceStance={
+                        cmtFieldStance === "both" ? undefined : cmtFieldStance
+                    }
                     shrinkAtStart={true}
+                    selectedStance={selectedStance}
+                    setSelectedStance={setSelectedStance}
                 />
             ) : (
                 <button
