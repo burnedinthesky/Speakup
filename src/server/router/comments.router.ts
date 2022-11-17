@@ -131,6 +131,7 @@ export const commentsRouter = createRouter()
                               id: input.threadId,
                           }
                         : undefined,
+                    deleted: false,
                 },
                 select: {
                     id: true,

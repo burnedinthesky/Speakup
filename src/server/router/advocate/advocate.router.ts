@@ -2,6 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { createRouter } from "../../createRouter";
 import { articleRouter } from "./article.router";
 import { CheckAvcClearance } from "../../../types/advocate/user.types";
+import { commentsRouter } from "./comments.router";
 
 export const advocateRouter = createRouter()
     .middleware(async ({ ctx, next }) => {
@@ -17,4 +18,5 @@ export const advocateRouter = createRouter()
             },
         });
     })
-    .merge("articles.", articleRouter);
+    .merge("articles.", articleRouter)
+    .merge("comments.", commentsRouter);
