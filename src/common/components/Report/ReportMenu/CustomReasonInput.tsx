@@ -1,4 +1,4 @@
-import React, { forwardRef } from "react";
+import { forwardRef } from "react";
 import { Checkbox, TextInput } from "@mantine/core";
 
 interface CustomReasonInputProps {
