@@ -6,6 +6,7 @@ import { ExternalLinkIcon } from "@heroicons/react/outline";
 import CommentCard from "./CommentCard";
 
 import { ToModComments } from "../../../types/advocate/comments.types";
+import ExpandedCommentModal from "./ExpandedCommentModal";
 
 interface ArticleCommentsProps {
     articleId: string;
@@ -13,9 +14,11 @@ interface ArticleCommentsProps {
 }
 
 const ArticleComments = ({ articleId, articleTitle }: ArticleCommentsProps) => {
-    const [excluded, setExcluded] = useState<number[]>([]);
-    const [expandComment, setExpandedComment] = useState<number | null>(null);
-    const [modalKey, setModalKey] = useState<number>(0);
+    const [excluded, setExcluded] = useState<string[]>([]);
+    const [expandComment, setExpandedComment] = useState<{
+        argId: number;
+        cmtId: number;
+    } | null>(null);
 
     const { data: queryData, isLoading } = trpc.useInfiniteQuery(
         ["advocate.comments.fetchArticleComments", { id: articleId }],
@@ -30,7 +33,9 @@ const ArticleComments = ({ articleId, articleTitle }: ArticleCommentsProps) => {
               .concat(queryData.pages.flatMap((page) => page.data.comments))
               .filter((cmt) => typeof cmt !== "undefined")
               .filter((comment) =>
-                  comment ? !excluded.includes(comment.id) : false
+                  comment
+                      ? !excluded.includes(comment.type + comment.id)
+                      : false
               ) as ToModComments[])
         : undefined;
 
@@ -61,37 +66,32 @@ const ArticleComments = ({ articleId, articleTitle }: ArticleCommentsProps) => {
                     {data &&
                         data.map((comment) => (
                             <CommentCard
-                                key={comment.id}
+                                key={`${comment.type}${comment.id}`}
                                 data={comment}
                                 removeCard={() => {
-                                    setExcluded((cur) => [...cur, comment.id]);
+                                    setExcluded((cur) => [
+                                        ...cur,
+                                        comment.type + comment.id,
+                                    ]);
                                 }}
                                 expandComment={() => {
-                                    setExpandedComment(comment.id);
+                                    if (
+                                        comment.type === "comment" &&
+                                        comment.argument
+                                    )
+                                        setExpandedComment({
+                                            argId: comment.argument.id,
+                                            cmtId: comment.id,
+                                        });
                                 }}
                             />
                         ))}
                 </div>
             </div>
-            <Modal
-                key={modalKey}
-                opened={expandComment !== null}
-                onClose={() => {
-                    setExpandedComment(null);
-                    setModalKey((cur) => cur + 1);
-                }}
-                withCloseButton={false}
-                centered
-                size="auto"
-                overlayOpacity={0.2}
-            >
-                <div className="relative h-20 w-[90vw]  max-w-2xl">
-                    <LoadingOverlay
-                        visible={true}
-                        loaderProps={{ color: "gray" }}
-                    />
-                </div>
-            </Modal>
+            <ExpandedCommentModal
+                expandComment={expandComment}
+                setExpandedComment={setExpandedComment}
+            />
         </>
     );
 };
