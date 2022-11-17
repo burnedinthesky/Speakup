@@ -1,14 +1,12 @@
 import { useDisclosure } from "@mantine/hooks";
 
-import { ActionIcon, Button, Checkbox, Popover } from "@mantine/core";
-import { TrashIcon } from "@heroicons/react/outline";
-import ReportedReason from "./ReportedReason";
-
-import { ReportConfigs } from "../../../common/components/Report/ReportMenu/reportConfigs";
 import { trpc } from "../../../utils/trpc";
-import { showErrorNotification } from "../../../lib/errorHandling";
-import { useState } from "react";
+
+import { ActionIcon, Popover } from "@mantine/core";
+import { TrashIcon } from "@heroicons/react/outline";
 import DeleteReasonDropdown from "./DeleteReasonDropdown";
+
+import { showErrorNotification } from "../../../lib/errorHandling";
 
 interface DeleteActionPopoverProps {
     id: number;
@@ -22,8 +20,6 @@ const DeleteActionPopover = ({
     removeCard,
 }: DeleteActionPopoverProps) => {
     const [opened, { close, open }] = useDisclosure(false);
-
-    const [violatedRules, setViolatedRules] = useState<string[]>([]);
 
     const deleteCommentMutation = trpc.useMutation(
         ["advocate.comments.deleteComment"],
@@ -53,15 +49,14 @@ const DeleteActionPopover = ({
             <Popover.Dropdown>
                 <div className="w-64">
                     <DeleteReasonDropdown
+                        id={id}
                         type={type}
-                        violatedRules={violatedRules}
-                        setViolatedRules={setViolatedRules}
-                        deleteComment={() => {
+                        deleteComment={(reasons: string[]) => {
                             deleteCommentMutation.mutate({
                                 id,
                                 type,
                                 instance: "first",
-                                reasons: violatedRules,
+                                reasons: reasons,
                             });
                         }}
                     />

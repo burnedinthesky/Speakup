@@ -1,27 +1,35 @@
+import { useState } from "react";
 import { Button, Checkbox } from "@mantine/core";
-import React from "react";
 import { ReportConfigs } from "../../../common/components/Report/ReportMenu/reportConfigs";
 import ReportedReason from "./ReportedReason";
 
 interface DeleteReasonDropdownProps {
+    id: number;
     type: "argument" | "comment";
-    violatedRules: string[];
-    setViolatedRules: (fn: (cur: string[]) => string[]) => void;
-    deleteComment: () => void;
+    deleteComment: (reasons: string[]) => void;
     cancelDelete?: () => void;
 }
 
 const DeleteReasonDropdown = ({
+    id,
     type,
-    violatedRules,
-    setViolatedRules,
     deleteComment,
     cancelDelete,
 }: DeleteReasonDropdownProps) => {
+    const [violatedRules, setViolatedRules] = useState<string[]>([]);
+    const [errors, setErrors] = useState<string | null>(null);
+
+    const submitDecision = () => {
+        if (violatedRules.length === 0) {
+            setErrors("請至少選取一個原因");
+        } else deleteComment(violatedRules);
+    };
+
     return (
         <>
             <div>
                 <h3 className="text-sm font-bold">移除原因</h3>
+                {errors && <p className="text-xs text-red-500">{errors}</p>}
                 <div className="mt-3 flex flex-col gap-1">
                     {ReportConfigs[type]?.options.map((option, i) => (
                         <Checkbox
@@ -63,14 +71,14 @@ const DeleteReasonDropdown = ({
                         radius="xl"
                         className="bg-primary-600"
                         onClick={() => {
-                            deleteComment();
+                            submitDecision();
                         }}
                     >
                         移除
                     </Button>
                 </div>
                 <hr className="my-2 w-full border-b border-b-slate-300 px-3" />
-                <ReportedReason />
+                <ReportedReason id={id} type={type} />
             </div>
         </>
     );
