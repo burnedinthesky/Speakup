@@ -80,7 +80,7 @@ const ReportMenu = ({
                 {options.map((data, i) => (
                     <Checkbox
                         key={i}
-                        value={data.key}
+                        value={data.text}
                         label={data.text}
                         classNames={{
                             label: "text-neutral-700",
@@ -88,7 +88,7 @@ const ReportMenu = ({
                         }}
                         className="text-neutral-700"
                         disabled={
-                            selectedReasons.includes(data.key)
+                            selectedReasons.includes(data.text)
                                 ? false
                                 : selectedReasons.length >= maxReasons
                         }

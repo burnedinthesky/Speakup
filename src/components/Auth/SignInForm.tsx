@@ -116,7 +116,7 @@ const SignInPage = ({
                 className="relative mt-11 flex flex-col gap-4"
                 onSubmit={submitLogin}
             >
-                <LoadingOverlay visible={loading} />
+                <LoadingOverlay visible={session !== null || loading} />
                 <TextInput
                     placeholder="您的信箱"
                     icon={<InboxIcon className="h-6 w-6 text-primary-600" />}

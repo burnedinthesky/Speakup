@@ -115,7 +115,9 @@ const SignUpPage = ({ setDisplayPage, setDivHeight }: AuthPageProps) => {
                 className="relative mt-11 flex flex-col gap-4"
                 onSubmit={signupForm.onSubmit(submitForm)}
             >
-                <LoadingOverlay visible={signupMutation.isLoading} />
+                <LoadingOverlay
+                    visible={session !== null || signupMutation.isLoading}
+                />
                 <TextInput
                     label="您的使用者名稱"
                     placeholder="您的使用者名稱"
