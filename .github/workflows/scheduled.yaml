@@ -1,0 +1,13 @@
+name: Hourly data index
+on:
+    schedule:
+        - cron: "*/60 * * * *"
+jobs:
+    cron:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Index search
+              run: |
+                  curl --request POST \
+                  --url 'https://speakup.place/api/privileged/index/search' \
+                  --header 'Authorization: Bearer ${{ secrets.ADMIN_KEY }}'
