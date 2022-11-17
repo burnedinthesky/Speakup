@@ -1,23 +1,31 @@
 import { useState, useRef, useEffect } from "react";
 import { PaperAirplaneIcon, XIcon } from "@heroicons/react/outline";
-import { ArgumentThread, Stances } from "../../../../types/comments.types";
+import { Stances } from "../../../../types/comments.types";
 import { showNotification } from "@mantine/notifications";
+import { Loader } from "@mantine/core";
 
 interface BaseCommentInputProps {
     addComment: (cmtContent: string, cmtStance: Stances) => void;
-    setCommentEnterStatus: (value: boolean) => void;
+    setCommentEntering: (value: boolean) => void;
+    forceStance?: "sup" | "agn" | "neu";
+    isMutationLoading?: boolean;
+    selectedStance: Stances | null;
+    setSelectedStance: (fn: (val: Stances | null) => Stances | null) => void;
     shrinkAtStart: boolean;
-    additionalSelector?: JSX.Element;
+    children?: JSX.Element;
 }
 
 const BaseCommentInput = ({
+    children,
     addComment,
-    setCommentEnterStatus,
+    setCommentEntering,
+    forceStance,
+    isMutationLoading,
+    selectedStance,
+    setSelectedStance,
     shrinkAtStart,
-    additionalSelector,
 }: BaseCommentInputProps) => {
     const commentDiv = useRef<HTMLDivElement>(null);
-    const [selectedStance, setSelectedStance] = useState<Stances | null>(null);
     const [expandWidth, setExpandWidth] = useState<boolean>(!shrinkAtStart);
     const [disableSubmit, setDisableSubmit] = useState<boolean>(true);
 
@@ -56,9 +64,7 @@ const BaseCommentInput = ({
             });
             return;
         }
-        addComment(commentDiv?.current?.innerText, selectedStance);
-        setCommentEnterStatus(false);
-        setSelectedStance(null);
+        addComment(commentDiv.current.innerText, selectedStance);
     };
 
     const StanceSelectButton = ({
@@ -83,6 +89,7 @@ const BaseCommentInput = ({
                         : ""
                 }
                 `}
+                disabled={forceStance !== undefined}
                 onClick={() => {
                     setSelectedStance((lastStance) =>
                         lastStance ? null : assignedStance
@@ -99,7 +106,7 @@ const BaseCommentInput = ({
             <button
                 className={`mx-1 h-6 w-6 flex-shrink-0 text-primary-800`}
                 onClick={() => {
-                    setCommentEnterStatus(false);
+                    setCommentEntering(false);
                 }}
             >
                 <XIcon className="h-6 w-6" />
@@ -120,7 +127,11 @@ const BaseCommentInput = ({
                 }}
                 disabled={disableSubmit}
             >
-                <PaperAirplaneIcon className="h-6 w-6" />
+                {isMutationLoading ? (
+                    <Loader size="xs" />
+                ) : (
+                    <PaperAirplaneIcon className="h-6 w-6 translate-x-1 -translate-y-0.5 rotate-45" />
+                )}
             </button>
         );
     };
@@ -168,7 +179,7 @@ const BaseCommentInput = ({
                         </span>
                     </div>
 
-                    {additionalSelector}
+                    {children}
                     <SubmitButton />
                     <CloseButton />
                 </div>
@@ -179,7 +190,7 @@ const BaseCommentInput = ({
                     <StanceSelectButton assignedStance="agn" text="反" />
                     <StanceSelectButton assignedStance="neu" text="中" />
                 </span>
-                {additionalSelector}
+                {children}
                 <span>
                     <SubmitButton />
                     <CloseButton />

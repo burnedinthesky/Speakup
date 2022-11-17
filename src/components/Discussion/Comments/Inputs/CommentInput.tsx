@@ -1,62 +1,75 @@
 import { useState } from "react";
+
 import BaseCommentInput from "./BaseOpInput";
-import { ArgumentThread, Stances } from "../../../../types/comments.types";
 import ThreadsMenu from "../Threads/ThreadsMenu";
+import useArgAddCommentMutation from "../../../../hooks/discussion/useArgAddCommentMutation";
+import type { ArgumentThread, Stances } from "../../../../types/comments.types";
 
 interface CommentInputProps {
+    argumentId: number;
     threads: ArgumentThread[];
-    addComment: (
-        cmtContent: string,
-        stance: Stances,
-        thread: number | null
-    ) => void;
     viewingSelectedThread: number | null;
-    setShowReplyBox: (value: boolean) => void;
+    setShowCommentInput: (value: boolean) => void;
     setOpenNewThreadModal?: (value: boolean) => void;
 }
 
 const CommentInput = ({
+    argumentId,
     threads,
-    addComment,
     viewingSelectedThread,
-    setShowReplyBox,
+    setShowCommentInput,
     setOpenNewThreadModal,
 }: CommentInputProps) => {
+    const [selectedStance, setSelectedStance] = useState<Stances | null>(null);
     const [selectedThread, setSelectedThread] = useState<number | null>(null);
 
+    const addCommentMutation = useArgAddCommentMutation({
+        closeCommentInput() {
+            setShowCommentInput(false);
+            setSelectedStance(null);
+            setSelectedStance(null);
+        },
+        selectedThread: viewingSelectedThread,
+    });
+
     const submitComment = (cmtContent: string, cmtStance: Stances) => {
-        addComment(
-            cmtContent,
-            cmtStance,
-            viewingSelectedThread ? viewingSelectedThread : selectedThread
-        );
+        addCommentMutation.mutate({
+            content: cmtContent,
+            stance: cmtStance,
+            thread: viewingSelectedThread
+                ? viewingSelectedThread
+                : selectedThread,
+            argument: argumentId,
+        });
     };
 
     return (
         <div className="ml-10 mb-2 flex w-11/12 items-center pt-1">
             <BaseCommentInput
                 addComment={submitComment}
-                setCommentEnterStatus={setShowReplyBox}
+                setCommentEntering={setShowCommentInput}
+                isMutationLoading={addCommentMutation.isLoading}
                 shrinkAtStart={false}
-                additionalSelector={
-                    viewingSelectedThread ? (
-                        <ThreadsMenu
-                            threads={threads.filter(
-                                (ele) => ele.id === viewingSelectedThread
-                            )}
-                            selectedThread={viewingSelectedThread}
-                            setSelectedThread={() => {}}
-                        />
-                    ) : (
-                        <ThreadsMenu
-                            threads={threads}
-                            selectedThread={selectedThread}
-                            setSelectedThread={setSelectedThread}
-                            setOpenNewThreadModal={setOpenNewThreadModal}
-                        />
-                    )
-                }
-            />
+                selectedStance={selectedStance}
+                setSelectedStance={setSelectedStance}
+            >
+                {viewingSelectedThread ? (
+                    <ThreadsMenu
+                        threads={threads.filter(
+                            (ele) => ele.id === viewingSelectedThread
+                        )}
+                        selectedThread={viewingSelectedThread}
+                        setSelectedThread={() => {}}
+                    />
+                ) : (
+                    <ThreadsMenu
+                        threads={threads}
+                        selectedThread={selectedThread}
+                        setSelectedThread={setSelectedThread}
+                        setOpenNewThreadModal={setOpenNewThreadModal}
+                    />
+                )}
+            </BaseCommentInput>
         </div>
     );
 };

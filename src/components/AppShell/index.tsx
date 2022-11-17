@@ -2,6 +2,7 @@ import Head from "next/head";
 import Header from "./Header";
 import Navbar from "./Navbar";
 import Footbar from "./Footbar";
+import { useSession } from "next-auth/react";
 
 interface AppShellProps {
     children?: JSX.Element;
@@ -18,6 +19,8 @@ const AppShell = ({
     highlight,
     navbarRetractable,
 }: AppShellProps) => {
+    const { data: session } = useSession();
+
     return (
         <>
             <Head>
@@ -36,14 +39,18 @@ const AppShell = ({
                 }
             >
                 <Header />
-                <Navbar
-                    retractable={
-                        navbarRetractable !== undefined
-                            ? navbarRetractable
-                            : false
-                    }
-                />
-                <Footbar highlight={highlight} />
+                {session && (
+                    <>
+                        <Navbar
+                            retractable={
+                                navbarRetractable !== undefined
+                                    ? navbarRetractable
+                                    : false
+                            }
+                        />
+                        <Footbar highlight={highlight} />
+                    </>
+                )}
                 {children}
             </div>
         </>

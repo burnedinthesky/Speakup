@@ -2,9 +2,6 @@ import { useState, forwardRef } from "react";
 import { trpc } from "../../../utils/trpc";
 import { useInView } from "react-intersection-observer";
 
-import useArgCreateThreadMutation from "../../../hooks/discussion/useArgCreateThreadMutation";
-import useArgAddCommentMutation from "../../../hooks/discussion/useArgAddCommentMutation";
-
 import { AnimatePresence, motion } from "framer-motion";
 import { ReplyIcon, XIcon } from "@heroicons/react/outline";
 
@@ -16,12 +13,12 @@ import CreateThreadModal from "./Threads/CreateThreadModal";
 
 import { Argument, ArgumentThread } from "../../../types/comments.types";
 
-export interface ArgumentDisplay {
+export interface ArgumentDisplayProps {
     data: Argument;
     deleteArgument: (commentId: number) => void;
 }
 
-const ArgumentDisplay = forwardRef<HTMLDivElement, ArgumentDisplay>(
+const ArgumentDisplay = forwardRef<HTMLDivElement, ArgumentDisplayProps>(
     ({ data, deleteArgument }, ref) => {
         const [selectedThread, setSelectedThread] = useState<number | null>(
             null
@@ -64,11 +61,6 @@ const ArgumentDisplay = forwardRef<HTMLDivElement, ArgumentDisplay>(
                 enabled: false,
             }
         );
-
-        const addCommentMutation = useArgAddCommentMutation({
-            threads: data.threads.concat(addedThreads),
-            selectedThread,
-        });
 
         const cmtDataFormatted = cmtData
             ? cmtData.pages.flat().flatMap((element) => element.retData)
@@ -147,17 +139,10 @@ const ArgumentDisplay = forwardRef<HTMLDivElement, ArgumentDisplay>(
                                 }}
                             >
                                 <CommentInput
-                                    addComment={(content, stance, thread) => {
-                                        addCommentMutation.mutate({
-                                            content: content,
-                                            stance: stance,
-                                            thread: thread,
-                                            argument: data.id,
-                                        });
-                                    }}
+                                    argumentId={data.id}
                                     threads={data.threads.concat(addedThreads)}
                                     viewingSelectedThread={selectedThread}
-                                    setShowReplyBox={(val: boolean) => {
+                                    setShowCommentInput={(val: boolean) => {
                                         if (!val) setCommentInputInAnim(true);
                                         setShowCommentInput(val);
                                     }}
