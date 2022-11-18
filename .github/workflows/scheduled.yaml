@@ -2,7 +2,12 @@ name: Hourly data index
 on:
     schedule:
         - cron: "*/60 * * * *"
-    workflow_dispatch
+    workflow_dispatch:
+        inputs:
+            logLevel:
+                description: 'Log level'     
+                required: true
+                default: 'warning'
 jobs:
     cron:
         runs-on: ubuntu-latest
