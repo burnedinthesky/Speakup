@@ -2,6 +2,12 @@ name: Hourly data index
 on:
     schedule:
         - cron: "*/60 * * * *"
+    workflow_dispatch:
+        inputs:
+            logLevel:
+                description: "Log level"
+                required: true
+                default: "warning"
 jobs:
     cron:
         runs-on: ubuntu-latest
@@ -10,4 +16,9 @@ jobs:
               run: |
                   curl --request POST \
                   --url 'https://speakup.place/api/privileged/index/search' \
+                  --header 'Authorization: Bearer ${{ secrets.ADMIN_KEY }}'
+            - name: Index arguments
+              run: |
+                  curl --request POST \
+                  --url 'https://speakup.place/api/privileged/index/arguments' \
                   --header 'Authorization: Bearer ${{ secrets.ADMIN_KEY }}'
