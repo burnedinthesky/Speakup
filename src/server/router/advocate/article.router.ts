@@ -139,10 +139,6 @@ export const articleRouter = createRouter()
                 references.push(await fetchLinkPreview(link));
             }
 
-            console.log(input.references);
-
-            console.log(references);
-
             if (input.id)
                 await ctx.prisma.articles.findFirstOrThrow({
                     where: {
@@ -163,6 +159,7 @@ export const articleRouter = createRouter()
                     brief: input.brief,
                     content: input.content,
                     references: { createMany: { data: references } },
+                    status: { create: {} },
                 },
                 update: {
                     title: input.title,
