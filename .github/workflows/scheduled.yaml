@@ -11,3 +11,8 @@ jobs:
                   curl --request POST \
                   --url 'https://speakup.place/api/privileged/index/search' \
                   --header 'Authorization: Bearer ${{ secrets.ADMIN_KEY }}'
+            - name: Index arguments
+              run: |
+                  curl --request POST \
+                  --url 'https://speakup.place/api/privileged/index/arguments' \
+                  --header 'Authorization: Bearer ${{ secrets.ADMIN_KEY }}'
