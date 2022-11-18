@@ -3,6 +3,60 @@ import { Argument, Stances } from "../../types/comments.types";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 
+import { prisma } from "../../utils/prisma";
+import { ArgumentThread, User } from "@prisma/client";
+
+const appendArticleUpdate = async (id: string) => {
+    await prisma.articles.update({
+        where: { id },
+        data: {
+            requiresArgIndex: true,
+        },
+    });
+};
+
+interface argumentDBFormat {
+    author: {
+        id: string;
+        name: string;
+        profileImg: string | null;
+    };
+    content: string;
+    stance: string;
+    likedUsers: User[];
+    dislikedUsers: User[];
+    supportedUsers: User[];
+    argumentThreads: ArgumentThread[];
+    id: number;
+    _count: {
+        likedUsers: number;
+        supportedUsers: number;
+        dislikedUsers: number;
+        comments: number;
+    };
+}
+
+const formatIntoArgument = (
+    dbInstance: argumentDBFormat,
+    userId: string
+): Argument => {
+    return {
+        id: dbInstance.id,
+        author: dbInstance.author,
+        isAuthor: dbInstance.author.id === userId,
+        content: dbInstance.content,
+        stance: dbInstance.stance as Stances,
+        likes: dbInstance._count.likedUsers,
+        userLiked: dbInstance.likedUsers.length == 1,
+        support: dbInstance._count.supportedUsers,
+        userSupported: dbInstance.supportedUsers.length == 1,
+        dislikes: dbInstance._count.dislikedUsers,
+        userDisliked: dbInstance.dislikedUsers.length == 1,
+        hasComments: dbInstance._count.comments > 0,
+        threads: dbInstance.argumentThreads,
+    };
+};
+
 export const argumentsRouter = createRouter()
     .mutation("createArgument", {
         input: z.object({
@@ -12,30 +66,18 @@ export const argumentsRouter = createRouter()
         }),
         async resolve({ input, ctx }) {
             if (!ctx.user) throw new TRPCError({ code: "UNAUTHORIZED" });
-            const argument = await ctx.prisma.argument.create({
+            const arg = await ctx.prisma.argument.create({
                 data: {
                     content: input.content,
-                    author: {
-                        connect: {
-                            id: ctx.user.id,
-                        },
-                    },
-                    article: {
-                        connect: {
-                            id: input.articleId,
-                        },
-                    },
+                    author: { connect: { id: ctx.user.id } },
+                    article: { connect: { id: input.articleId } },
                     stance: input.stance,
                 },
                 select: {
                     id: true,
                     content: true,
                     author: {
-                        select: {
-                            id: true,
-                            name: true,
-                            profileImg: true,
-                        },
+                        select: { id: true, name: true, profileImg: true },
                     },
                     stance: true,
                     _count: {
@@ -46,46 +88,18 @@ export const argumentsRouter = createRouter()
                             comments: true,
                         },
                     },
-                    likedUsers: {
-                        where: {
-                            id: ctx.user.id,
-                        },
-                    },
-                    supportedUsers: {
-                        where: {
-                            id: ctx.user.id,
-                        },
-                    },
-                    dislikedUsers: {
-                        where: {
-                            id: ctx.user.id,
-                        },
-                    },
+                    likedUsers: { where: { id: ctx.user.id } },
+                    supportedUsers: { where: { id: ctx.user.id } },
+                    dislikedUsers: { where: { id: ctx.user.id } },
                     argumentThreads: {
-                        select: {
-                            id: true,
-                            name: true,
-                            argumentId: true,
-                        },
+                        select: { id: true, name: true, argumentId: true },
                     },
                 },
             });
 
-            return {
-                id: argument.id,
-                author: argument.author,
-                isAuthor: argument.author.id === ctx.user.id,
-                content: argument.content,
-                stance: argument.stance as Stances,
-                likes: argument._count.likedUsers,
-                userLiked: argument.likedUsers.length == 1,
-                support: argument._count.supportedUsers,
-                userSupported: argument.supportedUsers.length == 1,
-                dislikes: argument._count.dislikedUsers,
-                userDisliked: argument.dislikedUsers.length == 1,
-                hasComments: argument._count.comments > 0,
-                threads: argument.argumentThreads,
-            } as Argument;
+            await appendArticleUpdate(input.articleId);
+
+            return formatIntoArgument(arg, ctx.user.id);
         },
     })
     .query("getArticleArguments", {
@@ -159,24 +173,14 @@ export const argumentsRouter = createRouter()
             let data = await ctx.prisma.argument.findMany({
                 where: {
                     articleId: input.articleId,
-                    stance: {
-                        in: allowedStance,
-                    },
-                    NOT: {
-                        authorId: {
-                            equals: user.id,
-                        },
-                    },
+                    stance: { in: allowedStance },
+                    NOT: { authorId: { equals: user.id } },
                 },
                 select: {
                     id: true,
                     content: true,
                     author: {
-                        select: {
-                            id: true,
-                            name: true,
-                            profileImg: true,
-                        },
+                        select: { id: true, name: true, profileImg: true },
                     },
                     stance: true,
                     _count: {
@@ -191,11 +195,7 @@ export const argumentsRouter = createRouter()
                     supportedUsers: { where: { id: user.id } },
                     dislikedUsers: { where: { id: user.id } },
                     argumentThreads: {
-                        select: {
-                            id: true,
-                            name: true,
-                            argumentId: true,
-                        },
+                        select: { id: true, name: true, argumentId: true },
                     },
                     pagnationSequence: true,
                 },
@@ -206,9 +206,7 @@ export const argumentsRouter = createRouter()
                     createdTime: input.sort === "time" ? "desc" : undefined,
                     comments:
                         input.sort === "replies"
-                            ? {
-                                  _count: "desc",
-                              }
+                            ? { _count: "desc" }
                             : undefined,
                 },
                 skip: input.limit * (input.cursor ? input.cursor : 0),
@@ -224,23 +222,8 @@ export const argumentsRouter = createRouter()
 
             data = userArgs.concat(data);
 
-            const retData = data.map(
-                (element) =>
-                    ({
-                        id: element.id,
-                        author: element.author,
-                        isAuthor: element.author.id === ctx.user?.id,
-                        content: element.content,
-                        stance: element.stance as Stances,
-                        likes: element._count.likedUsers,
-                        userLiked: element.likedUsers.length == 1,
-                        support: element._count.supportedUsers,
-                        userSupported: element.supportedUsers.length == 1,
-                        dislikes: element._count.dislikedUsers,
-                        userDisliked: element.dislikedUsers.length == 1,
-                        hasComments: element._count.comments > 0,
-                        threads: element.argumentThreads,
-                    } as Argument)
+            const retData = data.map((element) =>
+                formatIntoArgument(element, ctx.user ? ctx.user.id : "")
             );
             return {
                 retData,
@@ -257,25 +240,11 @@ export const argumentsRouter = createRouter()
             if (!ctx.user) throw new TRPCError({ code: "UNAUTHORIZED" });
             const originalComment = await ctx.prisma.argument.findUniqueOrThrow(
                 {
-                    where: {
-                        id: input.id,
-                    },
+                    where: { id: input.id },
                     select: {
-                        likedUsers: {
-                            where: {
-                                id: ctx.user.id,
-                            },
-                        },
-                        supportedUsers: {
-                            where: {
-                                id: ctx.user.id,
-                            },
-                        },
-                        dislikedUsers: {
-                            where: {
-                                id: ctx.user.id,
-                            },
-                        },
+                        likedUsers: { where: { id: ctx.user.id } },
+                        supportedUsers: { where: { id: ctx.user.id } },
+                        dislikedUsers: { where: { id: ctx.user.id } },
                     },
                 }
             );
@@ -314,10 +283,8 @@ export const argumentsRouter = createRouter()
                 id: ctx.user.id,
             };
 
-            await ctx.prisma.argument.update({
-                where: {
-                    id: input.id,
-                },
+            const updatedArg = await ctx.prisma.argument.update({
+                where: { id: input.id },
                 data: {
                     likedUsers: {
                         connect: connect.includes("liked")
@@ -344,7 +311,12 @@ export const argumentsRouter = createRouter()
                             : undefined,
                     },
                 },
+                select: {
+                    articleId: true,
+                },
             });
+
+            await appendArticleUpdate(updatedArg.articleId);
 
             return;
         },
