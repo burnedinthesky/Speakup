@@ -7,10 +7,6 @@ export default async function handler(
 ) {
     const auth = req.headers.authorization;
 
-    console.log(auth);
-
-    console.log(process.env.ADMIN_API_KEY);
-
     if (auth !== `Bearer ${process.env.ADMIN_API_KEY as string}`) {
         res.status(401).json({ error: "Unauthorized" });
         return;
