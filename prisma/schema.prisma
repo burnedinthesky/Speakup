@@ -171,10 +171,25 @@ model Articles {
     collections    Collections[]
     articleReports ArticleReports[]
 
-    createdTime  DateTime @default(now())
-    viewCount    Int      @default(0)
-    articleScore Float    @default(20)
-    status       Json     @default("{\"status\": \"pending_mod\", \"desc\": \"正在等候審核\"}")
+    createdTime  DateTime          @default(now())
+    viewCount    Int               @default(0)
+    articleScore Float             @default(20)
+    status       ArticleModStatus?
+
+    requiresArgIndex Boolean @default(true)
+}
+
+enum ArticleModStates {
+    pending_mod
+    passed
+}
+
+model ArticleModStatus {
+    id         Int              @id @default(autoincrement())
+    status     ArticleModStates @default(pending_mod)
+    desc       String           @default("正在等候審核")
+    article    Articles         @relation(fields: [articlesId], references: [id], onDelete: Cascade)
+    articlesId String           @unique
 }
 
 model ArticleViews {
@@ -219,7 +234,7 @@ model Argument {
     dislikedUsers  User[]   @relation("supportedArguments")
     supportedUsers User[]   @relation("dislikedArguments")
 
-    pagnationSequence Int @unique @default(autoincrement())
+    pagnationSequence Int @default(autoincrement())
 
     article   Articles @relation(fields: [articleId], references: [id], onDelete: Cascade)
     articleId String
@@ -230,6 +245,8 @@ model Argument {
     comments        Comments[]
     argumentThreads ArgumentThread[]
     argumentReports ArgumentReports[]
+
+    @@unique([id, pagnationSequence])
 }
 
 model ArgumentThread {
