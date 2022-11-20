@@ -12,7 +12,7 @@ interface FetchedArticles {
 const CommentManagement = ({ articles }: FetchedArticles) => {
     return (
         <AppShell title="Speakup - 留言管理" highlight="comments">
-            <div className="ml-64 px-12 pt-10 pb-40">
+            <div className="px-6 pt-10 pb-40 lg:ml-64 lg:px-12">
                 <div className="mx-auto max-w-6xl">
                     <h1 className="text-3xl font-bold">留言管理</h1>
                     <div className="mt-4 flex flex-col gap-10">

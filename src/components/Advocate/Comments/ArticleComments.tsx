@@ -62,11 +62,13 @@ const ArticleComments = ({ articleId, articleTitle }: ArticleCommentsProps) => {
                     rel="noopener noreferrer"
                     className="flex items-center text-slate-700"
                 >
-                    <h2 className="text-2xl font-medium ">{articleTitle}</h2>
+                    <h2 className="text-lg font-medium lg:text-2xl ">
+                        {articleTitle}
+                    </h2>
                     <ExternalLinkIcon className="ml-2 w-6" />
                 </a>
                 <div
-                    className={`relative mt-4 grid grid-cols-4 gap-x-2 gap-y-2 ${
+                    className={`relative mt-4 grid grid-cols-1 gap-x-2 gap-y-2 lg:grid-cols-2 2xl:grid-cols-4 ${
                         isLoading ? "h-40" : data ? "" : "h-0"
                     }`}
                 >

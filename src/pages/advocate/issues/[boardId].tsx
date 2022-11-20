@@ -57,7 +57,7 @@ const BoardEditor = ({ article }: { article: AvcArticle }) => {
             title={`Speakup - ${article ? article.title : "新議題"}`}
             highlight="issues"
         >
-            <div className="ml-64 flex h-full w-[calc(100%-256px)]">
+            <div className="flex h-full w-full lg:ml-64 lg:w-[calc(100%-256px)]">
                 <div className="h-full w-full flex-grow-0 overflow-y-auto px-12 pt-10 pb-20">
                     <div className="mx-auto h-full max-w-3xl">
                         <ArticleEditor
