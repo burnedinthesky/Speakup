@@ -42,10 +42,10 @@ export const checkArticleData = (data: Data) => {
         errors.tags = "請選擇至少一個標籤";
     } else passed++;
 
-    if (data.brief.length < 10) {
-        errors.brief = "簡介過短，請輸入至少十個字";
-    } else if (data.brief.length > 60) {
-        errors.brief = "簡介過長，請輸入至多六十個字";
+    if (data.brief.length < 30) {
+        errors.brief = "簡介過短，請輸入至少三十個字";
+    } else if (data.brief.length > 80) {
+        errors.brief = "簡介過長，請輸入至多八十個字";
     } else passed++;
 
     if (data.refLinks.length < 2) {

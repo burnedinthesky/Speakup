@@ -35,7 +35,7 @@ const ArticleProperties = () => {
             <Textarea
                 className="mt-4"
                 label="議題簡介"
-                description="請在六十字內描述您的議題"
+                description="請在八十字內描述您的議題"
                 value={properties.brief}
                 onChange={(e) => {
                     const updateVal = e.currentTarget.value;

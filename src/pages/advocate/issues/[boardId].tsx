@@ -2,10 +2,14 @@ import { useState, useEffect, useRef } from "react";
 import { useSetRecoilState } from "recoil";
 import { prisma } from "../../../utils/prisma";
 import { GetServerSideProps } from "next";
+import useScreenBreakpoint from "../../../common/hooks/useScreenBreakpoint";
+
+import { Drawer } from "@mantine/core";
 
 import { AppShell } from "../../../components/Advocate/AppShell";
 import ArticleEditor from "../../../components/Advocate/Issues/Editor/ArticleEditor";
-import BlockProperties from "../../../components/Advocate/Issues/Editor/BlockProperties";
+import ArticleProperties from "../../../components/Advocate/Issues/Editor/ArticleProperties";
+import DesktopBlockProperties from "../../../components/Advocate/Issues/Editor/DesktopBlockProperties";
 
 import {
     ArticleBlock,
@@ -16,8 +20,39 @@ import {
     ArticleStatus,
     AvcArticle,
 } from "../../../types/advocate/article.types";
-import ArticleProperties from "../../../components/Advocate/Issues/Editor/ArticleProperties";
 import { articlePropertiesAtom } from "../../../atoms/advocate/articleEditorAtoms";
+
+interface SelectorWrapperProps {
+    opened: boolean;
+    setOpened: (val: boolean) => void;
+    children: JSX.Element;
+}
+
+const SelectorWrapper = ({
+    opened,
+    setOpened,
+    children,
+}: SelectorWrapperProps) => {
+    const { wbpn } = useScreenBreakpoint();
+
+    return wbpn > 2 ? (
+        <div className="relative h-full w-72 flex-shrink-0 px-4 xl:w-80">
+            <div className="absolute left-0 top-7 h-[calc(100%-56px)] border-r border-r-slate-300" />
+            {children}
+        </div>
+    ) : (
+        <Drawer
+            opened={opened}
+            onClose={() => {
+                setOpened(false);
+            }}
+            position="right"
+            size={360}
+        >
+            <div className="mx-auto w-80">{children}</div>
+        </Drawer>
+    );
+};
 
 const BoardEditor = ({ article }: { article: AvcArticle }) => {
     const [blockStyles, setBlockStyles] = useState<ArticleBlockTypes[]>(
@@ -26,6 +61,9 @@ const BoardEditor = ({ article }: { article: AvcArticle }) => {
     const [focusedBlock, setFocusedBlock] = useState<number | null>(null);
     const [queuedBlur, setQueuedBlur] = useState<boolean>(false);
     const setArticleProperties = useSetRecoilState(articlePropertiesAtom);
+
+    const [expandSelectionDrawer, setExpandSelectionDrawer] =
+        useState<boolean>(false);
 
     const overrideBlur = useRef<number | null>(null);
 
@@ -58,7 +96,7 @@ const BoardEditor = ({ article }: { article: AvcArticle }) => {
             highlight="issues"
         >
             <div className="flex h-full w-full lg:ml-64 lg:w-[calc(100%-256px)]">
-                <div className="h-full w-full flex-grow-0 overflow-y-auto px-12 pt-10 pb-20">
+                <div className="h-full w-full flex-grow-0 overflow-y-auto px-6 pt-10 pb-20 lg:px-12">
                     <div className="mx-auto h-full max-w-3xl">
                         <ArticleEditor
                             articleId={article.id}
@@ -80,13 +118,21 @@ const BoardEditor = ({ article }: { article: AvcArticle }) => {
                             blurSelection={() => {
                                 setQueuedBlur(true);
                             }}
+                            focusedBlock={focusedBlock}
+                            setOverrideBlur={(val) => {
+                                overrideBlur.current = val;
+                            }}
+                            setQueuedBlur={setQueuedBlur}
+                            setOpenAtcPropDrawer={setExpandSelectionDrawer}
                         />
                     </div>
                 </div>
-                <div className="relative h-full w-80 flex-shrink-0 px-4">
-                    <div className="absolute left-0 top-7 h-[calc(100%-56px)] border-r border-r-slate-300" />
+                <SelectorWrapper
+                    opened={expandSelectionDrawer}
+                    setOpened={setExpandSelectionDrawer}
+                >
                     {focusedBlock !== null ? (
-                        <BlockProperties
+                        <DesktopBlockProperties
                             blockStyles={blockStyles}
                             setBlockStyles={setBlockStyles}
                             focusedBlock={focusedBlock}
@@ -98,7 +144,7 @@ const BoardEditor = ({ article }: { article: AvcArticle }) => {
                     ) : (
                         <ArticleProperties />
                     )}
-                </div>
+                </SelectorWrapper>
             </div>
         </AppShell>
     );

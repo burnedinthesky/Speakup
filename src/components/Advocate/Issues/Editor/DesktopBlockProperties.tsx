@@ -11,7 +11,7 @@ interface BlockPropertiesProps {
     setQueuedBlur: (val: boolean) => void;
 }
 
-const BlockProperties = ({
+const DesktopBlockProperties = ({
     blockStyles,
     setBlockStyles,
     focusedBlock,
@@ -49,4 +49,4 @@ const BlockProperties = ({
     );
 };
 
-export default BlockProperties;
+export default DesktopBlockProperties;

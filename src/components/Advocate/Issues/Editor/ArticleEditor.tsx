@@ -8,7 +8,7 @@ import { trpc } from "../../../../utils/trpc";
 import { showNotification } from "@mantine/notifications";
 import { checkArticleData } from "../../../../lib/advocate/articleEditor";
 
-import { Button, LoadingOverlay, TextInput } from "@mantine/core";
+import { Button, LoadingOverlay, Textarea, TextInput } from "@mantine/core";
 
 import ArticleContent from "./ArticleContent";
 import ArticleReferences from "./ArticleReferences";
@@ -18,6 +18,7 @@ import {
     ArticleBlockTypes,
 } from "../../../../types/article.types";
 import { RawRefLinks } from "../../../../types/advocate/article.types";
+import MobileBlockProperties from "./MobileBlockProperties";
 
 export interface ContentErrors {
     title: string | null;
@@ -41,6 +42,10 @@ interface ArticleEditorProps {
     ) => void;
     focusSelection: (val: number) => void;
     blurSelection: () => void;
+    focusedBlock: number | null;
+    setOverrideBlur: (val: number | null) => void;
+    setQueuedBlur: (val: boolean) => void;
+    setOpenAtcPropDrawer: (val: boolean) => void;
 }
 
 const ArticleEditor = ({
@@ -52,6 +57,10 @@ const ArticleEditor = ({
     setBlockStyles,
     focusSelection,
     blurSelection,
+    focusedBlock,
+    setOverrideBlur,
+    setQueuedBlur,
+    setOpenAtcPropDrawer,
 }: ArticleEditorProps) => {
     const router = useRouter();
 
@@ -210,7 +219,7 @@ const ArticleEditor = ({
     return (
         <div className="relative w-full pb-20">
             <LoadingOverlay visible={updateArticleMutation.isLoading} />
-            <TextInput
+            <Textarea
                 classNames={{
                     input: "text-3xl font-bold",
                 }}
@@ -219,13 +228,16 @@ const ArticleEditor = ({
                 size="xl"
                 value={titleText}
                 onChange={(e) => {
-                    setTitleText(e.currentTarget.value);
+                    const newTitle = e.currentTarget.value;
+                    if (newTitle[newTitle.length - 1] === "\n") return;
+                    setTitleText(newTitle);
                     setContentErrors((cur) => ({
                         ...cur,
                         title: null,
                     }));
                 }}
                 error={contentErrors.title}
+                autosize
             />
             <ArticleContent
                 articleContent={articleContent}
@@ -244,9 +256,35 @@ const ArticleEditor = ({
                 setAddRefLinkInput={setAddRefLinkInput}
                 contentErrors={contentErrors}
             />
-            <Button className="mt-6" variant="outline" onClick={submitData}>
-                發布
-            </Button>
+            <div className="mt-6 flex gap-4">
+                <Button
+                    className="lg:hidden"
+                    variant="outline"
+                    onClick={() => {
+                        setOpenAtcPropDrawer(true);
+                    }}
+                    color={
+                        articleProperties.errors.brief ||
+                        articleProperties.errors.tags
+                            ? "red"
+                            : "primary"
+                    }
+                >
+                    議題設定
+                </Button>
+                <Button variant="outline" onClick={submitData}>
+                    發布
+                </Button>
+            </div>
+            <MobileBlockProperties
+                articleContent={articleContent}
+                setArticleContent={setArticleContent}
+                blockStyles={blockStyles}
+                setBlockStyles={setBlockStyles}
+                focusedBlock={focusedBlock}
+                setOverrideBlur={setOverrideBlur}
+                setQueuedBlur={setQueuedBlur}
+            />
         </div>
     );
 };

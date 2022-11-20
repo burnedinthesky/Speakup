@@ -22,7 +22,7 @@ const Header = () => {
                     size="sm"
                 ></Burger>
 
-                <Link href="/home">
+                <Link href="/advocate">
                     <img
                         className="my-auto h-8 -translate-x-1 lg:h-10"
                         src="/assets/logo-black.svg"
