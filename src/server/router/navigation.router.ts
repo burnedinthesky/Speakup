@@ -1,8 +1,8 @@
 import { createRouter } from "../createRouter";
 import { z } from "zod";
 import { Prisma } from "@prisma/client";
-import { algoliaSearch, articleIndex } from "../../utils/algolia";
-import { ArticleBlock, ArticleTagSlugsToVals } from "../../types/article.types";
+import { articleIndex } from "../../utils/algolia";
+import { ArticleTagSlugsToVals } from "../../types/article.types";
 import {
     CollectionSet,
     HomeRecommendations,
@@ -17,6 +17,7 @@ const processArticles = (
             name: string;
             profileImg: string | null;
         };
+        brief: string;
         tags: string[];
         _count: {
             arguments: number;
@@ -28,25 +29,12 @@ const processArticles = (
     }[]
 ) =>
     articles.map((ele) => {
-        const content = ele.content as ArticleBlock[];
-        let brief = "",
-            isParagraph = false;
-        content.forEach((block) => {
-            if (brief.length && isParagraph) return;
-            if (!brief.length) {
-                brief = block.content;
-                isParagraph = block.type === "p";
-            }
-            if (block.type === "p" && !isParagraph) {
-                brief = block.content;
-            }
-        });
         return {
             id: ele.id,
             title: ele.title,
             tags: ele.tags,
             author: ele.author,
-            brief: brief,
+            brief: ele.brief,
             viewCount: ele.viewCount,
             argumentCount: ele._count.arguments,
         } as NavCardData;
@@ -54,9 +42,7 @@ const processArticles = (
 
 export const navigationRouter = createRouter()
     .middleware(async ({ ctx, next }) => {
-        if (!ctx.user) {
-            throw new TRPCError({ code: "UNAUTHORIZED" });
-        }
+        if (!ctx.user) throw new TRPCError({ code: "UNAUTHORIZED" });
         return next({
             ctx: {
                 ...ctx,
@@ -117,9 +103,8 @@ export const navigationRouter = createRouter()
                     id: true,
                     title: true,
                     tags: true,
-                    author: {
-                        select: { name: true, profileImg: true },
-                    },
+                    brief: true,
+                    author: { select: { name: true, profileImg: true } },
                     content: true,
                     viewCount: true,
                     _count: { select: { arguments: true } },
@@ -193,26 +178,16 @@ export const navigationRouter = createRouter()
             const hasPages = result.nbPages;
 
             const articles = await ctx.prisma.articles.findMany({
-                where: {
-                    id: { in: hitIDs },
-                },
+                where: { id: { in: hitIDs } },
                 select: {
                     id: true,
                     title: true,
                     tags: true,
-                    author: {
-                        select: {
-                            name: true,
-                            profileImg: true,
-                        },
-                    },
+                    brief: true,
+                    author: { select: { name: true, profileImg: true } },
                     content: true,
                     viewCount: true,
-                    _count: {
-                        select: {
-                            arguments: true,
-                        },
-                    },
+                    _count: { select: { arguments: true } },
                 },
             });
 
@@ -238,11 +213,7 @@ export const navigationRouter = createRouter()
                     userId: ctx.user.id,
 
                     collectionSets: input.collectionSet
-                        ? {
-                              some: {
-                                  id: input.collectionSet,
-                              },
-                          }
+                        ? { some: { id: input.collectionSet } }
                         : undefined,
                 },
                 select: {
@@ -251,19 +222,13 @@ export const navigationRouter = createRouter()
                             id: true,
                             title: true,
                             tags: true,
+                            brief: true,
                             author: {
-                                select: {
-                                    name: true,
-                                    profileImg: true,
-                                },
+                                select: { name: true, profileImg: true },
                             },
                             content: true,
                             viewCount: true,
-                            _count: {
-                                select: {
-                                    arguments: true,
-                                },
-                            },
+                            _count: { select: { arguments: true } },
                         },
                     },
                 },
@@ -294,11 +259,7 @@ export const navigationRouter = createRouter()
                 },
                 select: {
                     id: true,
-                    collectionSets: {
-                        select: {
-                            id: true,
-                        },
-                    },
+                    collectionSets: { select: { id: true } },
                 },
             });
 
@@ -325,23 +286,13 @@ export const navigationRouter = createRouter()
                 },
                 select: {
                     id: true,
-                    collectionSets: {
-                        select: {
-                            id: true,
-                        },
-                    },
+                    collectionSets: { select: { id: true } },
                 },
             });
 
             const users = await ctx.prisma.collectionSet.findMany({
-                where: {
-                    id: {
-                        in: input.collectionSetIds,
-                    },
-                },
-                select: {
-                    userId: true,
-                },
+                where: { id: { in: input.collectionSetIds } },
+                select: { userId: true },
             });
 
             if (
@@ -355,9 +306,8 @@ export const navigationRouter = createRouter()
             let disconnect: { id: number }[] = [];
             if (currectCollection)
                 currectCollection.collectionSets.forEach((ele) => {
-                    if (!input.collectionSetIds.includes(ele.id)) {
+                    if (!input.collectionSetIds.includes(ele.id))
                         disconnect.push({ id: ele.id });
-                    }
                 });
 
             const data = await ctx.prisma.collections.upsert({
@@ -376,16 +326,8 @@ export const navigationRouter = createRouter()
                     },
                 },
                 create: {
-                    article: {
-                        connect: {
-                            id: input.articleId,
-                        },
-                    },
-                    user: {
-                        connect: {
-                            id: ctx.user.id,
-                        },
-                    },
+                    article: { connect: { id: input.articleId } },
+                    user: { connect: { id: ctx.user.id } },
                     collectionSets: {
                         connect: input.collectionSetIds.map((ele) => ({
                             id: ele,
@@ -398,19 +340,13 @@ export const navigationRouter = createRouter()
                             id: true,
                             title: true,
                             tags: true,
+                            brief: true,
                             author: {
-                                select: {
-                                    name: true,
-                                    profileImg: true,
-                                },
+                                select: { name: true, profileImg: true },
                             },
                             content: true,
                             viewCount: true,
-                            _count: {
-                                select: {
-                                    arguments: true,
-                                },
-                            },
+                            _count: { select: { arguments: true } },
                         },
                     },
                 },

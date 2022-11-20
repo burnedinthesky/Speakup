@@ -28,11 +28,11 @@ const CardTrack = ({ title, cards }: CardTrackProps) => {
             <h2 className="text-2xl text-primary-800">{title}</h2>
             <div className="flex">
                 <ScrollArea className="mt-4 pb-3.5" viewportRef={trackRef}>
-                    <div className="flex gap-9">
+                    <div className="flex h-48 grid-rows-1 gap-9">
                         {cards.map((card, i, arr) => (
                             <div
                                 key={i}
-                                className="w-96 flex-shrink-0"
+                                className="w-[440px] flex-shrink-0"
                                 ref={
                                     i === arr.length - 1
                                         ? lastCardRef
