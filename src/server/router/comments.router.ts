@@ -3,6 +3,57 @@ import { Comment, Stances } from "../../types/comments.types";
 
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { ArgumentThread, User } from "@prisma/client";
+import { prisma } from "../../utils/prisma";
+
+const appendArticleUpdate = async (id: string) => {
+    await prisma.articles.update({
+        where: { id },
+        data: {
+            requiresArgIndex: true,
+        },
+    });
+};
+
+interface dbCommentFormat {
+    author: {
+        id: string;
+        name: string;
+        profileImg: string | null;
+    };
+    content: string;
+    stance: string;
+    likedUsers: User[];
+    dislikedUsers: User[];
+    supportedUsers: User[];
+    inThread: ArgumentThread | null;
+    id: number;
+    _count: {
+        likedUsers: number;
+        supportedUsers: number;
+        dislikedUsers: number;
+    };
+}
+
+const formatIntoComment = (
+    dbInstance: dbCommentFormat,
+    userId: string
+): Comment => {
+    return {
+        id: dbInstance.id,
+        author: dbInstance.author,
+        isAuthor: dbInstance.author.id === userId,
+        content: dbInstance.content,
+        stance: dbInstance.stance as Stances,
+        thread: dbInstance.inThread ? dbInstance.inThread : undefined,
+        likes: dbInstance._count.likedUsers,
+        userLiked: dbInstance.likedUsers.length == 1,
+        support: dbInstance._count.supportedUsers,
+        userSupported: dbInstance.supportedUsers.length == 1,
+        dislikes: dbInstance._count.dislikedUsers,
+        userDisliked: dbInstance.dislikedUsers.length == 1,
+    };
+};
 
 export const commentsRouter = createRouter()
     .mutation("createComment", {
@@ -114,11 +165,7 @@ export const commentsRouter = createRouter()
                 allowedStance.push("agn");
             if (input.stance == "both") allowedStance.push("neu");
 
-            const user = ctx.user
-                ? ctx.user
-                : {
-                      id: "",
-                  };
+            const user = ctx.user ? ctx.user : { id: "" };
 
             const data = await ctx.prisma.comments.findMany({
                 where: {
@@ -127,9 +174,7 @@ export const commentsRouter = createRouter()
                         in: allowedStance,
                     },
                     inThread: input.threadId
-                        ? {
-                              id: input.threadId,
-                          }
+                        ? { id: input.threadId }
                         : undefined,
                     deleted: false,
                 },
@@ -137,19 +182,11 @@ export const commentsRouter = createRouter()
                     id: true,
                     content: true,
                     author: {
-                        select: {
-                            id: true,
-                            name: true,
-                            profileImg: true,
-                        },
+                        select: { id: true, name: true, profileImg: true },
                     },
                     stance: true,
                     inThread: {
-                        select: {
-                            id: true,
-                            name: true,
-                            argumentId: true,
-                        },
+                        select: { id: true, name: true, argumentId: true },
                     },
                     _count: {
                         select: {
@@ -174,22 +211,8 @@ export const commentsRouter = createRouter()
                 nextCursor = lastItem?.id;
             }
 
-            const retData = data.map(
-                (element) =>
-                    ({
-                        id: element.id,
-                        author: element.author,
-                        isAuthor: element.author.id === user.id,
-                        content: element.content,
-                        stance: element.stance as Stances,
-                        thread: element.inThread,
-                        likes: element._count.likedUsers,
-                        userLiked: element.likedUsers.length == 1,
-                        support: element._count.supportedUsers,
-                        userSupported: element.supportedUsers.length == 1,
-                        dislikes: element._count.dislikedUsers,
-                        userDisliked: element.dislikedUsers.length == 1,
-                    } as Comment)
+            const retData = data.map((element) =>
+                formatIntoComment(element, user.id)
             );
             return {
                 retData,
@@ -208,25 +231,11 @@ export const commentsRouter = createRouter()
             }
             const originalComment = await ctx.prisma.comments.findUniqueOrThrow(
                 {
-                    where: {
-                        id: input.id,
-                    },
+                    where: { id: input.id },
                     select: {
-                        likedUsers: {
-                            where: {
-                                id: ctx.user.id,
-                            },
-                        },
-                        supportedUsers: {
-                            where: {
-                                id: ctx.user.id,
-                            },
-                        },
-                        dislikedUsers: {
-                            where: {
-                                id: ctx.user.id,
-                            },
-                        },
+                        likedUsers: { where: { id: ctx.user.id } },
+                        supportedUsers: { where: { id: ctx.user.id } },
+                        dislikedUsers: { where: { id: ctx.user.id } },
                     },
                 }
             );
@@ -265,7 +274,7 @@ export const commentsRouter = createRouter()
                 id: ctx.user.id,
             };
 
-            await ctx.prisma.comments.update({
+            const updatedComment = await ctx.prisma.comments.update({
                 where: {
                     id: input.id,
                 },
@@ -295,7 +304,12 @@ export const commentsRouter = createRouter()
                             : undefined,
                     },
                 },
+                select: {
+                    inArgument: { select: { articleId: true } },
+                },
             });
+
+            appendArticleUpdate(updatedComment.inArgument.articleId);
 
             return;
         },
@@ -315,26 +329,17 @@ export const commentsRouter = createRouter()
                 throw new TRPCError({ code: "UNAUTHORIZED" });
             }
             const data = await ctx.prisma.comments.delete({
-                where: {
-                    id: input.id,
-                },
+                where: { id: input.id },
                 select: {
                     argumentThreadId: true,
+                    inArgument: { select: { articleId: true } },
                 },
             });
             if (data.argumentThreadId) {
                 const remainedComments =
                     await ctx.prisma.argumentThread.findUniqueOrThrow({
-                        where: {
-                            id: data.argumentThreadId,
-                        },
-                        select: {
-                            _count: {
-                                select: {
-                                    comments: true,
-                                },
-                            },
-                        },
+                        where: { id: data.argumentThreadId },
+                        select: { _count: { select: { comments: true } } },
                     });
 
                 if (remainedComments._count.comments === 0) {
@@ -345,6 +350,8 @@ export const commentsRouter = createRouter()
                     });
                 }
             }
+            await appendArticleUpdate(data.inArgument.articleId);
+
             return;
         },
     });

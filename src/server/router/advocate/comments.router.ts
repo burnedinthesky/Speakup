@@ -117,10 +117,7 @@ export const commentsRouter = createRouter()
                         content: true,
                         createdTime: true,
                         inArgument: {
-                            select: {
-                                id: true,
-                                content: true,
-                            },
+                            select: { id: true, content: true },
                         },
                     },
                     take: limit + 1,

@@ -42,17 +42,18 @@ const ExpandedCommentModal = ({
             centered
             size="auto"
             overlayOpacity={0.2}
+            overflow="inside"
         >
-            <div className="relative w-[90vw] max-w-3xl">
+            <div className="relative w-[80vw] max-w-3xl">
                 <LoadingOverlay
                     visible={isLoading}
                     loaderProps={{ color: "gray" }}
                 />
-                <div className="flex w-full gap-4">
-                    <div className="w-1/2">
+                <div className="flex w-full flex-col gap-4 lg:flex-row">
+                    <div className="lg:w-1/2">
                         <h3 className="text-sm font-bold">論點＆回覆</h3>
                         {data && (
-                            <div className="mt-2 h-80 w-full overflow-y-auto">
+                            <div className="mt-2 w-full lg:h-80 lg:overflow-y-auto">
                                 <p className="my-2">{data.argument.content}</p>
                                 <div className="ml-4 flex flex-col gap-3 text-slate-600">
                                     {data.comments.map((comment, i) => (
@@ -72,7 +73,8 @@ const ExpandedCommentModal = ({
                             </div>
                         )}
                     </div>
-                    <div className="flex w-1/2 flex-col justify-between">
+                    <hr className="border-b border-b-slate-400 lg:hidden" />
+                    <div className="flex-col justify-between lg:flex lg:w-1/2">
                         {expandComment && (
                             <DeleteReasonDropdown
                                 id={expandComment.cmtId}

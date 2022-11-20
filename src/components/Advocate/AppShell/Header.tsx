@@ -1,41 +1,50 @@
-import Link from "next/link";
+import { useState } from "react";
 
-import { useSession } from "next-auth/react";
-import AccountOptions from "../../Account/AccountOptions";
+import Link from "next/link";
+import { Burger, Drawer } from "@mantine/core";
+import Navbar from "./Navbar";
 
 const Header = () => {
-    const { data: session } = useSession();
+    const [opened, setOpened] = useState<boolean>(false);
 
     return (
-        <div className="fixed top-0 z-20 h-14 w-screen bg-primary-700 px-6 xl:px-14">
-            <div className="flex h-full w-full items-center justify-center lg:hidden">
-                <Link href="/home">
+        <>
+            <div
+                className="fixed top-0 z-20 flex
+                    h-14 w-screen items-center justify-between
+                    border-b border-b-slate-400 bg-white px-6 lg:hidden"
+            >
+                <Burger
+                    opened={opened}
+                    onClick={() => {
+                        setOpened((cur) => !cur);
+                    }}
+                    size="sm"
+                ></Burger>
+
+                <Link href="/advocate">
                     <img
                         className="my-auto h-8 -translate-x-1 lg:h-10"
-                        src="/assets/logo-white.svg"
+                        src="/assets/logo-black.svg"
                         alt="logo"
                     />
                 </Link>
+                <div className="w-[18px]" />
             </div>
-
-            <div className="hidden items-center justify-between lg:flex">
-                <div className="flex h-14 w-screen items-center gap-14">
-                    <Link href="/home">
-                        <img
-                            className="my-auto h-10"
-                            src="/assets/logo-white.svg"
-                            alt="logo"
-                        />
-                    </Link>
+            <Drawer
+                opened={opened}
+                onClose={() => {
+                    setOpened(false);
+                }}
+                withCloseButton={false}
+                position="left"
+                size={256}
+            >
+                <div className="relative h-[calc(100vh-56px)]">
+                    <Navbar mobileShow={true} />
                 </div>
-                {session && (
-                    <div className="flex h-9 items-center justify-end gap-5 ">
-                        {/* <DesktopNotifications /> */}
-                        <AccountOptions />
-                    </div>
-                )}
-            </div>
-        </div>
+            </Drawer>
+        </>
     );
 };
 

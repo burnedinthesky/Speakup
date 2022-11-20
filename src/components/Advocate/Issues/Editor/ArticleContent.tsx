@@ -136,7 +136,7 @@ const ArticleContent = ({
                         />
                         <div className="flex flex-col">
                             <ActionIcon
-                                className="opacity-0 transition-opacity duration-150 group-hover:opacity-100"
+                                className="hidden transition-opacity duration-150 group-hover:opacity-100 lg:block lg:opacity-0"
                                 onClick={() => {
                                     createNewBlock();
                                 }}
@@ -144,7 +144,7 @@ const ArticleContent = ({
                                 <PlusIcon className="w-4 text-slate-500" />
                             </ActionIcon>
                             <ActionIcon
-                                className="opacity-0 transition-opacity duration-150 group-hover:opacity-100"
+                                className="hidden transition-opacity duration-150 group-hover:opacity-100 lg:block lg:opacity-0"
                                 onClick={() => {
                                     deleteBlock();
                                 }}
@@ -157,9 +157,7 @@ const ArticleContent = ({
             })}
 
             <button
-                className={`flex h-8 w-full items-center text-slate-500 ${
-                    articleContent.length === 0 ? "opacity-60" : "opacity-0"
-                } transition-opacity disabled:invisible hover:opacity-60`}
+                className={`flex h-8 w-full items-center text-slate-500 opacity-40 transition-opacity disabled:invisible hover:opacity-70`}
                 disabled={
                     articleContent.length >= 1 &&
                     articleContent[articleContent.length - 1]?.length === 0

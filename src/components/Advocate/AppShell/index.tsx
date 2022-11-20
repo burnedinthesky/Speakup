@@ -29,9 +29,10 @@ const AppShell = ({
                 className={
                     rootDivStyle
                         ? rootDivStyle
-                        : `fixed top-0 left-0 h-screen w-screen bg-white scrollbar-hide overflow-x-hidden`
+                        : `fixed top-0 left-0 h-screen w-screen bg-white pt-14 scrollbar-hide overflow-x-hidden`
                 }
             >
+                <Header />
                 <Navbar highlight={highlight} />
                 {children}
             </div>
