@@ -68,7 +68,7 @@ const ArticleComments = ({ articleId, articleTitle }: ArticleCommentsProps) => {
                     <ExternalLinkIcon className="ml-2 w-6" />
                 </a>
                 <div
-                    className={`relative mt-4 grid grid-cols-1 gap-x-2 gap-y-2 lg:grid-cols-2 2xl:grid-cols-4 ${
+                    className={`relative mt-4 grid grid-cols-1 gap-x-2 gap-y-2 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 ${
                         isLoading ? "h-40" : data ? "" : "h-0"
                     }`}
                 >

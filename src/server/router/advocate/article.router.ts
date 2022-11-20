@@ -127,7 +127,7 @@ export const articleRouter = createRouter()
             id: z.string().or(z.undefined()),
             title: z.string(),
             tags: z.array(z.string()).min(1).max(4),
-            brief: z.string().min(10).max(60),
+            brief: z.string().min(30).max(80),
             content: z.array(
                 z.object({
                     type: z.enum(["h1", "h2", "h3", "p", "spoiler"]),
