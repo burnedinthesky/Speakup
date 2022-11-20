@@ -8,6 +8,7 @@ import {
 } from "../../../types/advocate/article.types";
 import { ReferencesLink } from "../../../types/article.types";
 import { CheckAvcClearance } from "../../../types/advocate/user.types";
+import { ArticleModStatus } from "@prisma/client";
 
 export const fetchLinkPreview = async (link: string) => {
     try {
@@ -96,10 +97,14 @@ export const articleRouter = createRouter()
             }
 
             const data = items.map((item) => {
-                const status = item.status as {
-                    status: ArticleStatus;
-                    desc: string;
-                };
+                let status = item.status;
+                if (!status)
+                    status = {
+                        articlesId: item.id,
+                        status: "pending_mod",
+                        desc: "正在等候審核",
+                    } as ArticleModStatus;
+
                 return {
                     id: item.id,
                     title: item.title,

@@ -32,12 +32,18 @@ const NavbarSection = ({ link, icon, text, highlight }: NavbarSectionProps) => {
     );
 };
 
-const Navbar = ({ highlight }: { highlight?: string }) => {
+const Navbar = ({
+    mobileShow,
+    highlight,
+}: {
+    mobileShow?: boolean;
+    highlight?: string;
+}) => {
     return (
         <nav
-            className={`group fixed top-0 left-0 z-10 hidden 
-                h-screen w-64 flex-shrink-0 border-r border-neutral-100 bg-white
-                transition-width duration-500 ease-out lg:flex`}
+            className={`bg-whit group absolute top-0 left-0 z-10
+                h-full w-64 flex-shrink-0 border-r border-neutral-100 lg:fixed
+                ${mobileShow ? "flex" : "hidden lg:flex"}`}
         >
             <div className="relative flex h-full w-full flex-col overflow-hidden px-6 pt-10">
                 <img
