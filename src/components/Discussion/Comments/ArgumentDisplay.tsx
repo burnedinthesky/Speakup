@@ -45,6 +45,7 @@ const ArgumentDisplay = forwardRef<HTMLDivElement, ArgumentDisplayProps>(
             fetchNextPage: cmtFetchNextPage,
             hasNextPage: cmtHasNextPage,
             refetch: cmtRefetch,
+            isFetching: cmtIsFetching,
         } = trpc.comments.getArgumentComments.useInfiniteQuery(
             {
                 argumentId: data.id,
@@ -56,6 +57,7 @@ const ArgumentDisplay = forwardRef<HTMLDivElement, ArgumentDisplayProps>(
             {
                 getNextPageParam: (lastPage) => lastPage?.nextCursor,
                 enabled: false,
+                // onSettled,
             }
         );
 
@@ -90,7 +92,7 @@ const ArgumentDisplay = forwardRef<HTMLDivElement, ArgumentDisplayProps>(
                                     fetchReplies={() => {
                                         cmtFetchNextPage();
                                     }}
-                                    isLoading={cmtIsLoading}
+                                    isLoading={cmtIsFetching}
                                 />
                             </div>
                         )}
