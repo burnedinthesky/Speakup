@@ -8,13 +8,13 @@ import { reportRouter } from "./report.router";
 import { userRouter } from "./user.router";
 
 export const appRouter = router({
+    advocate: advocateRouter,
     articles: articleRouter,
     arguments: argumentsRouter,
     comments: commentsRouter,
     navigation: navigationRouter,
-    users: userRouter,
     report: reportRouter,
-    advocate: advocateRouter,
+    users: userRouter,
 });
 
 export type AppRouter = typeof appRouter;

@@ -1,4 +1,3 @@
-import { createRouter } from "../createRouter";
 import { z } from "zod";
 import { Prisma } from "@prisma/client";
 import { articleIndex } from "../../utils/algolia";
@@ -10,6 +9,7 @@ import {
 } from "../../types/navigation.types";
 
 import { TRPCError } from "@trpc/server";
+import { loggedInProcedure, router } from "../trpc";
 
 const processArticles = (
     articles: {
@@ -40,124 +40,117 @@ const processArticles = (
         } as NavCardData;
     });
 
-export const navigationRouter = createRouter()
-    .middleware(async ({ ctx, next }) => {
-        if (!ctx.user) throw new TRPCError({ code: "UNAUTHORIZED" });
-        return next({
-            ctx: {
-                ...ctx,
-                user: ctx.user,
-            },
-        });
-    })
-    .query("home", {
-        async resolve({ ctx }) {
-            let userPrefs = ctx.user.tagPreference as {
-                slug: string;
-                pref: number;
-            }[];
+export const navigationRouter = router({
+    home: loggedInProcedure.query(async ({ ctx }) => {
+        let userPrefs = ctx.user.tagPreference as {
+            slug: string;
+            pref: number;
+        }[];
 
-            userPrefs = userPrefs.map((ele) => ({
-                ...ele,
-                pref: ele.pref ** 2,
-            }));
+        userPrefs = userPrefs.map((ele) => ({
+            ...ele,
+            pref: ele.pref ** 2,
+        }));
 
-            let takeTags: { slug: string; pref: number }[] = [];
+        let takeTags: { slug: string; pref: number }[] = [];
 
-            for (let i = 0; i < 8; i++) {
-                let totalSum = 0;
-                userPrefs.forEach((tag) => {
-                    totalSum += tag.pref;
-                });
-
-                let targetTagCount = Math.random() * totalSum;
-                let curCounter = 0;
-                let tagSlug: string = "";
-
-                userPrefs.forEach((tag) => {
-                    curCounter += tag.pref;
-                    if (targetTagCount >= 0 && curCounter > targetTagCount) {
-                        takeTags.push({
-                            slug: tag.slug,
-                            pref: tag.pref,
-                        });
-                        tagSlug = tag.slug;
-                        targetTagCount = -1;
-                    }
-                });
-
-                userPrefs = userPrefs.filter((pref) => pref.slug !== tagSlug);
-            }
-
-            takeTags = takeTags.sort((a, b) => (a.pref > b.pref ? -1 : 1));
-
-            let takeTagVals = takeTags.map(
-                (ele) => ArticleTagSlugsToVals[ele.slug] as string
-            );
-
-            const orderBy = Math.round(Math.random() * 4);
-
-            let fetchedArticles = await ctx.prisma.articles.findMany({
-                where: { tags: { hasSome: takeTagVals } },
-                select: {
-                    id: true,
-                    title: true,
-                    tags: true,
-                    brief: true,
-                    author: { select: { name: true, profileImg: true } },
-                    content: true,
-                    viewCount: true,
-                    _count: { select: { arguments: true } },
-                },
-                orderBy: {
-                    arguments: orderBy === 0 ? { _count: "desc" } : undefined,
-                    articleScore: orderBy === 1 ? "desc" : undefined,
-                    createdTime: orderBy === 2 ? "desc" : undefined,
-                    viewCount: orderBy === 3 ? "desc" : undefined,
-                    articleReports:
-                        orderBy === 4 ? { _count: "asc" } : undefined,
-                },
-                take: 50,
+        for (let i = 0; i < 8; i++) {
+            let totalSum = 0;
+            userPrefs.forEach((tag) => {
+                totalSum += tag.pref;
             });
 
-            const ret: HomeRecommendations = {
-                recommended: {
-                    title: "為您推薦",
-                    cards: [],
-                },
+            let targetTagCount = Math.random() * totalSum;
+            let curCounter = 0;
+            let tagSlug: string = "";
+
+            userPrefs.forEach((tag) => {
+                curCounter += tag.pref;
+                if (targetTagCount >= 0 && curCounter > targetTagCount) {
+                    takeTags.push({
+                        slug: tag.slug,
+                        pref: tag.pref,
+                    });
+                    tagSlug = tag.slug;
+                    targetTagCount = -1;
+                }
+            });
+
+            userPrefs = userPrefs.filter((pref) => pref.slug !== tagSlug);
+        }
+
+        takeTags = takeTags.sort((a, b) => (a.pref > b.pref ? -1 : 1));
+
+        let takeTagVals = takeTags.map(
+            (ele) => ArticleTagSlugsToVals[ele.slug] as string
+        );
+
+        const orderBy = Math.round(Math.random() * 4);
+
+        let fetchedArticles = await ctx.prisma.articles.findMany({
+            where: { tags: { hasSome: takeTagVals } },
+            select: {
+                id: true,
+                title: true,
+                tags: true,
+                brief: true,
+                author: { select: { name: true, profileImg: true } },
+                content: true,
+                viewCount: true,
+                _count: { select: { arguments: true } },
+            },
+            orderBy: {
+                arguments: orderBy === 0 ? { _count: "desc" } : undefined,
+                articleScore: orderBy === 1 ? "desc" : undefined,
+                createdTime: orderBy === 2 ? "desc" : undefined,
+                viewCount: orderBy === 3 ? "desc" : undefined,
+                articleReports: orderBy === 4 ? { _count: "asc" } : undefined,
+            },
+            take: 50,
+        });
+
+        const ret: HomeRecommendations = {
+            recommended: {
+                title: "為您推薦",
+                cards: [],
+            },
+        };
+        let hasTags = 0;
+
+        for (let i = 0; i < 8 && hasTags < 4; i++) {
+            let tag = takeTagVals[i] as string;
+            let articlesWithTag = fetchedArticles.filter((article) =>
+                article.tags.includes(tag)
+            );
+            if (!articlesWithTag.length) continue;
+            hasTags++;
+            ret[tag] = {
+                title: tag,
+                cards: processArticles(articlesWithTag),
             };
-            let hasTags = 0;
+            ret["recommended"]?.cards.push(
+                processArticles(articlesWithTag)[0] as NavCardData
+            );
+            fetchedArticles = fetchedArticles.filter(
+                (article) => !article.tags.includes(tag)
+            );
+        }
 
-            for (let i = 0; i < 8 && hasTags < 4; i++) {
-                let tag = takeTagVals[i] as string;
-                let articlesWithTag = fetchedArticles.filter((article) =>
-                    article.tags.includes(tag)
-                );
-                if (!articlesWithTag.length) continue;
-                hasTags++;
-                ret[tag] = {
-                    title: tag,
-                    cards: processArticles(articlesWithTag),
-                };
-                ret["recommended"]?.cards.push(
-                    processArticles(articlesWithTag)[0] as NavCardData
-                );
-                fetchedArticles = fetchedArticles.filter(
-                    (article) => !article.tags.includes(tag)
-                );
-            }
-
-            return ret;
-        },
-    })
-    .query("search", {
-        input: z.object({
-            keyword: z.string().nullable(),
-            tags: z.array(z.string()).nullable(),
-            onPage: z.number().min(1).nullable(),
-        }),
-        async resolve({ ctx, input }) {
+        return ret;
+    }),
+    search: loggedInProcedure
+        .input(
+            z.object({
+                keyword: z.string().nullable(),
+                tags: z.array(z.string()).nullable(),
+                onPage: z.number().min(1).nullable(),
+            })
+        )
+        .query(async ({ ctx, input }) => {
             const page = input.onPage ? input.onPage - 1 : 0;
+
+            console.log(input.keyword);
+            console.log(input.tags);
 
             let keyword: string | null | undefined = input.keyword;
             if (!input.keyword) keyword = input.tags?.join("");
@@ -199,15 +192,16 @@ export const navigationRouter = createRouter()
                 data,
                 hasPages: hasPages,
             };
-        },
-    })
-    .query("getUserCollections", {
-        input: z.object({
-            collectionSet: z.number().nullable(),
-            limit: z.number().min(1).max(100),
-            cursor: z.number().nullish(),
         }),
-        async resolve({ ctx, input }) {
+    getUserCollections: loggedInProcedure
+        .input(
+            z.object({
+                collectionSet: z.number().nullable(),
+                limit: z.number().min(1).max(100),
+                cursor: z.number().nullish(),
+            })
+        )
+        .query(async ({ ctx, input }) => {
             const data = await ctx.prisma.collections.findMany({
                 where: {
                     userId: ctx.user.id,
@@ -245,13 +239,14 @@ export const navigationRouter = createRouter()
                 data: processArticles(data.map((data) => data.article)),
                 nextCursor,
             };
-        },
-    })
-    .query("getSingleCollection", {
-        input: z.object({
-            articleId: z.string(),
         }),
-        async resolve({ ctx, input }) {
+    getSingleCollection: loggedInProcedure
+        .input(
+            z.object({
+                articleId: z.string(),
+            })
+        )
+        .query(async ({ ctx, input }) => {
             const data = await ctx.prisma.collections.findFirst({
                 where: {
                     userId: ctx.user.id,
@@ -269,14 +264,15 @@ export const navigationRouter = createRouter()
                       collectionSets: data.collectionSets.map((ele) => ele.id),
                   }
                 : null;
-        },
-    })
-    .mutation("upsertUserCollection", {
-        input: z.object({
-            articleId: z.string(),
-            collectionSetIds: z.array(z.number()),
         }),
-        async resolve({ input, ctx }) {
+    upsertUserCollection: loggedInProcedure
+        .input(
+            z.object({
+                articleId: z.string(),
+                collectionSetIds: z.array(z.number()),
+            })
+        )
+        .mutation(async ({ input, ctx }) => {
             const currectCollection = await ctx.prisma.collections.findUnique({
                 where: {
                     articleId_userId: {
@@ -352,13 +348,14 @@ export const navigationRouter = createRouter()
                 },
             });
             return processArticles([data.article])[0];
-        },
-    })
-    .mutation("deleteUserCollection", {
-        input: z.object({
-            collectionId: z.number(),
         }),
-        async resolve({ ctx, input }) {
+    deleteUserCollection: loggedInProcedure
+        .input(
+            z.object({
+                collectionId: z.number(),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
             await ctx.prisma.collections.deleteMany({
                 where: {
                     user: {
@@ -369,31 +366,30 @@ export const navigationRouter = createRouter()
             });
 
             return;
-        },
-    })
-    .query("getCollectionSets", {
-        async resolve({ ctx }) {
-            const sets = await ctx.prisma.collectionSet.findMany({
-                where: {
-                    userId: ctx.user.id,
-                },
-                select: {
-                    id: true,
-                    name: true,
-                },
-                orderBy: {
-                    createdTime: "desc",
-                },
-            });
-
-            return sets as CollectionSet[];
-        },
-    })
-    .mutation("createCollectionSet", {
-        input: z.object({
-            name: z.string(),
         }),
-        async resolve({ ctx, input }) {
+    getCollectionSets: loggedInProcedure.query(async ({ ctx }) => {
+        const sets = await ctx.prisma.collectionSet.findMany({
+            where: {
+                userId: ctx.user.id,
+            },
+            select: {
+                id: true,
+                name: true,
+            },
+            orderBy: {
+                createdTime: "desc",
+            },
+        });
+
+        return sets as CollectionSet[];
+    }),
+    createCollectionSet: loggedInProcedure
+        .input(
+            z.object({
+                name: z.string(),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
             const createdSet = await ctx.prisma.collectionSet.create({
                 data: {
                     user: {
@@ -410,13 +406,15 @@ export const navigationRouter = createRouter()
             });
 
             return createdSet as CollectionSet;
-        },
-    })
-    .mutation("deleteCollectionSet", {
-        input: z.object({
-            colSetId: z.number(),
         }),
-        async resolve({ ctx, input }) {
+
+    deleteCollectionSet: loggedInProcedure
+        .input(
+            z.object({
+                colSetId: z.number(),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
             await ctx.prisma.collectionSet.deleteMany({
                 where: {
                     id: input.colSetId,
@@ -426,5 +424,5 @@ export const navigationRouter = createRouter()
                 },
             });
             return;
-        },
-    });
+        }),
+});

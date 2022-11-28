@@ -10,10 +10,10 @@ const useAddArgumentMutation = ({
 }: useAddArgumentMutationProps) => {
     const trpcUtils = trpc.useContext();
 
-    const addArgumentMutation = trpc.useMutation("arguments.createArgument", {
+    const addArgumentMutation = trpc.arguments.createArgument.useMutation({
         onSettled: () => {
             closeCommentInput();
-            trpcUtils.invalidateQueries(["arguments.getArticleArguments"]);
+            trpcUtils.arguments.getArticleArguments.invalidate();
         },
         onError: () => {
             showErrorNotification({

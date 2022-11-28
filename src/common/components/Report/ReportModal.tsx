@@ -21,7 +21,7 @@ function ReportModal() {
 
     useEffect(() => setFirstRender(false));
 
-    const submitReport = trpc.useMutation(["report.submitReport"], {
+    const submitReport = trpc.report.submitReport.useMutation({
         onSuccess() {
             setDisplayPage("submitSuccess");
         },

@@ -22,7 +22,7 @@ import ArticleCardLoading from "../../../components/Advocate/Issues/Viewing/Arti
 
 const Issues = () => {
     const { data, isLoading, hasNextPage, fetchNextPage } =
-        trpc.useInfiniteQuery(["advocate.articles.allArticles", { limit: 20 }]);
+        trpc.advocate.articles.allArticles.useInfiniteQuery({ limit: 20 });
 
     const issues = data?.pages.flatMap((page) => page.data);
 

@@ -1,14 +1,11 @@
-import { createRouter } from "../../createRouter";
 import z from "zod";
 import { TRPCError } from "@trpc/server";
 import { getLinkPreview } from "link-preview-js";
-import {
-    ArticleStatus,
-    AvcArticleCard,
-} from "../../../types/advocate/article.types";
+import { AvcArticleCard } from "../../../types/advocate/article.types";
 import { ReferencesLink } from "../../../types/article.types";
 import { CheckAvcClearance } from "../../../types/advocate/user.types";
 import { ArticleModStatus } from "@prisma/client";
+import { avcProcedure, router } from "../../trpc";
 
 export const fetchLinkPreview = async (link: string) => {
     try {
@@ -44,26 +41,15 @@ export const fetchLinkPreview = async (link: string) => {
     return ret;
 };
 
-export const articleRouter = createRouter()
-    .middleware(async ({ ctx, next }) => {
-        if (!ctx.user) {
-            throw new TRPCError({ code: "UNAUTHORIZED" });
-        } else if (!CheckAvcClearance(ctx.user.role)) {
-            throw new TRPCError({ code: "FORBIDDEN" });
-        }
-        return next({
-            ctx: {
-                ...ctx,
-                user: ctx.user,
-            },
-        });
-    })
-    .query("allArticles", {
-        input: z.object({
-            limit: z.number().min(1).max(100).nullish(),
-            cursor: z.number().nullish(),
-        }),
-        async resolve({ input, ctx }) {
+export const articleRouter = router({
+    allArticles: avcProcedure
+        .input(
+            z.object({
+                limit: z.number().min(1).max(100).nullish(),
+                cursor: z.number().nullish(),
+            })
+        )
+        .query(async ({ input, ctx }) => {
             const limit = input.limit ?? 20;
             const cursor = input.cursor ? input.cursor : 0;
             const items = await ctx.prisma.articles.findMany({
@@ -120,23 +106,25 @@ export const articleRouter = createRouter()
                 data,
                 nextCursor,
             };
-        },
-    })
-    .mutation("upsertArticle", {
-        input: z.object({
-            id: z.string().or(z.undefined()),
-            title: z.string(),
-            tags: z.array(z.string()).min(1).max(4),
-            brief: z.string().min(30).max(80),
-            content: z.array(
-                z.object({
-                    type: z.enum(["h1", "h2", "h3", "p", "spoiler"]),
-                    content: z.string(),
-                })
-            ),
-            references: z.array(z.string()),
         }),
-        async resolve({ ctx, input }) {
+
+    upsertArticle: avcProcedure
+        .input(
+            z.object({
+                id: z.string().or(z.undefined()),
+                title: z.string(),
+                tags: z.array(z.string()).min(1).max(4),
+                brief: z.string().min(30).max(80),
+                content: z.array(
+                    z.object({
+                        type: z.enum(["h1", "h2", "h3", "p", "spoiler"]),
+                        content: z.string(),
+                    })
+                ),
+                references: z.array(z.string()),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
             let references: ReferencesLink[] = [];
 
             for (let i = 0; i < input.references.length; i++) {
@@ -179,5 +167,5 @@ export const articleRouter = createRouter()
             return {
                 id: data.id,
             };
-        },
-    });
+        }),
+});

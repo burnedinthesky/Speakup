@@ -18,7 +18,7 @@ const UserHome = () => {
     const [sentErrorNotification, setSendErrorNotification] =
         useState<boolean>(false);
 
-    const { data, isLoading } = trpc.useQuery(["navigation.home"], {
+    const { data, isLoading } = trpc.navigation.home.useQuery(undefined, {
         refetchInterval: 0,
         refetchOnWindowFocus: false,
         refetchOnReconnect: false,

@@ -1,35 +1,22 @@
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { ToModComments } from "../../../types/advocate/comments.types";
-import { CheckAvcClearance } from "../../../types/advocate/user.types";
-import { createRouter } from "../../createRouter";
+import { avcProcedure, router } from "../../trpc";
 
-export const commentsRouter = createRouter()
-    .middleware(async ({ ctx, next }) => {
-        if (!ctx.user) {
-            throw new TRPCError({ code: "UNAUTHORIZED" });
-        } else if (!CheckAvcClearance(ctx.user.role)) {
-            throw new TRPCError({ code: "FORBIDDEN" });
-        }
-        return next({
-            ctx: {
-                ...ctx,
-                user: ctx.user,
-            },
-        });
-    })
-    .query("fetchArticleComments", {
-        input: z.object({
-            id: z.string(),
-            limit: z.number().min(1).max(100).nullish(),
-            cursor: z
-                .object({
-                    arguments: z.number().nullable(),
-                    comments: z.number().nullable(),
-                })
-                .nullish(),
-        }),
-        async resolve({ ctx, input }) {
+export const commentsRouter = router({
+    fetchArticleComments: avcProcedure
+        .input(
+            z.object({
+                id: z.string(),
+                limit: z.number().min(1).max(100).nullish(),
+                cursor: z
+                    .object({
+                        arguments: z.number().nullable(),
+                        comments: z.number().nullable(),
+                    })
+                    .nullish(),
+            })
+        )
+        .query(async ({ ctx, input }) => {
             const reportThreshold = 0;
 
             const limit = input.limit ?? 12;
@@ -158,14 +145,16 @@ export const commentsRouter = createRouter()
                               comments: nextCmtCur,
                           },
             };
-        },
-    })
-    .mutation("clearCommentReports", {
-        input: z.object({
-            id: z.number(),
-            type: z.enum(["argument", "comment"]),
         }),
-        async resolve({ ctx, input }) {
+
+    clearCommentReports: avcProcedure
+        .input(
+            z.object({
+                id: z.number(),
+                type: z.enum(["argument", "comment"]),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
             if (input.type === "argument") {
                 await ctx.prisma.argument.findFirstOrThrow({
                     where: {
@@ -190,16 +179,18 @@ export const commentsRouter = createRouter()
                 where: { commentsId: input.id },
             });
             return true;
-        },
-    })
-    .mutation("deleteComment", {
-        input: z.object({
-            id: z.number(),
-            type: z.enum(["argument", "comment"]),
-            reasons: z.array(z.string()),
-            instance: z.enum(["first", "second"]),
         }),
-        async resolve({ ctx, input }) {
+
+    deleteComment: avcProcedure
+        .input(
+            z.object({
+                id: z.number(),
+                type: z.enum(["argument", "comment"]),
+                reasons: z.array(z.string()),
+                instance: z.enum(["first", "second"]),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
             const instance = input.instance.toUpperCase() as "FIRST" | "SECOND";
 
             if (input.type === "argument") {
@@ -246,14 +237,16 @@ export const commentsRouter = createRouter()
                 },
             });
             return true;
-        },
-    })
-    .query("reportReasons", {
-        input: z.object({
-            id: z.number(),
-            type: z.enum(["argument", "comment"]),
         }),
-        async resolve({ ctx, input }) {
+
+    reportReasons: avcProcedure
+        .input(
+            z.object({
+                id: z.number(),
+                type: z.enum(["argument", "comment"]),
+            })
+        )
+        .query(async ({ ctx, input }) => {
             let reasons;
             if (input.type === "argument") {
                 await ctx.prisma.argument.findFirstOrThrow({
@@ -320,14 +313,16 @@ export const commentsRouter = createRouter()
             return ret
                 .filter((ele) => ele.percentage > 5)
                 .sort((a, b) => a.percentage - b.percentage);
-        },
-    })
-    .query("fetchCommentThread", {
-        input: z.object({
-            argId: z.number().nullable(),
-            commentId: z.number().nullable(),
         }),
-        async resolve({ ctx, input }) {
+
+    fetchCommentThread: avcProcedure
+        .input(
+            z.object({
+                argId: z.number().nullable(),
+                commentId: z.number().nullable(),
+            })
+        )
+        .query(async ({ ctx, input }) => {
             if (input.argId === null || input.commentId === null) return null;
 
             const argument = await ctx.prisma.argument.findUniqueOrThrow({
@@ -343,5 +338,5 @@ export const commentsRouter = createRouter()
                 argument: argument,
                 comments: comments,
             };
-        },
-    });
+        }),
+});

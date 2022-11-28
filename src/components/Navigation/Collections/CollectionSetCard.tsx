@@ -20,9 +20,8 @@ const CollectionSetCard = ({
 }: CollectionSetCardProps) => {
     const trpcUtils = trpc.useContext();
 
-    const deleteColSetMutation = trpc.useMutation(
-        ["navigation.deleteCollectionSet"],
-        {
+    const deleteColSetMutation =
+        trpc.navigation.deleteCollectionSet.useMutation({
             onSettled: (_, error, variables) => {
                 if (error) {
                     showNotification({
@@ -34,13 +33,12 @@ const CollectionSetCard = ({
                         cur.filter((ele) => ele !== variables.colSetId)
                     );
                 }
-                trpcUtils.invalidateQueries("navigation.getCollectionSets");
+                trpcUtils.navigation.getCollectionSets.invalidate();
             },
             onMutate: (variables) => {
                 setExcludedSets((cur) => [...cur, variables.colSetId]);
             },
-        }
-    );
+        });
 
     return (
         <div

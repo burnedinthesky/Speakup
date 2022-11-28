@@ -1,19 +1,7 @@
-import type { PrismaClient, User } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 
-// export type Context = {
-//     req: NextApiRequest,
-//     res: NextApiResponse,
-//     prisma: PrismaClient,
-//     user: User | null
-// }
-
-// -------------------------------------------------
-// @filename: context.ts
-// -------------------------------------------------
 import { inferAsyncReturnType } from "@trpc/server";
 import * as trpcNext from "@trpc/server/adapters/next";
-import { getSession } from "next-auth/react";
 
 import { getToken } from "next-auth/jwt";
 
@@ -35,10 +23,11 @@ async function getUserFromRequest(req: NextApiRequest) {
 
 export async function createContext({
     req,
+    res,
 }: trpcNext.CreateNextContextOptions) {
     const user = await getUserFromRequest(req);
 
-    return { user };
+    return { req, res, prisma, user };
 }
 
 export type Context = inferAsyncReturnType<typeof createContext>;

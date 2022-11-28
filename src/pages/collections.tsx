@@ -10,19 +10,16 @@ import CollectionSetSelector from "../components/Navigation/Collections/Collecti
 const Collections = () => {
     const [selectedSet, setSelectedSet] = useState<number | null>(null);
 
-    const { data, isLoading } = trpc.useInfiniteQuery(
-        [
-            "navigation.getUserCollections",
+    const { data, isLoading } =
+        trpc.navigation.getUserCollections.useInfiniteQuery(
             { collectionSet: selectedSet, limit: 20 },
-        ],
-        {
-            getNextPageParam: (lastPage) => lastPage.nextCursor,
-        }
-    );
+            {
+                getNextPageParam: (lastPage) => lastPage.nextCursor,
+            }
+        );
 
-    const { data: colSets, isLoading: colSetsLoading } = trpc.useQuery([
-        "navigation.getCollectionSets",
-    ]);
+    const { data: colSets, isLoading: colSetsLoading } =
+        trpc.navigation.getCollectionSets.useQuery();
 
     if (isLoading || colSetsLoading) {
         return (

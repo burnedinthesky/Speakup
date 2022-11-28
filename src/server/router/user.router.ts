@@ -1,23 +1,25 @@
-import { createRouter } from "../createRouter";
 import { TRPCError } from "@trpc/server";
 import { createHash } from "crypto";
 
 import { z } from "zod";
 
 import { sendgrid } from "../../utils/sendgrid";
+import { loggedInProcedure, publicProcedure, router } from "../trpc";
 
 const hashPassword = (pwd: string) => {
     return createHash("sha256").update(pwd).digest("hex");
 };
 
-export const userRouter = createRouter()
-    .mutation("registerUser", {
-        input: z.object({
-            email: z.string().email(),
-            password: z.string(),
-            name: z.string().min(2).max(16),
-        }),
-        async resolve({ ctx, input }) {
+export const userRouter = router({
+    registerUser: publicProcedure
+        .input(
+            z.object({
+                email: z.string().email(),
+                password: z.string(),
+                name: z.string().min(2).max(16),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
             const { email, name, password } = input;
 
             const sameName = await ctx.prisma.user.findMany({
@@ -79,13 +81,15 @@ export const userRouter = createRouter()
             await sendgrid.send(msg);
 
             return emailToken.id;
-        },
-    })
-    .mutation("resendEmail", {
-        input: z.object({
-            verId: z.string(),
         }),
-        async resolve({ ctx, input }) {
+
+    resendEmail: publicProcedure
+        .input(
+            z.object({
+                verId: z.string(),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
             const verifier = await ctx.prisma.credEmailVerToken.findUnique({
                 where: {
                     id: input.verId,
@@ -200,14 +204,15 @@ export const userRouter = createRouter()
             });
 
             return emailToken.id;
-        },
-    })
-    .mutation("verifyEmail", {
-        input: z.object({
-            verId: z.string(),
-            verToken: z.string().length(6),
         }),
-        async resolve({ ctx, input }) {
+    verifyEmail: publicProcedure
+        .input(
+            z.object({
+                verId: z.string(),
+                verToken: z.string().length(6),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
             const verifier = await ctx.prisma.credEmailVerToken.findUnique({
                 where: { id: input.verId },
                 include: {
@@ -280,13 +285,14 @@ export const userRouter = createRouter()
                 email: verifier.user.email,
                 password: verifier.user.password,
             };
-        },
-    })
-    .mutation("sendResetPwdLink", {
-        input: z.object({
-            email: z.string(),
         }),
-        async resolve({ ctx, input }) {
+    sendResetPwdLink: publicProcedure
+        .input(
+            z.object({
+                email: z.string(),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
             const user = await ctx.prisma.user.findFirst({
                 where: { email: input.email },
             });
@@ -332,15 +338,16 @@ export const userRouter = createRouter()
 
                 await sendgrid.send(msg);
             }
-        },
-    })
-    .mutation("resetPwd", {
-        input: z.object({
-            token: z.string().nullish(),
-            oldPwd: z.string().nullish(),
-            password: z.string(),
         }),
-        async resolve({ ctx, input }) {
+    resetPwd: publicProcedure
+        .input(
+            z.object({
+                token: z.string().nullish(),
+                oldPwd: z.string().nullish(),
+                password: z.string(),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
             let userId: string = "";
 
             if (input.token) {
@@ -419,19 +426,15 @@ export const userRouter = createRouter()
                 email: user.email,
                 password: user.password,
             };
-        },
-    })
-    .mutation("onboard", {
-        input: z.object({
-            birthDate: z.date(),
-            gender: z.enum(["m", "f", "o"]),
         }),
-        async resolve({ ctx, input }) {
-            if (!ctx.user)
-                throw new TRPCError({
-                    code: "UNAUTHORIZED",
-                });
-
+    onboard: loggedInProcedure
+        .input(
+            z.object({
+                birthDate: z.date(),
+                gender: z.enum(["m", "f", "o"]),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
             await ctx.prisma.user.update({
                 where: {
                     id: ctx.user.id,
@@ -442,5 +445,5 @@ export const userRouter = createRouter()
                     gender: input.gender,
                 },
             });
-        },
-    });
+        }),
+});
