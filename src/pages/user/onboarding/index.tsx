@@ -45,7 +45,7 @@ const UserOnboarding = () => {
         setCurrentPage((cur) => cur + 1);
     };
 
-    const onboardMutation = trpc.useMutation(["users.onboard"], {
+    const onboardMutation = trpc.users.onboard.useMutation({
         onSuccess: () => {
             router.push("/home");
         },

@@ -40,17 +40,15 @@ const AddToCollection = ({ articleId, classNames }: AddToCollectionProps) => {
 
     const screenWidth = useScreenSize();
 
-    const { data, isLoading } = trpc.useQuery([
-        "navigation.getSingleCollection",
-        { articleId: articleId },
-    ]);
+    const { data, isLoading } = trpc.navigation.getSingleCollection.useQuery({
+        articleId: articleId,
+    });
 
-    const { data: colSets, isLoading: isColSetsLoading } = trpc.useQuery([
-        "navigation.getCollectionSets",
-    ]);
+    const { data: colSets, isLoading: isColSetsLoading } =
+        trpc.navigation.getCollectionSets.useQuery();
 
-    const upsertCollectionMutation = useUpsertCollectionMutation();
-    const deleteCollectionMutation = useDeleteCollectionMutation();
+    const upsertCollectionMutation = useUpsertCollectionMutation({ articleId });
+    const deleteCollectionMutation = useDeleteCollectionMutation({ articleId });
 
     useEffect(() => {
         if (!colSets || !data) {

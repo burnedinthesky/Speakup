@@ -28,17 +28,14 @@ const SearchResults = () => {
         isFetched,
         isLoading,
         refetch,
-    } = trpc.useQuery(
-        [
-            "navigation.search",
-            {
-                keyword: searchParams.keyword,
-                tags: searchParams.tags,
-                onPage: searchParams.onPage,
-            },
-        ],
+    } = trpc.navigation.search.useQuery(
         {
-            // enabled: false,
+            keyword: searchParams.keyword,
+            tags: searchParams.tags,
+            onPage: searchParams.onPage,
+        },
+        {
+            enabled: false,
         }
     );
 
@@ -74,12 +71,13 @@ const SearchResults = () => {
                 tags: tags,
                 onPage: onPage,
             });
-
-            console.log(tags);
-
-            refetch();
         }
     }, [router.isReady, router.query]);
+
+    useEffect(() => {
+        console.log(searchParams);
+        refetch();
+    }, [searchParams]);
 
     if (!isFetched || isLoading) {
         return (

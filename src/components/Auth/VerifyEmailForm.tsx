@@ -49,7 +49,7 @@ const VerifyEmailPage = ({ setDisplayPage, setDivHeight }: AuthPageProps) => {
         localStorageId: "r2emailcd",
     });
 
-    const verifyTokenMutation = trpc.useMutation(["users.verifyEmail"], {
+    const verifyTokenMutation = trpc.users.verifyEmail.useMutation({
         onSuccess: async (data) => {
             const res = await signIn("credentials", {
                 email: data.email,
@@ -87,7 +87,7 @@ const VerifyEmailPage = ({ setDisplayPage, setDivHeight }: AuthPageProps) => {
         },
     });
 
-    const resendEmailMutation = trpc.useMutation(["users.resendEmail"], {
+    const resendEmailMutation = trpc.users.resendEmail.useMutation({
         onSettled: () => {
             resetEmailCD();
         },

@@ -50,7 +50,7 @@ const RequestResetPwdPage = ({ setDisplayPage, setDivHeight }: PageProps) => {
         localStorageId: "emailcd",
     });
 
-    const requestEmailMutation = trpc.useMutation(["users.sendResetPwdLink"], {
+    const requestEmailMutation = trpc.users.sendResetPwdLink.useMutation({
         onSettled: () => {
             resetEmailCD();
         },

@@ -22,7 +22,7 @@ const UpdatePasswordForm = () => {
         validate: zodResolver(pwdFormSchema),
     });
 
-    const resetPasswordMutation = trpc.useMutation(["users.resetPwd"], {
+    const resetPasswordMutation = trpc.users.resetPwd.useMutation({
         onSuccess: async (data) => {
             showNotification({
                 message: "密碼變更成功，請登入",

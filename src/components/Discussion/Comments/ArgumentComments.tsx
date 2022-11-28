@@ -15,9 +15,9 @@ const ArgumentComments = ({ data }: ArgumentCommentProps) => {
 
     const trpcUtils = trpc.useContext();
 
-    const deleteCommentMutation = trpc.useMutation("comments.deleteComment", {
+    const deleteCommentMutation = trpc.comments.deleteComment.useMutation({
         onSettled: () => {
-            trpcUtils.invalidateQueries(["comments.getArgumentComments"]);
+            trpcUtils.comments.getArgumentComments.invalidate();
         },
         onError: (_, variables) => {
             setExcludedIDs((cur) =>

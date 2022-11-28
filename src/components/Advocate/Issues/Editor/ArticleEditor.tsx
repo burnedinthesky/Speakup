@@ -88,8 +88,7 @@ const ArticleEditor = ({
         refLinks: null,
     });
 
-    const updateArticleMutation = trpc.useMutation(
-        ["advocate.articles.upsertArticle"],
+    const updateArticleMutation = trpc.advocate.articles.upsertArticle.useMutation(
         {
             onSuccess: (data) => {
                 showNotification({

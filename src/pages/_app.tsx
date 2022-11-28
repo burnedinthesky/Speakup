@@ -1,5 +1,5 @@
 // src/pages/_app.tsx
-import type { AppRouter } from "../server/router/app.router";
+
 import type { AppProps } from "next/app";
 import type { Session } from "next-auth";
 
@@ -8,8 +8,7 @@ import { SessionProvider } from "next-auth/react";
 import { MantineProvider } from "@mantine/core";
 import { NotificationsProvider } from "@mantine/notifications";
 
-import { withTRPC } from "@trpc/next";
-import superjson from "superjson";
+import { trpc } from "../utils/trpc";
 
 import "../styles/globals.css";
 import { RecoilRoot } from "recoil";
@@ -80,24 +79,4 @@ const Speakup = ({ Component, pageProps }: AppProps<AppPropsInterface>) => {
     );
 };
 
-const getBaseUrl = () => {
-    if (typeof window !== "undefined") {
-        return "";
-    }
-    if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`; // SSR should use vercel url
-
-    return `http://localhost:${process.env.PORT ?? 3000}`; // dev SSR should use localhost
-};
-
-export default withTRPC<AppRouter>({
-    config({ ctx }) {
-        const url = `${getBaseUrl()}/api/trpc`;
-
-        return {
-            url,
-            transformer: superjson,
-            queryClientConfig: {}, //https://react-query.tanstack.com/reference/QueryClient
-        };
-    },
-    ssr: false, // https://trpc.io/docs/ssr
-})(Speakup);
+export default trpc.withTRPC(Speakup);
