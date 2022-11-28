@@ -75,8 +75,7 @@ const SearchResults = () => {
     }, [router.isReady, router.query]);
 
     useEffect(() => {
-        console.log(searchParams);
-        refetch();
+        if (searchParams.tags || searchParams.keyword) refetch();
     }, [searchParams]);
 
     if (!isFetched || isLoading) {
