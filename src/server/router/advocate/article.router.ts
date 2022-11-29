@@ -3,42 +3,86 @@ import { TRPCError } from "@trpc/server";
 import { getLinkPreview } from "link-preview-js";
 import { AvcArticleCard } from "../../../types/advocate/article.types";
 import { ReferencesLink } from "../../../types/article.types";
-import { CheckAvcClearance } from "../../../types/advocate/user.types";
-import { ArticleModStatus } from "@prisma/client";
+import { ArticleModStatus, Prisma } from "@prisma/client";
 import { avcProcedure, router } from "../../trpc";
 
-export const fetchLinkPreview = async (link: string) => {
-    try {
-        var previewData = await getLinkPreview(link);
-    } catch {
+type LinkPreviewPromise = Promise<
+    | {
+          url: string;
+          mediaType: string;
+          contentType: string;
+          favicons: string[];
+      }
+    | {
+          url: string;
+          title: string;
+          siteName: string | undefined;
+          description: string | undefined;
+          mediaType: string;
+          contentType: string | undefined;
+          images: string[];
+          favicons: string[];
+      }
+>;
+
+export const fetchLinksPreview = async (links: string[]) => {
+    const fetchTasks = links.map((link) => {
         return {
-            title: link,
-            description: "",
-            img: null,
+            task: Promise.race([
+                getLinkPreview(link),
+                new Promise((resolve) =>
+                    setTimeout(() => {
+                        resolve({
+                            title: link,
+                            description: "",
+                            images: [],
+                            link: link,
+                        });
+                    }, 2000)
+                ),
+            ]) as LinkPreviewPromise,
             link: link,
         };
-    }
+    });
 
-    let ret: ReferencesLink;
+    const results: ReferencesLink[] = await Promise.all(
+        fetchTasks.map(async (task) => {
+            try {
+                var previewData = await task.task;
+            } catch (e) {
+                return {
+                    title: task.link,
+                    description: "",
+                    img: null,
+                    link: task.link,
+                };
+            }
 
-    if ("title" in previewData) {
-        ret = {
-            title: previewData.title,
-            description: previewData.description
-                ? previewData.description
-                : link,
-            img: previewData.images[0] ? previewData.images[0] : null,
-            link: link,
-        };
-    } else {
-        ret = {
-            title: link,
-            description: "",
-            img: null,
-            link: link,
-        };
-    }
-    return ret;
+            let ret: ReferencesLink;
+
+            if ("title" in previewData) {
+                ret = {
+                    title: previewData.title,
+                    description: previewData.description
+                        ? previewData.description
+                        : task.link,
+                    img: previewData.images[0] ? previewData.images[0] : null,
+                    link: task.link,
+                };
+            } else {
+                ret = {
+                    title: task.link,
+                    description: "",
+                    img: null,
+                    link: task.link,
+                };
+            }
+
+            return ret;
+        })
+    );
+
+    return results;
 };
 
 export const articleRouter = router({
@@ -125,26 +169,50 @@ export const articleRouter = router({
             })
         )
         .mutation(async ({ ctx, input }) => {
-            let references: ReferencesLink[] = [];
-
-            for (let i = 0; i < input.references.length; i++) {
-                const link = input.references[i] as string;
-                references.push(await fetchLinkPreview(link));
+            let references: ReferencesLink[];
+            try {
+                references = await fetchLinksPreview(input.references);
+            } catch (e) {
+                throw new TRPCError({
+                    code: "TIMEOUT",
+                    message: "Failed to load references",
+                });
             }
 
-            if (input.id)
-                await ctx.prisma.articles.findFirstOrThrow({
+            let prevRefLinks: string[];
+
+            if (input.id) {
+                const currentArticle =
+                    await ctx.prisma.articles.findFirstOrThrow({
+                        where: {
+                            id: input.id,
+                            authorId: ctx.user.id,
+                        },
+                        select: {
+                            references: { select: { link: true } },
+                        },
+                    });
+
+                prevRefLinks = currentArticle.references.map((ref) => ref.link);
+            } else {
+                const articleWTitle = await ctx.prisma.articles.findFirst({
                     where: {
-                        id: input.id,
-                        authorId: ctx.user.id,
+                        title: input.title,
                     },
                 });
+                if (articleWTitle)
+                    throw new TRPCError({
+                        code: "CONFLICT",
+                        message: "Article with title exists",
+                    });
+            }
 
             const data = await ctx.prisma.articles.upsert({
                 where: {
                     id: input.id,
                     title: input.id ? undefined : input.title,
                 },
+
                 create: {
                     title: input.title,
                     author: { connect: { id: ctx.user.id } },
@@ -160,7 +228,14 @@ export const articleRouter = router({
                     tags: input.tags,
                     brief: input.brief,
                     content: input.content,
-                    references: { createMany: { data: references } },
+                    references: {
+                        createMany: {
+                            skipDuplicates: true,
+                            data: references.filter(
+                                (cur) => !prevRefLinks.includes(cur.link)
+                            ),
+                        },
+                    },
                 },
             });
 
