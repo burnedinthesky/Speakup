@@ -2,6 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { createHash } from "crypto";
 
 import { z } from "zod";
+import { FeedArgument, FeedArticle, FeedComment } from "../../types/user.types";
 
 import { sendgrid } from "../../utils/sendgrid";
 import { loggedInProcedure, publicProcedure, router } from "../trpc";
@@ -445,5 +446,258 @@ export const userRouter = router({
                     gender: input.gender,
                 },
             });
+        }),
+    viewProfile: loggedInProcedure
+        .input(
+            z.object({
+                id: z.string(),
+            })
+        )
+        .query(async ({ ctx, input }) => {
+            const userProfile = await ctx.prisma.user.findUniqueOrThrow({
+                where: { id: input.id },
+                select: {
+                    profileImg: true,
+                    name: true,
+                    _count: {
+                        select: {
+                            arguments: true,
+                            comments: true,
+                            articles: true,
+                        },
+                    },
+                },
+            });
+
+            return {
+                id: input.id,
+                name: userProfile.name,
+                profile: userProfile.profileImg,
+                arguments: userProfile._count.arguments,
+                comments: userProfile._count.comments,
+                articles: userProfile._count.articles,
+            };
+        }),
+    userFeed: loggedInProcedure
+        .input(
+            z.object({
+                userId: z.string(),
+                cursor: z
+                    .object({
+                        argument: z.number().nullable(),
+                        comment: z.number().nullable(),
+                        article: z.number().nullable(),
+                    })
+                    .nullish(),
+            })
+        )
+        .query(async ({ ctx, input }) => {
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+
+            const cursor = input.cursor
+                ? input.cursor
+                : {
+                      argument: 0,
+                      comment: 0,
+                      article: 0,
+                  };
+
+            let selectionArr: {
+                type: "argument" | "comment" | "article";
+                id: number | string;
+                time: Date;
+            }[] = [];
+
+            let args = null as
+                | {
+                      id: number;
+                      createdTime: Date;
+                      article: {
+                          title: string;
+                      };
+                      content: string;
+                  }[]
+                | null;
+
+            let cmts = null as
+                | {
+                      id: number;
+                      createdTime: Date;
+                      content: string;
+                      inArgument: {
+                          id: number;
+                          article: {
+                              title: string;
+                          };
+                          content: string;
+                      };
+                  }[]
+                | null;
+
+            let atcs = null as
+                | {
+                      id: string;
+                      title: string;
+                      brief: string;
+                      createdTime: Date;
+                  }[]
+                | null;
+
+            if (cursor.argument !== null) {
+                args = await ctx.prisma.argument.findMany({
+                    where: { authorId: input.userId },
+                    select: {
+                        id: true,
+                        content: true,
+                        article: { select: { title: true } },
+                        createdTime: true,
+                    },
+                    orderBy: { createdTime: "desc" },
+                    skip: cursor.argument,
+                    take: 21,
+                });
+                selectionArr = selectionArr.concat(
+                    args.map((arg) => ({
+                        id: arg.id,
+                        time: arg.createdTime,
+                        type: "argument",
+                    }))
+                );
+            }
+            if (cursor.comment !== null) {
+                cmts = await ctx.prisma.comments.findMany({
+                    where: { authorId: input.userId },
+                    select: {
+                        id: true,
+                        content: true,
+                        inArgument: {
+                            select: {
+                                id: true,
+                                content: true,
+                                article: { select: { title: true } },
+                            },
+                        },
+                        createdTime: true,
+                    },
+                    orderBy: { createdTime: "desc" },
+                    skip: cursor.comment,
+                    take: 21,
+                });
+                selectionArr = selectionArr.concat(
+                    cmts.map((cmt) => ({
+                        id: cmt.id,
+                        time: cmt.createdTime,
+                        type: "comment",
+                    }))
+                );
+            }
+            if (cursor.article !== null) {
+                atcs = await ctx.prisma.articles.findMany({
+                    where: { authorId: input.userId },
+                    select: {
+                        id: true,
+                        title: true,
+                        brief: true,
+                        createdTime: true,
+                    },
+                    orderBy: { createdTime: "desc" },
+                    skip: cursor.article,
+                    take: 21,
+                });
+                selectionArr = selectionArr.concat(
+                    atcs.map((atc) => ({
+                        id: atc.id,
+                        time: atc.createdTime,
+                        type: "article",
+                    }))
+                );
+            }
+            let pickedArguments = [],
+                pickedComments = [],
+                pickedArticles = [];
+
+            selectionArr
+                .sort((a, b) => b.time.getTime() - a.time.getTime())
+                .forEach((obj, i) => {
+                    if (i >= 20) return;
+                    if (obj.type === "argument") pickedArguments.push(obj.id);
+                    else if (obj.type === "comment")
+                        pickedComments.push(obj.id);
+                    else if (obj.type === "article")
+                        pickedArticles.push(obj.id);
+                });
+
+            let ret: (FeedArgument | FeedComment | FeedArticle)[] = [];
+
+            selectionArr.forEach((sel) => {
+                if (sel.type === "argument" && args) {
+                    let target = args.find((arg) => arg.id === sel.id);
+                    if (!target) return;
+                    ret.push({
+                        id: target.id,
+                        content: target.content,
+                        articleTitle: target.article.title,
+                        time: target.createdTime,
+                        feedType: "argument",
+                    });
+                } else if (sel.type === "comment" && cmts) {
+                    let target = cmts.find((arg) => arg.id === sel.id);
+                    if (!target) return;
+                    ret.push({
+                        id: target.id,
+                        content: target.content,
+                        argumentId: target.inArgument.id,
+                        argumentContent: target.inArgument.content,
+                        articleTitle: target.inArgument.article.title,
+                        time: target.createdTime,
+                        feedType: "comment",
+                    });
+                } else if (sel.type === "article" && atcs) {
+                    let target = atcs.find((arg) => arg.id === sel.id);
+                    if (!target) return;
+                    ret.push({
+                        id: target.id,
+                        title: target.title,
+                        brief: target.brief,
+                        time: target.createdTime,
+                        feedType: "article",
+                    });
+                }
+            });
+
+            let nextCursors = {
+                argument: null,
+                comment: null,
+                article: null,
+            } as Record<string, number | null>;
+            let hasCursors = false;
+            if (
+                cursor.argument &&
+                args &&
+                args.length - pickedArguments.length > 0
+            ) {
+                nextCursors.argument = cursor.argument + pickedArguments.length;
+                hasCursors = true;
+            }
+            if (
+                cursor.comment &&
+                cmts &&
+                cmts.length - pickedComments.length > 0
+            ) {
+                nextCursors.comment = cursor.comment + pickedComments.length;
+                hasCursors = true;
+            }
+            if (
+                cursor.article &&
+                atcs &&
+                atcs.length - pickedArticles.length > 0
+            ) {
+                nextCursors.article = cursor.article + pickedArticles.length;
+                hasCursors = true;
+            }
+            return {
+                data: ret,
+                nextCursor: hasCursors ? nextCursors : undefined,
+            };
         }),
 });
