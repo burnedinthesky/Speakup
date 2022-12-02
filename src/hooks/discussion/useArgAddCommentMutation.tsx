@@ -15,23 +15,20 @@ const useArgAddCommentMutation = ({
 }: useArgAddCommentMutationProps) => {
     const trpcUtils = trpc.useContext();
 
-    const addCommentMutation = trpc.useMutation("comments.createComment", {
+    const addCommentMutation = trpc.comments.createComment.useMutation({
         onSettled: () => {
-            trpcUtils.invalidateQueries(["comments.getArgumentComments"]);
+            trpcUtils.comments.getArgumentComments.invalidate();
             closeCommentInput();
         },
         onSuccess: (data, variables) => {
-            trpcUtils.setInfiniteQueryData(
-                [
-                    "comments.getArgumentComments",
-                    {
-                        argumentId: variables.argument,
-                        sort: "",
-                        stance: "both",
-                        limit: 20,
-                        threadId: selectedThread,
-                    },
-                ],
+            trpcUtils.comments.getArgumentComments.setInfiniteData(
+                {
+                    argumentId: variables.argument,
+                    sort: "",
+                    stance: "both",
+                    limit: 20,
+                    threadId: selectedThread,
+                },
                 (prev) => {
                     if (!prev) {
                         return {

@@ -1,12 +1,11 @@
 import { trpc } from "../../utils/trpc";
 import { showNotification } from "@mantine/notifications";
 
-const useUpsertCollectionMutation = () => {
+const useUpsertCollectionMutation = ({ articleId }: { articleId: string }) => {
     const trpcUtils = trpc.useContext();
 
-    const upsertCollectionMutation = trpc.useMutation(
-        ["navigation.upsertUserCollection"],
-        {
+    const upsertCollectionMutation =
+        trpc.navigation.upsertUserCollection.useMutation({
             onSettled(_, error, __, context) {
                 const ctx = context as {
                     prevData: {
@@ -16,8 +15,8 @@ const useUpsertCollectionMutation = () => {
                 };
 
                 if (error) {
-                    trpcUtils.setQueryData(
-                        ["navigation.getSingleCollection"],
+                    trpcUtils.navigation.getSingleCollection.setData(
+                        { articleId },
                         ctx.prevData
                     );
                     showNotification({
@@ -26,17 +25,16 @@ const useUpsertCollectionMutation = () => {
                         color: "red",
                     });
                 }
-                trpcUtils.invalidateQueries(["navigation.getSingleCollection"]);
+                trpcUtils.navigation.getSingleCollection.invalidate();
             },
             onMutate: (variables) => {
-                trpcUtils.cancelQuery(["navigation.getSingleCollection"]);
+                trpcUtils.navigation.getSingleCollection.cancel();
 
-                const prevData = trpcUtils.getQueryData([
-                    "navigation.getSingleCollection",
-                ]);
+                const prevData =
+                    trpcUtils.navigation.getSingleCollection.getData();
 
-                trpcUtils.setQueryData(
-                    ["navigation.getSingleCollection"],
+                trpcUtils.navigation.getSingleCollection.setData(
+                    { articleId },
                     (prev) => {
                         if (!prev) {
                             return {
@@ -55,8 +53,7 @@ const useUpsertCollectionMutation = () => {
                     prevData,
                 };
             },
-        }
-    );
+        });
 
     return upsertCollectionMutation;
 };

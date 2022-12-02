@@ -90,8 +90,7 @@ export function CommentReactionButtons({
 
     const logInAction = useLoggedInAction();
 
-    const submitArgumentInteraction = trpc.useMutation(
-        "arguments.updateArgumentInteraction",
+    const submitArgumentInteraction = trpc.arguments.updateArgumentInteraction.useMutation(
         {
             onError: () => {
                 setInteraction(previousState);
@@ -99,8 +98,7 @@ export function CommentReactionButtons({
         }
     );
 
-    const submitCommentsInteraction = trpc.useMutation(
-        "comments.updateCommentsInteraction",
+    const submitCommentsInteraction = trpc.comments.updateCommentsInteraction.useMutation(
         {
             onError: () => {
                 setInteraction(previousState);

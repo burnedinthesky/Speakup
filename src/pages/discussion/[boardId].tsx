@@ -26,7 +26,7 @@ const DiscussionBoard = ({ article }: DiscussionProps) => {
 
     const { data: session } = useSession();
 
-    const registerViewMutation = trpc.useMutation(["articles.register-view"]);
+    const registerViewMutation = trpc.articles.registerView.useMutation();
 
     useEffect(() => {
         registerViewMutation.mutate(article.id);

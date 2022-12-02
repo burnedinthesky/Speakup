@@ -19,6 +19,7 @@ import {
 } from "../../../../types/article.types";
 import { RawRefLinks } from "../../../../types/advocate/article.types";
 import MobileBlockProperties from "./MobileBlockProperties";
+import { showErrorNotification } from "../../../../lib/errorHandling";
 
 export interface ContentErrors {
     title: string | null;
@@ -88,9 +89,8 @@ const ArticleEditor = ({
         refLinks: null,
     });
 
-    const updateArticleMutation = trpc.useMutation(
-        ["advocate.articles.upsertArticle"],
-        {
+    const updateArticleMutation =
+        trpc.advocate.articles.upsertArticle.useMutation({
             onSuccess: (data) => {
                 showNotification({
                     title: "更新成功",
@@ -100,18 +100,33 @@ const ArticleEditor = ({
                     router.push(`/advocate/issues/${data.id}`);
                 else router.reload();
             },
-            onError: () => {
-                showNotification({
-                    color: "red",
-                    title: "發生錯誤",
-                    message: "發生錯誤，請再試一次",
-                    autoClose: false,
-                });
+            onError: (error) => {
+                if (error.message === "Article with title exists")
+                    setContentErrors((cur) => ({
+                        ...cur,
+                        title: "本標題與其他議題重複",
+                    }));
+                else
+                    showErrorNotification({
+                        message: "發生錯誤，請再試一次",
+                    });
             },
-        }
-    );
+        });
 
     const submitData = () => {
+        setContentErrors({
+            content: null,
+            refLinks: null,
+            title: null,
+        });
+        setArticleProperties((cur) => ({
+            ...cur,
+            errors: {
+                brief: null,
+                tags: null,
+            },
+        }));
+
         const dataErrors = checkArticleData({
             title: titleText,
             brief: articleProperties.brief,

@@ -21,8 +21,7 @@ const DeleteActionPopover = ({
 }: DeleteActionPopoverProps) => {
     const [opened, { close, open }] = useDisclosure(false);
 
-    const deleteCommentMutation = trpc.useMutation(
-        ["advocate.comments.deleteComment"],
+    const deleteCommentMutation = trpc.advocate.comments.deleteComment.useMutation(
         {
             onSuccess: () => {
                 removeCard();

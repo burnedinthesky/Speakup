@@ -28,8 +28,10 @@ const ArticleComments = ({ articleId, articleTitle }: ArticleCommentsProps) => {
         isFetchingNextPage,
         hasNextPage,
         fetchNextPage,
-    } = trpc.useInfiniteQuery(
-        ["advocate.comments.fetchArticleComments", { id: articleId }],
+    } = trpc.advocate.comments.fetchArticleComments.useInfiniteQuery(
+        {
+            id: articleId,
+        },
         {
             getNextPageParam: (lastPage) => lastPage.nextCursor,
         }

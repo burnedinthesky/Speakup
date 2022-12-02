@@ -32,7 +32,7 @@ const SignUpPage = ({ setDisplayPage, setDivHeight }: AuthPageProps) => {
         if (session) router.push("/home");
     }, [session]);
 
-    const signupMutation = trpc.useMutation(["users.registerUser"], {
+    const signupMutation = trpc.users.registerUser.useMutation({
         onSuccess: async (data) => {
             const params = new URLSearchParams();
             params.set("token", data);

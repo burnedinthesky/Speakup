@@ -36,23 +36,20 @@ const CommentField = ({
         hasNextPage,
         isFetching,
         refetch,
-    } = trpc.useInfiniteQuery(
-        [
-            "arguments.getArticleArguments",
-            {
-                articleId: articleId,
-                stance: viewingStance,
-                sort: sortMethod,
-                limit: 20,
-            },
-        ],
+    } = trpc.arguments.getArticleArguments.useInfiniteQuery(
+        {
+            articleId: articleId,
+            stance: viewingStance,
+            sort: sortMethod,
+            limit: 20,
+        },
         {
             getNextPageParam: (lastPage) => lastPage.nextCursor,
         }
     );
 
     useEffect(() => {
-        trpcUtils.invalidateQueries(["arguments.getArticleArguments"]);
+        trpcUtils.arguments.getArticleArguments.invalidate();
     }, [viewingStance, sortMethod]);
 
     useEffect(() => {
@@ -63,28 +60,23 @@ const CommentField = ({
         }
     }, [lastCardInView]);
 
-    const deleteArgumentMutation = trpc.useMutation(
-        "arguments.deleteArgument",
-        {
-            onSettled: () => {
-                trpcUtils.invalidateQueries(["arguments.getArticleArguments"]);
-            },
-            onError: (_, variables) => {
-                setExcludedArguments(
-                    excludedArguments.filter(
-                        (element) => element !== variables.id
-                    )
-                );
-                showNotification({
-                    title: "發生未知錯誤",
-                    message: "留言刪除失敗，請再試一次",
-                });
-            },
-            onMutate: (variables) => {
-                setExcludedArguments(excludedArguments.concat([variables.id]));
-            },
-        }
-    );
+    const deleteArgumentMutation = trpc.arguments.deleteArgument.useMutation({
+        onSettled: () => {
+            trpcUtils.arguments.getArticleArguments.invalidate();
+        },
+        onError: (_, variables) => {
+            setExcludedArguments(
+                excludedArguments.filter((element) => element !== variables.id)
+            );
+            showNotification({
+                title: "發生未知錯誤",
+                message: "留言刪除失敗，請再試一次",
+            });
+        },
+        onMutate: (variables) => {
+            setExcludedArguments(excludedArguments.concat([variables.id]));
+        },
+    });
 
     const hasComments =
         (data

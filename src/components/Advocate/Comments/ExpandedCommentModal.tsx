@@ -22,13 +22,10 @@ const ExpandedCommentModal = ({
 }: ExpandedCommentModalProps) => {
     const [modalKey, setModalKey] = useState<number>(0);
 
-    const { data, isLoading } = trpc.useQuery([
-        "advocate.comments.fetchCommentThread",
-        {
-            argId: expandComment ? expandComment.argId : null,
-            commentId: expandComment ? expandComment.cmtId : null,
-        },
-    ]);
+    const { data, isLoading } = trpc.advocate.comments.fetchCommentThread.useQuery({
+                    argId: expandComment ? expandComment.argId : null,
+                    commentId: expandComment ? expandComment.cmtId : null,
+                });
 
     return (
         <Modal

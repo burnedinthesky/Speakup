@@ -1,27 +1,18 @@
-import { createRouter } from "../createRouter";
 import { z } from "zod";
 
 import { TRPCError } from "@trpc/server";
+import { loggedInProcedure, router } from "../trpc";
 
-export const reportRouter = createRouter()
-    .middleware(async ({ ctx, next }) => {
-        if (!ctx.user) {
-            throw new TRPCError({ code: "UNAUTHORIZED" });
-        }
-        return next({
-            ctx: {
-                ...ctx,
-                user: ctx.user,
-            },
-        });
-    })
-    .mutation("submitReport", {
-        input: z.object({
-            type: z.enum(["article", "argument", "comment"]),
-            identifier: z.number().or(z.string()),
-            reasons: z.array(z.string()),
-        }),
-        async resolve({ input, ctx }) {
+export const reportRouter = router({
+    submitReport: loggedInProcedure
+        .input(
+            z.object({
+                type: z.enum(["article", "argument", "comment"]),
+                identifier: z.number().or(z.string()),
+                reasons: z.array(z.string()),
+            })
+        )
+        .mutation(async ({ input, ctx }) => {
             if (input.type === "article") {
                 if (typeof input.identifier === "number")
                     throw new TRPCError({
@@ -89,5 +80,5 @@ export const reportRouter = createRouter()
                 });
             }
             return true;
-        },
-    });
+        }),
+});
