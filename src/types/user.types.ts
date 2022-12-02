@@ -9,3 +9,29 @@ export type User = {
     email: string;
     reputation: UserReputation;
 };
+
+export type FeedArgument = {
+    id: number;
+    content: string;
+    articleTitle: string;
+    time: Date;
+    feedType: "argument";
+};
+
+export type FeedComment = {
+    id: number;
+    content: string;
+    argumentId: number;
+    argumentContent: string;
+    articleTitle: string;
+    time: Date;
+    feedType: "comment";
+};
+
+export type FeedArticle = {
+    id: string;
+    title: string;
+    brief: string;
+    time: Date;
+    feedType: "article";
+};

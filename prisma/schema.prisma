@@ -96,9 +96,10 @@ model User {
     accounts Account[]
     sessions Session[]
 
-    articles  Articles[]
-    arguments Argument[] @relation("postedArguments")
-    comments  Comments[] @relation("postedComments")
+    actionLogs Log_UserActions[]
+    articles   Articles[]
+    arguments  Argument[]        @relation("postedArguments")
+    comments   Comments[]        @relation("postedComments")
 
     likedArguments     Argument[] @relation("likedArguments")
     dislikedArguments  Argument[] @relation("supportedArguments")
@@ -325,4 +326,19 @@ model CommentModAction {
     reason     Json
     comment    Comments           @relation(fields: [commentsId], references: [id], onDelete: Cascade)
     commentsId Int
+}
+
+enum UserActionType {
+    POST_ARGUMENT
+    POST_COMMENT
+    POST_ARTICLE
+}
+
+model Log_UserActions {
+    id       Int            @id @default(autoincrement())
+    user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId   String
+    action   UserActionType
+    metadata Json
+    time     DateTime       @default(now())
 }
