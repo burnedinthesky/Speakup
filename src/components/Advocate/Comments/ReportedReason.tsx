@@ -12,14 +12,11 @@ interface ReportedReasonProps {
 const ReportedReason = ({ id, type }: ReportedReasonProps) => {
     const [opened, { close, open }] = useDisclosure(false);
 
-    const { data, isLoading, refetch } = trpc.useQuery(
-        [
-            "advocate.comments.reportReasons",
-            {
-                id,
-                type,
-            },
-        ],
+    const { data, isLoading, refetch } = trpc.advocate.comments.reportReasons.useQuery(
+        {
+                        id,
+                        type,
+                    },
         {
             enabled: false,
         }

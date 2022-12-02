@@ -1,23 +1,26 @@
-import { createRouter } from "../createRouter";
 import { TRPCError } from "@trpc/server";
 import { createHash } from "crypto";
 
 import { z } from "zod";
+import { FeedArgument, FeedArticle, FeedComment } from "../../types/user.types";
 
 import { sendgrid } from "../../utils/sendgrid";
+import { loggedInProcedure, publicProcedure, router } from "../trpc";
 
 const hashPassword = (pwd: string) => {
     return createHash("sha256").update(pwd).digest("hex");
 };
 
-export const userRouter = createRouter()
-    .mutation("registerUser", {
-        input: z.object({
-            email: z.string().email(),
-            password: z.string(),
-            name: z.string().min(2).max(16),
-        }),
-        async resolve({ ctx, input }) {
+export const userRouter = router({
+    registerUser: publicProcedure
+        .input(
+            z.object({
+                email: z.string().email(),
+                password: z.string(),
+                name: z.string().min(2).max(16),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
             const { email, name, password } = input;
 
             const sameName = await ctx.prisma.user.findMany({
@@ -79,13 +82,15 @@ export const userRouter = createRouter()
             await sendgrid.send(msg);
 
             return emailToken.id;
-        },
-    })
-    .mutation("resendEmail", {
-        input: z.object({
-            verId: z.string(),
         }),
-        async resolve({ ctx, input }) {
+
+    resendEmail: publicProcedure
+        .input(
+            z.object({
+                verId: z.string(),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
             const verifier = await ctx.prisma.credEmailVerToken.findUnique({
                 where: {
                     id: input.verId,
@@ -200,14 +205,15 @@ export const userRouter = createRouter()
             });
 
             return emailToken.id;
-        },
-    })
-    .mutation("verifyEmail", {
-        input: z.object({
-            verId: z.string(),
-            verToken: z.string().length(6),
         }),
-        async resolve({ ctx, input }) {
+    verifyEmail: publicProcedure
+        .input(
+            z.object({
+                verId: z.string(),
+                verToken: z.string().length(6),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
             const verifier = await ctx.prisma.credEmailVerToken.findUnique({
                 where: { id: input.verId },
                 include: {
@@ -280,13 +286,14 @@ export const userRouter = createRouter()
                 email: verifier.user.email,
                 password: verifier.user.password,
             };
-        },
-    })
-    .mutation("sendResetPwdLink", {
-        input: z.object({
-            email: z.string(),
         }),
-        async resolve({ ctx, input }) {
+    sendResetPwdLink: publicProcedure
+        .input(
+            z.object({
+                email: z.string(),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
             const user = await ctx.prisma.user.findFirst({
                 where: { email: input.email },
             });
@@ -332,15 +339,16 @@ export const userRouter = createRouter()
 
                 await sendgrid.send(msg);
             }
-        },
-    })
-    .mutation("resetPwd", {
-        input: z.object({
-            token: z.string().nullish(),
-            oldPwd: z.string().nullish(),
-            password: z.string(),
         }),
-        async resolve({ ctx, input }) {
+    resetPwd: publicProcedure
+        .input(
+            z.object({
+                token: z.string().nullish(),
+                oldPwd: z.string().nullish(),
+                password: z.string(),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
             let userId: string = "";
 
             if (input.token) {
@@ -419,19 +427,15 @@ export const userRouter = createRouter()
                 email: user.email,
                 password: user.password,
             };
-        },
-    })
-    .mutation("onboard", {
-        input: z.object({
-            birthDate: z.date(),
-            gender: z.enum(["m", "f", "o"]),
         }),
-        async resolve({ ctx, input }) {
-            if (!ctx.user)
-                throw new TRPCError({
-                    code: "UNAUTHORIZED",
-                });
-
+    onboard: loggedInProcedure
+        .input(
+            z.object({
+                birthDate: z.date(),
+                gender: z.enum(["m", "f", "o"]),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
             await ctx.prisma.user.update({
                 where: {
                     id: ctx.user.id,
@@ -442,5 +446,258 @@ export const userRouter = createRouter()
                     gender: input.gender,
                 },
             });
-        },
-    });
+        }),
+    viewProfile: loggedInProcedure
+        .input(
+            z.object({
+                id: z.string(),
+            })
+        )
+        .query(async ({ ctx, input }) => {
+            const userProfile = await ctx.prisma.user.findUniqueOrThrow({
+                where: { id: input.id },
+                select: {
+                    profileImg: true,
+                    name: true,
+                    _count: {
+                        select: {
+                            arguments: true,
+                            comments: true,
+                            articles: true,
+                        },
+                    },
+                },
+            });
+
+            return {
+                id: input.id,
+                name: userProfile.name,
+                profile: userProfile.profileImg,
+                arguments: userProfile._count.arguments,
+                comments: userProfile._count.comments,
+                articles: userProfile._count.articles,
+            };
+        }),
+    userFeed: loggedInProcedure
+        .input(
+            z.object({
+                userId: z.string(),
+                cursor: z
+                    .object({
+                        argument: z.number().nullable(),
+                        comment: z.number().nullable(),
+                        article: z.number().nullable(),
+                    })
+                    .nullish(),
+            })
+        )
+        .query(async ({ ctx, input }) => {
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+
+            const cursor = input.cursor
+                ? input.cursor
+                : {
+                      argument: 0,
+                      comment: 0,
+                      article: 0,
+                  };
+
+            let selectionArr: {
+                type: "argument" | "comment" | "article";
+                id: number | string;
+                time: Date;
+            }[] = [];
+
+            let args = null as
+                | {
+                      id: number;
+                      createdTime: Date;
+                      article: {
+                          title: string;
+                      };
+                      content: string;
+                  }[]
+                | null;
+
+            let cmts = null as
+                | {
+                      id: number;
+                      createdTime: Date;
+                      content: string;
+                      inArgument: {
+                          id: number;
+                          article: {
+                              title: string;
+                          };
+                          content: string;
+                      };
+                  }[]
+                | null;
+
+            let atcs = null as
+                | {
+                      id: string;
+                      title: string;
+                      brief: string;
+                      createdTime: Date;
+                  }[]
+                | null;
+
+            if (cursor.argument !== null) {
+                args = await ctx.prisma.argument.findMany({
+                    where: { authorId: input.userId },
+                    select: {
+                        id: true,
+                        content: true,
+                        article: { select: { title: true } },
+                        createdTime: true,
+                    },
+                    orderBy: { createdTime: "desc" },
+                    skip: cursor.argument,
+                    take: 21,
+                });
+                selectionArr = selectionArr.concat(
+                    args.map((arg) => ({
+                        id: arg.id,
+                        time: arg.createdTime,
+                        type: "argument",
+                    }))
+                );
+            }
+            if (cursor.comment !== null) {
+                cmts = await ctx.prisma.comments.findMany({
+                    where: { authorId: input.userId },
+                    select: {
+                        id: true,
+                        content: true,
+                        inArgument: {
+                            select: {
+                                id: true,
+                                content: true,
+                                article: { select: { title: true } },
+                            },
+                        },
+                        createdTime: true,
+                    },
+                    orderBy: { createdTime: "desc" },
+                    skip: cursor.comment,
+                    take: 21,
+                });
+                selectionArr = selectionArr.concat(
+                    cmts.map((cmt) => ({
+                        id: cmt.id,
+                        time: cmt.createdTime,
+                        type: "comment",
+                    }))
+                );
+            }
+            if (cursor.article !== null) {
+                atcs = await ctx.prisma.articles.findMany({
+                    where: { authorId: input.userId },
+                    select: {
+                        id: true,
+                        title: true,
+                        brief: true,
+                        createdTime: true,
+                    },
+                    orderBy: { createdTime: "desc" },
+                    skip: cursor.article,
+                    take: 21,
+                });
+                selectionArr = selectionArr.concat(
+                    atcs.map((atc) => ({
+                        id: atc.id,
+                        time: atc.createdTime,
+                        type: "article",
+                    }))
+                );
+            }
+            let pickedArguments = [],
+                pickedComments = [],
+                pickedArticles = [];
+
+            selectionArr
+                .sort((a, b) => b.time.getTime() - a.time.getTime())
+                .forEach((obj, i) => {
+                    if (i >= 20) return;
+                    if (obj.type === "argument") pickedArguments.push(obj.id);
+                    else if (obj.type === "comment")
+                        pickedComments.push(obj.id);
+                    else if (obj.type === "article")
+                        pickedArticles.push(obj.id);
+                });
+
+            let ret: (FeedArgument | FeedComment | FeedArticle)[] = [];
+
+            selectionArr.forEach((sel) => {
+                if (sel.type === "argument" && args) {
+                    let target = args.find((arg) => arg.id === sel.id);
+                    if (!target) return;
+                    ret.push({
+                        id: target.id,
+                        content: target.content,
+                        articleTitle: target.article.title,
+                        time: target.createdTime,
+                        feedType: "argument",
+                    });
+                } else if (sel.type === "comment" && cmts) {
+                    let target = cmts.find((arg) => arg.id === sel.id);
+                    if (!target) return;
+                    ret.push({
+                        id: target.id,
+                        content: target.content,
+                        argumentId: target.inArgument.id,
+                        argumentContent: target.inArgument.content,
+                        articleTitle: target.inArgument.article.title,
+                        time: target.createdTime,
+                        feedType: "comment",
+                    });
+                } else if (sel.type === "article" && atcs) {
+                    let target = atcs.find((arg) => arg.id === sel.id);
+                    if (!target) return;
+                    ret.push({
+                        id: target.id,
+                        title: target.title,
+                        brief: target.brief,
+                        time: target.createdTime,
+                        feedType: "article",
+                    });
+                }
+            });
+
+            let nextCursors = {
+                argument: null,
+                comment: null,
+                article: null,
+            } as Record<string, number | null>;
+            let hasCursors = false;
+            if (
+                cursor.argument &&
+                args &&
+                args.length - pickedArguments.length > 0
+            ) {
+                nextCursors.argument = cursor.argument + pickedArguments.length;
+                hasCursors = true;
+            }
+            if (
+                cursor.comment &&
+                cmts &&
+                cmts.length - pickedComments.length > 0
+            ) {
+                nextCursors.comment = cursor.comment + pickedComments.length;
+                hasCursors = true;
+            }
+            if (
+                cursor.article &&
+                atcs &&
+                atcs.length - pickedArticles.length > 0
+            ) {
+                nextCursors.article = cursor.article + pickedArticles.length;
+                hasCursors = true;
+            }
+            return {
+                data: ret,
+                nextCursor: hasCursors ? nextCursors : undefined,
+            };
+        }),
+});

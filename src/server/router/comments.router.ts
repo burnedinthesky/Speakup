@@ -1,10 +1,10 @@
-import { createRouter } from "../createRouter";
 import { Comment, Stances } from "../../types/comments.types";
 
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { ArgumentThread, User } from "@prisma/client";
 import { prisma } from "../../utils/prisma";
+import { loggedInProcedure, publicProcedure, router } from "../trpc";
 
 const appendArticleUpdate = async (id: string) => {
     await prisma.articles.update({
@@ -55,49 +55,32 @@ const formatIntoComment = (
     };
 };
 
-export const commentsRouter = createRouter()
-    .mutation("createComment", {
-        input: z.object({
-            content: z.string(),
-            stance: z.enum(["sup", "agn", "neu"]),
-            argument: z.number(),
-            thread: z.number().nullable(),
-        }),
-        async resolve({ input, ctx }) {
-            if (!ctx.user) {
-                throw new TRPCError({ code: "UNAUTHORIZED" });
-            }
+export const commentsRouter = router({
+    createComment: loggedInProcedure
+        .input(
+            z.object({
+                content: z.string(),
+                stance: z.enum(["sup", "agn", "neu"]),
+                argument: z.number(),
+                thread: z.number().nullable(),
+            })
+        )
+        .mutation(async ({ input, ctx }) => {
             const comment = await ctx.prisma.comments.create({
                 data: {
-                    inArgument: {
-                        connect: {
-                            id: input.argument,
-                        },
-                    },
+                    inArgument: { connect: { id: input.argument } },
                     inThread: input.thread
-                        ? {
-                              connect: {
-                                  id: input.thread,
-                              },
-                          }
+                        ? { connect: { id: input.thread } }
                         : undefined,
                     content: input.content,
-                    author: {
-                        connect: {
-                            id: ctx.user.id,
-                        },
-                    },
+                    author: { connect: { id: ctx.user.id } },
                     stance: input.stance,
                 },
                 select: {
                     id: true,
                     content: true,
                     author: {
-                        select: {
-                            id: true,
-                            name: true,
-                            profileImg: true,
-                        },
+                        select: { id: true, name: true, profileImg: true },
                     },
                     stance: true,
                     _count: {
@@ -108,56 +91,28 @@ export const commentsRouter = createRouter()
                         },
                     },
                     inThread: {
-                        select: {
-                            id: true,
-                            name: true,
-                            argumentId: true,
-                        },
+                        select: { id: true, name: true, argumentId: true },
                     },
-                    likedUsers: {
-                        where: {
-                            id: ctx.user.id,
-                        },
-                    },
-                    supportedUsers: {
-                        where: {
-                            id: ctx.user.id,
-                        },
-                    },
-                    dislikedUsers: {
-                        where: {
-                            id: ctx.user.id,
-                        },
-                    },
+                    likedUsers: { where: { id: ctx.user.id } },
+                    supportedUsers: { where: { id: ctx.user.id } },
+                    dislikedUsers: { where: { id: ctx.user.id } },
                 },
             });
 
-            return {
-                id: comment.id,
-                author: comment.author,
-                isAuthor: true,
-                content: comment.content,
-                stance: comment.stance as Stances,
-                thread: comment.inThread,
-                likes: comment._count.likedUsers,
-                userLiked: comment.likedUsers.length == 1,
-                support: comment._count.supportedUsers,
-                userSupported: comment.supportedUsers.length == 1,
-                dislikes: comment._count.dislikedUsers,
-                userDisliked: comment.dislikedUsers.length == 1,
-            } as Comment;
-        },
-    })
-    .query("getArgumentComments", {
-        input: z.object({
-            argumentId: z.number(),
-            stance: z.enum(["sup", "agn", "both"]),
-            sort: z.string(),
-            limit: z.number().min(1).max(100),
-            cursor: z.number().nullish(),
-            threadId: z.number().nullable(),
+            return formatIntoComment(comment, ctx.user.id);
         }),
-        async resolve({ input, ctx }) {
+    getArgumentComments: publicProcedure
+        .input(
+            z.object({
+                argumentId: z.number(),
+                stance: z.enum(["sup", "agn", "both"]),
+                sort: z.string(),
+                limit: z.number().min(1).max(100),
+                cursor: z.number().nullish(),
+                threadId: z.number().nullable(),
+            })
+        )
+        .query(async ({ input, ctx }) => {
             const allowedStance = [];
             if (input.stance == "sup" || input.stance == "both")
                 allowedStance.push("sup");
@@ -218,17 +173,15 @@ export const commentsRouter = createRouter()
                 retData,
                 nextCursor,
             };
-        },
-    })
-    .mutation("updateCommentsInteraction", {
-        input: z.object({
-            id: z.number(),
-            status: z.enum(["liked", "supported", "disliked"]).nullable(),
         }),
-        async resolve({ input, ctx }) {
-            if (!ctx.user) {
-                throw new TRPCError({ code: "UNAUTHORIZED" });
-            }
+    updateCommentsInteraction: loggedInProcedure
+        .input(
+            z.object({
+                id: z.number(),
+                status: z.enum(["liked", "supported", "disliked"]).nullable(),
+            })
+        )
+        .mutation(async ({ input, ctx }) => {
             const originalComment = await ctx.prisma.comments.findUniqueOrThrow(
                 {
                     where: { id: input.id },
@@ -270,9 +223,7 @@ export const commentsRouter = createRouter()
                 }
             }
 
-            const UserObject = {
-                id: ctx.user.id,
-            };
+            const UserObject = { id: ctx.user.id };
 
             const updatedComment = await ctx.prisma.comments.update({
                 where: {
@@ -312,16 +263,14 @@ export const commentsRouter = createRouter()
             appendArticleUpdate(updatedComment.inArgument.articleId);
 
             return;
-        },
-    })
-    .mutation("deleteComment", {
-        input: z.object({
-            id: z.number(),
         }),
-        async resolve({ input, ctx }) {
-            if (!ctx.user) {
-                throw new TRPCError({ code: "UNAUTHORIZED" });
-            }
+    deleteComment: loggedInProcedure
+        .input(
+            z.object({
+                id: z.number(),
+            })
+        )
+        .mutation(async ({ input, ctx }) => {
             const deletingComment = await ctx.prisma.comments.findUnique({
                 where: { id: input.id },
             });
@@ -353,5 +302,5 @@ export const commentsRouter = createRouter()
             await appendArticleUpdate(data.inArgument.articleId);
 
             return;
-        },
-    });
+        }),
+});

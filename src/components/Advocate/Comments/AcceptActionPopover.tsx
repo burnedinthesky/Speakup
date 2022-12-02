@@ -18,8 +18,7 @@ const AcceptActionPopover = ({
 }: AcceptActionPopoverProps) => {
     const [opened, { close, open }] = useDisclosure(false);
 
-    const clearCommentReportMutation = trpc.useMutation(
-        ["advocate.comments.clearCommentReports"],
+    const clearCommentReportMutation = trpc.advocate.comments.clearCommentReports.useMutation(
         {
             onSuccess: () => {
                 removeCard();

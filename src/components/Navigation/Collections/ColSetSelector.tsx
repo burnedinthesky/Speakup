@@ -44,7 +44,7 @@ const ColSetSelector = ({
     selectedSets,
     setOpenCreateColSelModal,
 }: ColSetSelectorProps) => {
-    const upsertCollectionMutation = useUpsertCollectionMutation();
+    const upsertCollectionMutation = useUpsertCollectionMutation({ articleId });
 
     return (
         <ScrollArea.Autosize maxHeight={256}>

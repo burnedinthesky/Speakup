@@ -23,7 +23,7 @@ const ResetPwd = () => {
         }
     }, [router.isReady]);
 
-    const resetPasswordMutation = trpc.useMutation(["users.resetPwd"], {
+    const resetPasswordMutation = trpc.users.resetPwd.useMutation({
         onSuccess: async (data) => {
             console.log("success");
             const res = await signIn("credentials", {

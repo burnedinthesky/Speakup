@@ -1,10 +1,10 @@
-import { createRouter } from "../createRouter";
-import { Argument, Stances } from "../../types/comments.types";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { Argument, Stances } from "../../types/comments.types";
 
 import { prisma } from "../../utils/prisma";
 import { ArgumentThread, User } from "@prisma/client";
+import { loggedInProcedure, publicProcedure, router } from "../trpc";
 
 const appendArticleUpdate = async (id: string) => {
     await prisma.articles.update({
@@ -57,15 +57,16 @@ const formatIntoArgument = (
     };
 };
 
-export const argumentsRouter = createRouter()
-    .mutation("createArgument", {
-        input: z.object({
-            articleId: z.string(),
-            content: z.string(),
-            stance: z.enum(["sup", "agn", "neu"]),
-        }),
-        async resolve({ input, ctx }) {
-            if (!ctx.user) throw new TRPCError({ code: "UNAUTHORIZED" });
+export const argumentsRouter = router({
+    createArgument: loggedInProcedure
+        .input(
+            z.object({
+                articleId: z.string(),
+                content: z.string(),
+                stance: z.enum(["sup", "agn", "neu"]),
+            })
+        )
+        .mutation(async ({ input, ctx }) => {
             const arg = await ctx.prisma.argument.create({
                 data: {
                     content: input.content,
@@ -100,17 +101,18 @@ export const argumentsRouter = createRouter()
             await appendArticleUpdate(input.articleId);
 
             return formatIntoArgument(arg, ctx.user.id);
-        },
-    })
-    .query("getArticleArguments", {
-        input: z.object({
-            articleId: z.string(),
-            stance: z.enum(["sup", "agn", "both"]),
-            sort: z.enum(["default", "time", "replies"]),
-            limit: z.number().min(1).max(100),
-            cursor: z.number().nullish(),
         }),
-        async resolve({ input, ctx }) {
+    getArticleArguments: publicProcedure
+        .input(
+            z.object({
+                articleId: z.string(),
+                stance: z.enum(["sup", "agn", "both"]),
+                sort: z.enum(["default", "time", "replies"]),
+                limit: z.number().min(1).max(100),
+                cursor: z.number().nullish(),
+            })
+        )
+        .query(async ({ input, ctx }) => {
             const user = ctx.user
                 ? ctx.user
                 : {
@@ -229,15 +231,15 @@ export const argumentsRouter = createRouter()
                 retData,
                 nextCursor,
             };
-        },
-    })
-    .mutation("updateArgumentInteraction", {
-        input: z.object({
-            id: z.number(),
-            status: z.enum(["liked", "supported", "disliked"]).nullable(),
         }),
-        async resolve({ input, ctx }) {
-            if (!ctx.user) throw new TRPCError({ code: "UNAUTHORIZED" });
+    updateArgumentInteraction: loggedInProcedure
+        .input(
+            z.object({
+                id: z.number(),
+                status: z.enum(["liked", "supported", "disliked"]).nullable(),
+            })
+        )
+        .mutation(async ({ input, ctx }) => {
             const originalComment = await ctx.prisma.argument.findUniqueOrThrow(
                 {
                     where: { id: input.id },
@@ -319,22 +321,20 @@ export const argumentsRouter = createRouter()
             await appendArticleUpdate(updatedArg.articleId);
 
             return;
-        },
-    })
-    .mutation("deleteArgument", {
-        input: z.object({
-            id: z.number(),
         }),
-        async resolve({ input, ctx }) {
-            if (!ctx.user) throw new TRPCError({ code: "UNAUTHORIZED" });
-            const arg = await ctx.prisma.argument.findMany({
+    deleteArgument: loggedInProcedure
+        .input(
+            z.object({
+                id: z.number(),
+            })
+        )
+        .mutation(async ({ input, ctx }) => {
+            await ctx.prisma.argument.findFirstOrThrow({
                 where: {
                     id: input.id,
                     authorId: ctx.user.id,
                 },
             });
-
-            if (arg.length < 1) throw new TRPCError({ code: "FORBIDDEN" });
 
             await ctx.prisma.argument.delete({
                 where: {
@@ -343,16 +343,16 @@ export const argumentsRouter = createRouter()
             });
 
             return;
-        },
-    })
-    .mutation("createNewThread", {
-        input: z.object({
-            argumentId: z.number(),
-            name: z.string().min(2).max(8),
-            updatingComments: z.array(z.number()),
         }),
-        async resolve({ input, ctx }) {
-            if (!ctx.user) throw new TRPCError({ code: "UNAUTHORIZED" });
+    createNewThread: loggedInProcedure
+        .input(
+            z.object({
+                argumentId: z.number(),
+                name: z.string().min(2).max(8),
+                updatingComments: z.array(z.number()),
+            })
+        )
+        .mutation(async ({ input, ctx }) => {
             const thread = await ctx.prisma.argumentThread.create({
                 data: {
                     argumentId: input.argumentId,
@@ -377,15 +377,15 @@ export const argumentsRouter = createRouter()
             });
 
             return thread;
-        },
-    })
-    .mutation("updateThread", {
-        input: z.object({
-            threadId: z.number(),
-            name: z.string().min(2).max(8),
         }),
-        async resolve({ input, ctx }) {
-            if (!ctx.user) throw new TRPCError({ code: "UNAUTHORIZED" });
+    updateThread: loggedInProcedure
+        .input(
+            z.object({
+                threadId: z.number(),
+                name: z.string().min(2).max(8),
+            })
+        )
+        .mutation(async ({ input, ctx }) => {
             const updated = await ctx.prisma.argumentThread.update({
                 where: {
                     id: input.threadId,
@@ -401,14 +401,14 @@ export const argumentsRouter = createRouter()
             });
 
             return updated;
-        },
-    })
-    .mutation("deleteThread", {
-        input: z.object({
-            id: z.number(),
         }),
-        async resolve({ input, ctx }) {
-            if (!ctx.user) throw new TRPCError({ code: "UNAUTHORIZED" });
+    deleteThread: loggedInProcedure
+        .input(
+            z.object({
+                id: z.number(),
+            })
+        )
+        .mutation(async ({ input, ctx }) => {
             await ctx.prisma.argumentThread.delete({
                 where: {
                     id: input.id,
@@ -416,5 +416,5 @@ export const argumentsRouter = createRouter()
             });
 
             return;
-        },
-    });
+        }),
+});

@@ -1,8 +1,11 @@
-import { inferAsyncReturnType } from "@trpc/server";
 import { NextApiRequest, NextApiResponse } from "next";
-import { prisma } from "../utils/prisma";
+
+import { inferAsyncReturnType } from "@trpc/server";
+import * as trpcNext from "@trpc/server/adapters/next";
 
 import { getToken } from "next-auth/jwt";
+
+import { prisma } from "../utils/prisma";
 
 async function getUserFromRequest(req: NextApiRequest) {
     const token = await getToken({ req });
@@ -21,10 +24,7 @@ async function getUserFromRequest(req: NextApiRequest) {
 export async function createContext({
     req,
     res,
-}: {
-    req: NextApiRequest;
-    res: NextApiResponse;
-}) {
+}: trpcNext.CreateNextContextOptions) {
     const user = await getUserFromRequest(req);
 
     return { req, res, prisma, user };
