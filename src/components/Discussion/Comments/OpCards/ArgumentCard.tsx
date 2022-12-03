@@ -12,6 +12,7 @@ import { Argument } from "../../../../types/comments.types";
 import useLoggedInAction from "../../../../hooks/authProtected/useLoggedInAction";
 import { useSession } from "next-auth/react";
 import { Avatar } from "@mantine/core";
+import PfLinkedUsername from "../../../User/Profile/PfLinkedUsername";
 
 interface ArgumentCardProps {
     data: Argument;
@@ -74,9 +75,10 @@ const ArgumentCard = forwardRef<HTMLDivElement, ArgumentCardProps>(
                         {data.author.name}
                     </Avatar>
                     <div className="flex-grow">
-                        <h3 className="text-base text-primary-800">
-                            {data.author.name}
-                        </h3>
+                        <PfLinkedUsername
+                            id={data.author.id}
+                            username={data.author.name}
+                        />
                         <p className="mt-2 mb-3 text-base text-neutral-700">
                             {data.content}
                         </p>

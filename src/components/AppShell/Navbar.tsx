@@ -6,6 +6,7 @@ import {
     TrendingUpIcon,
     BookmarkIcon,
     ShieldExclamationIcon,
+    FireIcon,
 } from "@heroicons/react/outline";
 import { ArticleTagValues } from "../../types/article.types";
 import { ScrollArea } from "@mantine/core";
@@ -64,9 +65,7 @@ const Navbar = ({ retractable }: { retractable: boolean }) => {
                         <NavbarSection
                             retractable={retractable}
                             link="/search/results?tags=熱門議題"
-                            icon={
-                                <TrendingUpIcon className="w-7 flex-shrink-0" />
-                            }
+                            icon={<FireIcon className="w-7 flex-shrink-0" />}
                             text="熱門議題"
                         />
                         <NavbarSection

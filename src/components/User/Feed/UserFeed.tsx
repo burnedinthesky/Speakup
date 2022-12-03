@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
-import { trpc } from "../../utils/trpc";
+import { trpc } from "../../../utils/trpc";
 import FeedBlock from "./FeedBlock";
 import FeedBlockLoading from "./FeedBlockLoading";
 

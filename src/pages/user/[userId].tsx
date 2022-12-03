@@ -2,7 +2,7 @@ import { GetServerSideProps } from "next";
 import { prisma } from "../../utils/prisma";
 import { AppShell } from "../../components/AppShell";
 import { Avatar } from "@mantine/core";
-import UserFeed from "../../components/User/UserFeed";
+import UserFeed from "../../components/User/Feed/UserFeed";
 
 interface UserData {
     id: string;
