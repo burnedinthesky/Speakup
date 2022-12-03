@@ -6,6 +6,7 @@ import ExtendedMenu from "../OpCardComponents/ExtendedMenu";
 import { Comment } from "../../../../types/comments.types";
 import { Avatar, Badge } from "@mantine/core";
 import { ChatAlt2Icon } from "@heroicons/react/outline";
+import PfLinkedUsername from "../../../User/Profile/PfLinkedUsername";
 
 interface CommentCardProps {
     data: Comment;
@@ -52,9 +53,10 @@ const CommentCard = forwardRef<HTMLDivElement, CommentCardProps>(
                     </Avatar>
                     <div className="flex-grow">
                         <div className="flex items-center gap-2">
-                            <h3 className="text-base text-primary-800">
-                                {data.author.name}
-                            </h3>
+                            <PfLinkedUsername
+                                id={data.author.id}
+                                username={data.author.name}
+                            />
                             <div className="h-[18px] w-24 md:w-36">
                                 {data.thread && (
                                     <Badge
