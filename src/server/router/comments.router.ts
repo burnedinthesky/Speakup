@@ -5,9 +5,10 @@ import { TRPCError } from "@trpc/server";
 import { ArgumentThread, User } from "@prisma/client";
 import { prisma } from "../../utils/prisma";
 import { loggedInProcedure, publicProcedure, router } from "../trpc";
+import { updateUserReputation } from "../lib/updateReputation";
 
-const appendArticleUpdate = async (id: string) => {
-    await prisma.articles.update({
+const appendArticleUpdate = (id: string) => {
+    return prisma.articles.update({
         where: { id },
         data: {
             requiresArgIndex: true,
@@ -20,6 +21,7 @@ interface dbCommentFormat {
         id: string;
         name: string;
         profileImg: string | null;
+        reputation: number;
     };
     content: string;
     stance: string;
@@ -80,7 +82,12 @@ export const commentsRouter = router({
                     id: true,
                     content: true,
                     author: {
-                        select: { id: true, name: true, profileImg: true },
+                        select: {
+                            id: true,
+                            name: true,
+                            profileImg: true,
+                            reputation: true,
+                        },
                     },
                     stance: true,
                     _count: {
@@ -90,6 +97,9 @@ export const commentsRouter = router({
                             dislikedUsers: true,
                         },
                     },
+                    inArgument: {
+                        select: { articleId: true },
+                    },
                     inThread: {
                         select: { id: true, name: true, argumentId: true },
                     },
@@ -98,6 +108,14 @@ export const commentsRouter = router({
                     dislikedUsers: { where: { id: ctx.user.id } },
                 },
             });
+
+            await Promise.all([
+                appendArticleUpdate(comment.inArgument.articleId),
+                updateUserReputation({
+                    userId: ctx.user.id,
+                    amount: 50,
+                }),
+            ]);
 
             return formatIntoComment(comment, ctx.user.id);
         }),
@@ -137,7 +155,12 @@ export const commentsRouter = router({
                     id: true,
                     content: true,
                     author: {
-                        select: { id: true, name: true, profileImg: true },
+                        select: {
+                            id: true,
+                            name: true,
+                            profileImg: true,
+                            reputation: true,
+                        },
                     },
                     stance: true,
                     inThread: {
@@ -256,11 +279,31 @@ export const commentsRouter = router({
                     },
                 },
                 select: {
+                    authorId: true,
                     inArgument: { select: { articleId: true } },
                 },
             });
 
-            appendArticleUpdate(updatedComment.inArgument.articleId);
+            let updatedReputation = 0;
+            if (
+                !current.liked &&
+                !current.supported &&
+                connect.some((arg) => ["liked", "support"].includes(arg))
+            )
+                updatedReputation = 5;
+            else if (
+                (current.liked && disconnect.includes("liked")) ||
+                (current.supported && disconnect.includes("supported"))
+            )
+                updatedReputation = -5;
+
+            await Promise.all([
+                appendArticleUpdate(updatedComment.inArgument.articleId),
+                updateUserReputation({
+                    userId: updatedComment.authorId,
+                    amount: updatedReputation,
+                }),
+            ]);
 
             return;
         }),
@@ -299,7 +342,11 @@ export const commentsRouter = router({
                     });
                 }
             }
-            await appendArticleUpdate(data.inArgument.articleId);
+
+            await Promise.all([
+                appendArticleUpdate(data.inArgument.articleId),
+                updateUserReputation({ userId: ctx.user.id, amount: -50 }),
+            ]);
 
             return;
         }),

@@ -97,9 +97,11 @@ model User {
     sessions Session[]
 
     actionLogs Log_UserActions[]
-    articles   Articles[]
-    arguments  Argument[]        @relation("postedArguments")
-    comments   Comments[]        @relation("postedComments")
+    reputation Int               @default(0)
+
+    articles  Articles[]
+    arguments Argument[] @relation("postedArguments")
+    comments  Comments[] @relation("postedComments")
 
     likedArguments     Argument[] @relation("likedArguments")
     dislikedArguments  Argument[] @relation("supportedArguments")

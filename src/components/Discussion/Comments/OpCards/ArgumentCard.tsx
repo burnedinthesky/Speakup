@@ -78,6 +78,7 @@ const ArgumentCard = forwardRef<HTMLDivElement, ArgumentCardProps>(
                         <PfLinkedUsername
                             id={data.author.id}
                             username={data.author.name}
+                            reputation={data.author.reputation}
                         />
                         <p className="mt-2 mb-3 text-base text-neutral-700">
                             {data.content}

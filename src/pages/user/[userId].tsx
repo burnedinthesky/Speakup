@@ -3,6 +3,10 @@ import { prisma } from "../../utils/prisma";
 import { AppShell } from "../../components/AppShell";
 import { Avatar } from "@mantine/core";
 import UserFeed from "../../components/User/Feed/UserFeed";
+import { QuestionMarkCircleIcon } from "@heroicons/react/solid";
+import { useState } from "react";
+import ReputationExpModal from "../../components/User/Feed/ReputationExpModal";
+import ReputationBar from "../../components/User/Reputation/ReputationBar";
 
 interface UserData {
     id: string;
@@ -11,9 +15,12 @@ interface UserData {
     arguments: number;
     comments: number;
     articles: number;
+    reputation: number;
 }
 
 const UserProfilePage = ({ userData }: { userData: UserData }) => {
+    const [openRegExpModal, setOpenRegExpModal] = useState<boolean>(false);
+
     return (
         <AppShell title={`Speakup - ${userData.name}`} navbarRetractable={true}>
             <div className="mx-auto my-24 w-full max-w-4xl rounded-lg bg-neutral-50 py-10 px-12">
@@ -30,7 +37,17 @@ const UserProfilePage = ({ userData }: { userData: UserData }) => {
                     <h1 className="mt-5 text-2xl font-bold text-primary-800">
                         {userData.name}
                     </h1>
-                    <h3 className="mt-3 text-sm">聲望</h3>
+                    <div className="mt-3 flex items-center gap-2">
+                        <h3>聲望</h3>
+                        <button
+                            onClick={() => {
+                                setOpenRegExpModal(true);
+                            }}
+                        >
+                            <QuestionMarkCircleIcon className="h-4 text-neutral-700" />
+                        </button>
+                    </div>
+                    <ReputationBar reputation={userData.reputation} />
                     <p className="mt-3 text-neutral-700">
                         <span className="inline-block">
                             {userData.arguments}個論點
@@ -46,6 +63,10 @@ const UserProfilePage = ({ userData }: { userData: UserData }) => {
                     </p>
                 </div>
                 <UserFeed userId={userData.id} userName={userData.name} />
+                <ReputationExpModal
+                    opened={openRegExpModal}
+                    setOpened={setOpenRegExpModal}
+                />
             </div>
         </AppShell>
     );
@@ -63,6 +84,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         select: {
             profileImg: true,
             name: true,
+            reputation: true,
             _count: {
                 select: {
                     arguments: true,
@@ -88,6 +110,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         arguments: userProfile._count.arguments,
         comments: userProfile._count.comments,
         articles: userProfile._count.articles,
+        reputation: userProfile.reputation,
     };
 
     return {

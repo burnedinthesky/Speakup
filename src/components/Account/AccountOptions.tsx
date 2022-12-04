@@ -3,6 +3,7 @@ import {
     ChevronDownIcon,
     LogoutIcon,
     MicrophoneIcon,
+    UserCircleIcon,
 } from "@heroicons/react/outline";
 import { Avatar, Menu } from "@mantine/core";
 import { useRouter } from "next/router";
@@ -43,6 +44,15 @@ const AccountOptions = () => {
                 </button>
             </Menu.Target>
             <Menu.Dropdown>
+                <Menu.Item
+                    className="text-primary-900"
+                    icon={<UserCircleIcon className="h-7 w-7" />}
+                    onClick={() => {
+                        router.push(`/user/${session?.user.id}`);
+                    }}
+                >
+                    帳戶
+                </Menu.Item>
                 <Menu.Item
                     className="text-primary-900"
                     icon={<CogIcon className="h-7 w-7" />}
