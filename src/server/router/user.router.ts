@@ -492,8 +492,6 @@ export const userRouter = router({
             })
         )
         .query(async ({ ctx, input }) => {
-            await new Promise((resolve) => setTimeout(resolve, 3000));
-
             const cursor = input.cursor
                 ? input.cursor
                 : {
