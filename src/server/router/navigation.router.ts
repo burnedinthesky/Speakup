@@ -1,7 +1,10 @@
 import { z } from "zod";
-import { Prisma } from "@prisma/client";
+import { Prisma, UserTagPreference } from "@prisma/client";
 import { articleIndex } from "../../utils/algolia";
-import { ArticleTagSlugsToVals } from "../../types/article.types";
+import {
+    ArticleTagSlugsToVals,
+    TypeArticleTagSlugs,
+} from "../../types/article.types";
 import {
     CollectionSet,
     HomeRecommendations,
@@ -42,10 +45,21 @@ const processArticles = (
 
 export const navigationRouter = router({
     home: loggedInProcedure.query(async ({ ctx }) => {
-        let userPrefs = ctx.user.tagPreference as {
-            slug: string;
-            pref: number;
-        }[];
+        let dbUserTagPref = ctx.user.tagPreference as UserTagPreference | null;
+
+        if (dbUserTagPref === null)
+            throw new TRPCError({
+                code: "INTERNAL_SERVER_ERROR",
+                message:
+                    "Failed to retrieve user tag preference, please contact Speakup support",
+            });
+
+        let userPrefs = (
+            Object.keys(dbUserTagPref) as TypeArticleTagSlugs[]
+        ).map((key) => ({
+            slug: key,
+            pref: (dbUserTagPref as UserTagPreference)[key] as number,
+        }));
 
         userPrefs = userPrefs.map((ele) => ({
             ...ele,
