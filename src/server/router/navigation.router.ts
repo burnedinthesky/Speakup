@@ -81,8 +81,8 @@ export const navigationRouter = router({
 
         takeTags = takeTags.sort((a, b) => (a.pref > b.pref ? -1 : 1));
 
-        let takeTagVals = takeTags.map(
-            (ele) => ArticleTagSlugsToVals[ele.slug] as string
+        let takeTagVals = takeTags.map((ele) =>
+            ArticleTagSlugsToVals(ele.slug)
         );
 
         const orderBy = Math.round(Math.random() * 4);

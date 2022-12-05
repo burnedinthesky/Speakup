@@ -56,6 +56,7 @@ const CommentCard = forwardRef<HTMLDivElement, CommentCardProps>(
                             <PfLinkedUsername
                                 id={data.author.id}
                                 username={data.author.name}
+                                reputation={data.author.reputation}
                             />
                             <div className="h-[18px] w-24 md:w-36">
                                 {data.thread && (
