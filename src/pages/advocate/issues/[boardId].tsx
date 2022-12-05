@@ -14,7 +14,8 @@ import DesktopBlockProperties from "../../../components/Advocate/Issues/Editor/D
 import {
     ArticleBlock,
     ArticleBlockTypes,
-    ArticleTags,
+    ArticleTagValues,
+    TypeArticleTagValues,
 } from "../../../types/article.types";
 import {
     ArticleStatus,
@@ -201,7 +202,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         brief: issue.brief,
         author: issue.author,
         title: issue.title,
-        tags: issue.tags as ArticleTags[],
+        tags: issue.tags as TypeArticleTagValues[],
         content: issue.content as ArticleBlock[],
         references: issue.references,
         viewCount: issue.viewCount,

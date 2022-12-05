@@ -1,7 +1,10 @@
 import { MultiSelect, Textarea } from "@mantine/core";
 import { useRecoilState } from "recoil";
 import { articlePropertiesAtom } from "../../../../atoms/advocate/articleEditorAtoms";
-import { ArticleTags, ArticleTagValues } from "../../../../types/article.types";
+import {
+    ArticleTagValues,
+    TypeArticleTagValues,
+} from "../../../../types/article.types";
 
 const ArticleProperties = () => {
     const [properties, setProperties] = useRecoilState(articlePropertiesAtom);
@@ -24,7 +27,7 @@ const ArticleProperties = () => {
                     setProperties((data) => {
                         return {
                             ...data,
-                            tags: val as ArticleTags[],
+                            tags: val as TypeArticleTagValues[],
                         };
                     });
                 }}

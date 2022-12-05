@@ -22,8 +22,12 @@ const UserProfilePage = ({ userData }: { userData: UserData }) => {
     const [openRegExpModal, setOpenRegExpModal] = useState<boolean>(false);
 
     return (
-        <AppShell title={`Speakup - ${userData.name}`} navbarRetractable={true}>
-            <div className="mx-auto my-24 w-full max-w-4xl rounded-lg bg-neutral-50 py-10 px-12">
+        <AppShell
+            title={`Speakup - ${userData.name}`}
+            navbarRetractable={true}
+            rootDivStyle="fixed top-0 left-0 h-screen w-screen  bg-neutral-50 lg:bg-neutral-100 scrollbar-hide overflow-x-hidden"
+        >
+            <div className="mx-auto my-16 w-full max-w-4xl rounded-lg bg-neutral-50 py-10 px-4 sm:px-8 lg:my-24 lg:px-12">
                 <div className="flex w-full flex-col items-center">
                     <Avatar
                         src={userData.profile}
