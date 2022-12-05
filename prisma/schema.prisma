@@ -91,7 +91,7 @@ model User {
     role       UserRole  @default(USER)
     onBoarded  Boolean   @default(false)
 
-    tagPreference Json @default("[{\"slug\": \"ent\", \"pref\": 0.1}, {\"slug\": \"env\", \"pref\": 0.1}, {\"slug\": \"jus\", \"pref\": 0.1}, {\"slug\": \"cnd\", \"pref\": 0.1}, {\"slug\": \"eco\", \"pref\": 0.1}, {\"slug\": \"min\", \"pref\": 0.1}, {\"slug\": \"mda\", \"pref\": 0.1}, {\"slug\": \"med\", \"pref\": 0.1}, {\"slug\": \"eth\", \"pref\": 0.1}, {\"slug\": \"pol\", \"pref\": 0.1}, {\"slug\": \"edu\", \"pref\": 0.1}, {\"slug\": \"fam\", \"pref\": 0.1}, {\"slug\": \"fem\", \"pref\": 0.1}, {\"slug\": \"lib\", \"pref\": 0.1}, {\"slug\": \"rel\", \"pref\": 0.1}, {\"slug\": \"tec\", \"pref\": 0.1}, {\"slug\": \"plc\", \"pref\": 0.1}, {\"slug\": \"scm\", \"pref\": 0.1}, {\"slug\": \"spr\", \"pref\": 0.1}]")
+    tagPreference UserTagPreference?
 
     accounts Account[]
     sessions Session[]
@@ -120,6 +120,33 @@ model User {
     argumentReports   ArgumentReports[]
     commentReports    CommentReports[]
     articleReports    ArticleReports[]
+}
+
+model UserTagPreference {
+    id Int @id @unique @default(autoincrement())
+
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId String @unique
+
+    ent Float @default(0.1)
+    env Float @default(0.1)
+    jus Float @default(0.1)
+    cnd Float @default(0.1)
+    eco Float @default(0.1)
+    min Float @default(0.1)
+    mda Float @default(0.1)
+    med Float @default(0.1)
+    eth Float @default(0.1)
+    pol Float @default(0.1)
+    edu Float @default(0.1)
+    fam Float @default(0.1)
+    fem Float @default(0.1)
+    lib Float @default(0.1)
+    rel Float @default(0.1)
+    tec Float @default(0.1)
+    plc Float @default(0.1)
+    scm Float @default(0.1)
+    spr Float @default(0.1)
 }
 
 enum PrivateUserRole {
