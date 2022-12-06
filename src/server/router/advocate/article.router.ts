@@ -262,12 +262,18 @@ export const articleRouter = router({
                     authorId: ctx.user.id,
                 },
                 select: {
-                    references: { select: { link: true } },
+                    references: { select: { id: true, link: true } },
                     status: { select: { status: true } },
                 },
             });
 
             prevRefLinks = currentArticle.references.map((ref) => ref.link);
+            let deleteRefIds: bigint[] = [];
+            currentArticle.references.forEach((refLink) => {
+                if (!input.references.includes(refLink.link)) {
+                    deleteRefIds.push(refLink.id);
+                }
+            });
 
             if (!currentArticle.status)
                 throw new TRPCError({
@@ -297,6 +303,9 @@ export const articleRouter = router({
                     brief: input.brief,
                     content: input.content,
                     references: {
+                        deleteMany: {
+                            id: { in: deleteRefIds },
+                        },
                         createMany: {
                             skipDuplicates: true,
                             data: references.filter(
