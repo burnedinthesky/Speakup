@@ -3,7 +3,7 @@ import { GetStaticProps } from "next";
 import { prisma } from "../../utils/prisma";
 
 import { AppShell } from "../../components/AppShell";
-import ArticleViewer from "../../components/Discussion/Article/ArticleViewer";
+import ArticleViewer from "../../components/Article/ArticleViewer";
 import CommentField from "../../components/Discussion/Comments/CommentField";
 
 import StanceSelector from "../../components/Discussion/Selectors/StanceSelector";
@@ -11,7 +11,6 @@ import SortSelector from "../../components/Discussion/Selectors/SortSelector";
 
 import { Article } from "../../types/article.types";
 import { trpc } from "../../utils/trpc";
-import { useSession } from "next-auth/react";
 
 interface DiscussionProps {
     article: Article;
@@ -23,8 +22,6 @@ const DiscussionBoard = ({ article }: DiscussionProps) => {
         "default" | "time" | "replies"
     >("default");
     const [screenSize, setScreenSize] = useState<"mob" | "des">("mob");
-
-    const { data: session } = useSession();
 
     const registerViewMutation = trpc.articles.registerView.useMutation();
 
@@ -62,7 +59,7 @@ const DiscussionBoard = ({ article }: DiscussionProps) => {
         >
             <div className="mx-auto w-11/12 max-w-3xl scrollbar-hide lg:px-4">
                 <div className="mt-6 w-full lg:mt-10">
-                    <ArticleViewer article={article} />
+                    <ArticleViewer article={article} showInteractions={false} />
                     <div className="h-10" />
                     <div className="mx-auto flex w-full justify-between lg:mb-4">
                         <div className="w-full bg-neutral-50 pb-1 pt-0.5 lg:w-1/2 lg:min-w-[360px] lg:rounded-full lg:px-8">

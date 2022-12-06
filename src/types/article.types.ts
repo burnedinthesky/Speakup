@@ -16,9 +16,17 @@ export type TypeArticleTagSlugs = "ent" | "env" | "jus" | "cnd" | "eco" | "min" 
 
 export type ArticleBlockTypes = "h1" | "h2" | "h3" | "p" | "spoiler";
 
+export type ArticleBlockStyles = {
+    h1?: string;
+    h2?: string;
+    h3?: string;
+    p?: string;
+};
+
 export type ArticleBlock = {
     type: ArticleBlockTypes;
     content: string;
+    styles?: ArticleBlockStyles;
     spoilerTitle?: string;
 };
 

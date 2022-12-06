@@ -1,10 +1,12 @@
+import { avcProcedure, router } from "../../trpc";
+
 import z from "zod";
 import { TRPCError } from "@trpc/server";
 import { getLinkPreview } from "link-preview-js";
-import { AvcArticleCard } from "../../../types/advocate/article.types";
-import { ReferencesLink } from "../../../types/article.types";
-import { ArticleModStatus, Prisma } from "@prisma/client";
-import { avcProcedure, router } from "../../trpc";
+
+import type { ArticleModStatus } from "@prisma/client";
+import type { AvcArticleCard } from "../../../types/advocate/article.types";
+import type { ReferencesLink } from "../../../types/article.types";
 
 type LinkPreviewPromise = Promise<
     | {
@@ -242,5 +244,101 @@ export const articleRouter = router({
             return {
                 id: data.id,
             };
+        }),
+
+    pendingModeration: avcProcedure.query(async ({ ctx }) => {
+        const pending_mod = await ctx.prisma.articleModStatus.findMany({
+            where: { moderatorId: ctx.user.id },
+            select: {
+                article: {
+                    select: { id: true, title: true },
+                },
+                registeredModDate: true,
+            },
+            orderBy: { registeredModDate: "asc" },
+        });
+
+        let updateDateQueries: Promise<any>[] = [];
+
+        const ret = pending_mod.map((atc) => {
+            let currentTime = new Date();
+            if (!atc.registeredModDate) {
+                updateDateQueries.push(
+                    ctx.prisma.articleModStatus.update({
+                        where: { articlesId: atc.article.id },
+                        data: { registeredModDate: currentTime },
+                    })
+                );
+            }
+
+            let registeredModDate = atc.registeredModDate
+                ? atc.registeredModDate
+                : currentTime;
+
+            let remainingDays =
+                7 -
+                Math.floor(
+                    (new Date().getTime() - registeredModDate.getTime()) /
+                        1000 /
+                        86400
+                );
+
+            return {
+                id: atc.article.id,
+                title: atc.article.title,
+                remainingDays: remainingDays,
+            };
+        });
+
+        await Promise.all(updateDateQueries);
+
+        return ret;
+    }),
+
+    moderationPassed: avcProcedure
+        .input(
+            z.object({
+                id: z.string(),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+            await ctx.prisma.articleModStatus.findFirstOrThrow({
+                where: { articlesId: input.id, moderatorId: ctx.user.id },
+            });
+
+            await ctx.prisma.articleModStatus.update({
+                where: { articlesId: input.id },
+                data: {
+                    desc: "",
+                    registeredModDate: null,
+                    status: "passed",
+                    moderator: { disconnect: true },
+                },
+            });
+        }),
+
+    moderationFailed: avcProcedure
+        .input(
+            z.object({
+                id: z.string(),
+                reason: z.string().min(50),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+            await ctx.prisma.articleModStatus.findFirstOrThrow({
+                where: { articlesId: input.id, moderatorId: ctx.user.id },
+            });
+
+            await ctx.prisma.articleModStatus.update({
+                where: {
+                    articlesId: input.id,
+                },
+                data: {
+                    status: "failed",
+                    desc: input.reason,
+                    registeredModDate: null,
+                    moderator: { disconnect: true },
+                },
+            });
         }),
 });
