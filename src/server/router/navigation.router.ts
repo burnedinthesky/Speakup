@@ -100,7 +100,6 @@ export const navigationRouter = router({
         });
 
         if (fetchedArticles.length === 0) {
-            console.log("Refetch triggered");
             fetchedArticles = await ctx.prisma.articles.findMany({
                 select: {
                     id: true,
@@ -131,14 +130,6 @@ export const navigationRouter = router({
             },
         };
 
-        userPrefs.forEach((pref) => {
-            try {
-                ArticleTagSlugsToVals(pref.slug);
-            } catch {
-                console.log(pref.slug);
-            }
-        });
-
         let tagsOrder = randomObjectSelection<TypeArticleTagValues>(
             userPrefs.map((pref) => ArticleTagSlugsToVals(pref.slug)),
             userPrefs.length,
@@ -148,20 +139,13 @@ export const navigationRouter = router({
         let tagsIndex = 0;
         let hasTags = 0;
 
-        console.log(tagsOrder);
-
         while (tagsIndex < userPrefs.length && hasTags < 4) {
-            console.log(tagsIndex);
-            console.log(tagsOrder[tagsIndex]);
-
             tagsIndex++;
             let tag = tagsOrder[tagsIndex] as string;
             let articlesWithTag = fetchedArticles.filter((article) => {
                 return article.tags.includes(tag);
             });
             if (articlesWithTag.length === 0) continue;
-
-            console.log("has tag ++");
 
             hasTags++;
             ret[tag] = {
@@ -191,9 +175,6 @@ export const navigationRouter = router({
         )
         .query(async ({ ctx, input }) => {
             const page = input.onPage ? input.onPage - 1 : 0;
-
-            console.log(input.keyword);
-            console.log(input.tags);
 
             let keyword: string | null | undefined = input.keyword;
             if (!input.keyword) keyword = input.tags?.join("");

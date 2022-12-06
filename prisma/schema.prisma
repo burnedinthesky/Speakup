@@ -91,13 +91,14 @@ model User {
     role       UserRole  @default(USER)
     onBoarded  Boolean   @default(false)
 
+    accounts          Account[]
+    sessions          Session[]
+    credEmailVerToken CredEmailVerToken?
+    credEmailLimiter  CredEmailLimiter?
+
+    actionLogs    Log_UserActions[]
+    reputation    Int                @default(0)
     tagPreference UserTagPreference?
-
-    accounts Account[]
-    sessions Session[]
-
-    actionLogs Log_UserActions[]
-    reputation Int               @default(0)
 
     articles  Articles[]
     arguments Argument[] @relation("postedArguments")
@@ -111,15 +112,15 @@ model User {
     dislikedComments  Comments[] @relation("supportedComments")
     supportedComments Comments[] @relation("dislikedComments")
 
-    privateUser       PrivateUser?
-    articleViews      ArticleViews[]
-    collections       Collections[]
-    collectionSet     CollectionSet[]
-    credEmailVerToken CredEmailVerToken?
-    credEmailLimiter  CredEmailLimiter?
-    argumentReports   ArgumentReports[]
-    commentReports    CommentReports[]
-    articleReports    ArticleReports[]
+    articleViews  ArticleViews[]
+    collections   Collections[]
+    collectionSet CollectionSet[]
+
+    argumentReports ArgumentReports[]
+    articleReports  ArticleReports[]
+    commentReports  CommentReports[]
+
+    pendModArticles ArticleModStatus[]
 }
 
 model UserTagPreference {
@@ -147,20 +148,6 @@ model UserTagPreference {
     plc Float @default(0.1)
     scm Float @default(0.1)
     spr Float @default(0.1)
-}
-
-enum PrivateUserRole {
-    USER
-    SYSTEMADMIN
-}
-
-model PrivateUser {
-    id           String @id @unique @default(uuid())
-    UserInstance User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-    userId       String @unique
-
-    role      PrivateUserRole @default(USER)
-    authToken String?         @unique @db.VarChar(64)
 }
 
 model CollectionSet {
@@ -212,14 +199,19 @@ model Articles {
 enum ArticleModStates {
     pending_mod
     passed
+    report_pending_mod
+    failed
 }
 
 model ArticleModStatus {
-    id         Int              @id @default(autoincrement())
-    status     ArticleModStates @default(pending_mod)
-    desc       String           @default("正在等候審核")
-    article    Articles         @relation(fields: [articlesId], references: [id], onDelete: Cascade)
-    articlesId String           @unique
+    id                Int              @id @default(autoincrement())
+    status            ArticleModStates @default(pending_mod)
+    desc              String           @default("正在等候審核")
+    article           Articles         @relation(fields: [articlesId], references: [id], onDelete: Cascade)
+    articlesId        String           @unique
+    moderator         User?            @relation(fields: [moderatorId], references: [id], onDelete: SetNull)
+    moderatorId       String?
+    registeredModDate DateTime?
 }
 
 model ArticleViews {

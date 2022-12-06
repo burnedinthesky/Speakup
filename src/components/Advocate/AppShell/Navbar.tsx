@@ -2,8 +2,8 @@ import Link from "next/link";
 
 import {
     ChatIcon,
-    ClipboardCheckIcon,
     CollectionIcon,
+    DocumentRemoveIcon,
     HomeIcon,
 } from "@heroicons/react/outline";
 import AccountOptions from "./AccountOptions";
@@ -41,8 +41,8 @@ const Navbar = ({
 }) => {
     return (
         <nav
-            className={`bg-whit group absolute top-0 left-0 z-10
-                h-full w-64 flex-shrink-0 border-r border-neutral-100 lg:fixed
+            className={`group absolute top-0 left-0 z-10 h-full
+                w-64 flex-shrink-0 border-r border-neutral-100 bg-white lg:fixed
                 ${mobileShow ? "flex" : "hidden lg:flex"}`}
         >
             <div className="relative flex h-full w-full flex-col overflow-hidden px-6 pt-10">
@@ -71,10 +71,10 @@ const Navbar = ({
                         highlight={highlight === "comments"}
                     />
                     <NavbarSection
-                        link="/advocate"
-                        icon={<ClipboardCheckIcon className="h-6 w-6" />}
-                        text="待辦事項"
-                        highlight={highlight === "todo"}
+                        link="/advocate/issues/moderate"
+                        icon={<DocumentRemoveIcon className="h-6 w-6" />}
+                        text="待審議題"
+                        highlight={highlight === "issueMod"}
                     />
                 </div>
                 <AccountOptions />
