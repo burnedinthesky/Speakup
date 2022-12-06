@@ -7,8 +7,8 @@
         "build": "next build",
         "start": "next start",
         "lint": "next lint",
-        "push": "dotenv -e .env.development.local -- npx prisma db push",
-        "migrate": "dotenv -e .env.development.local -- npx prisma migrate dev",
+        "push": "dotenv -e .env -- npx prisma db push",
+        "migrate": "dotenv -e .env -- npx prisma migrate dev",
         "migrate-prod": "dotenv -e .env.production.local -- npx prisma migrate deploy",
         "pmstd-prod": "dotenv -e .env.production.local -- npx prisma studio",
         "postinstall": "prisma generate"

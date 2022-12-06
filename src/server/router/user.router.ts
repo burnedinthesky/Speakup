@@ -284,7 +284,6 @@ export const userRouter = router({
                 data: {
                     emailVerified: new Date(),
                     tagPreference: { create: {} },
-                    privateUser: { create: {} },
                 },
             });
 
