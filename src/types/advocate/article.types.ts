@@ -1,6 +1,7 @@
+import { ArticleModStates } from "@prisma/client";
 import { Article, ReferencesLink } from "../article.types";
 
-export type ArticleStatus = "pending_mod" | "passed";
+export type ArticleStatus = ArticleModStates;
 
 export interface RawRefLinks {
     status: "queued" | "loading" | "fetched" | "not_found";
@@ -20,7 +21,9 @@ export interface AvcArticleCard {
 }
 
 export interface AvcArticle extends Article {
-    status: ArticleStatus;
-    status_desc: string;
+    modStatus: {
+        state: ArticleStatus;
+        desc: string;
+    };
     modPending: number;
 }

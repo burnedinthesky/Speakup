@@ -134,7 +134,7 @@ export const articleRouter = router({
                     status = {
                         articlesId: item.id,
                         status: "pending_mod",
-                        desc: "正在等候審核",
+                        desc: "因議題初次發布或被更新，因此正在等候審核中",
                     } as ArticleModStatus;
 
                 return {
@@ -154,7 +154,80 @@ export const articleRouter = router({
             };
         }),
 
-    upsertArticle: avcProcedure
+    createArticle: avcProcedure
+        .input(
+            z.object({
+                id: z.string().or(z.undefined()),
+                title: z.string(),
+                tags: z.array(z.string()).min(1).max(4),
+                brief: z.string().min(30).max(80),
+                content: z.array(
+                    z.object({
+                        type: z.enum(["h1", "h2", "h3", "p", "spoiler"]),
+                        content: z.string(),
+                    })
+                ),
+                references: z.array(z.string()),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+            let references: ReferencesLink[];
+            try {
+                references = await fetchLinksPreview(input.references);
+            } catch (e) {
+                throw new TRPCError({
+                    code: "TIMEOUT",
+                    message: "Failed to load references",
+                });
+            }
+
+            const articleWTitle = await ctx.prisma.articles.findFirst({
+                where: {
+                    title: input.title,
+                },
+            });
+            if (articleWTitle)
+                throw new TRPCError({
+                    code: "CONFLICT",
+                    message: "Article with title exists",
+                });
+
+            const moderator = await ctx.prisma.user.findFirst({
+                where: { role: { in: ["SENIOR_ADVOCATE", "ADMIN"] } },
+                orderBy: {
+                    pendModArticles: { _count: "asc" },
+                },
+            });
+
+            if (!moderator)
+                throw new TRPCError({
+                    code: "INTERNAL_SERVER_ERROR",
+                    message: "Senior Advocate not found",
+                });
+
+            const data = await ctx.prisma.articles.create({
+                data: {
+                    title: input.title,
+                    author: { connect: { id: ctx.user.id } },
+                    tags: input.tags,
+                    brief: input.brief,
+                    content: input.content,
+                    references: { createMany: { data: references } },
+                    status: {
+                        create: {
+                            moderator: { connect: { id: moderator.id } },
+                            registeredModDate: new Date(),
+                        },
+                    },
+                },
+            });
+
+            return {
+                id: data.id,
+            };
+        }),
+
+    updateArticle: avcProcedure
         .input(
             z.object({
                 id: z.string().or(z.undefined()),
@@ -183,50 +256,43 @@ export const articleRouter = router({
 
             let prevRefLinks: string[];
 
-            if (input.id) {
-                const currentArticle =
-                    await ctx.prisma.articles.findFirstOrThrow({
-                        where: {
-                            id: input.id,
-                            authorId: ctx.user.id,
-                        },
-                        select: {
-                            references: { select: { link: true } },
-                        },
-                    });
-
-                prevRefLinks = currentArticle.references.map((ref) => ref.link);
-            } else {
-                const articleWTitle = await ctx.prisma.articles.findFirst({
-                    where: {
-                        title: input.title,
-                    },
-                });
-                if (articleWTitle)
-                    throw new TRPCError({
-                        code: "CONFLICT",
-                        message: "Article with title exists",
-                    });
-            }
-
-            const data = await ctx.prisma.articles.upsert({
+            const currentArticle = await ctx.prisma.articles.findFirstOrThrow({
                 where: {
                     id: input.id,
-                    title: input.id ? undefined : input.title,
+                    authorId: ctx.user.id,
                 },
+                select: {
+                    references: { select: { link: true } },
+                    status: { select: { status: true } },
+                },
+            });
 
-                create: {
-                    title: input.title,
-                    author: { connect: { id: ctx.user.id } },
-                    tags: input.tags,
-                    brief: input.brief,
-                    content: input.content,
-                    references: { createMany: { data: references } },
-                    status: { create: {} },
+            prevRefLinks = currentArticle.references.map((ref) => ref.link);
+
+            if (!currentArticle.status)
+                throw new TRPCError({
+                    code: "INTERNAL_SERVER_ERROR",
+                    message:
+                        "Article mod status not found, please contact Speakup support",
+                });
+
+            const moderator = await ctx.prisma.user.findFirst({
+                where: { role: { in: ["SENIOR_ADVOCATE", "ADMIN"] } },
+                orderBy: {
+                    pendModArticles: { _count: "asc" },
                 },
-                update: {
+            });
+
+            if (!moderator)
+                throw new TRPCError({
+                    code: "INTERNAL_SERVER_ERROR",
+                    message: "Senior Advocate not found",
+                });
+
+            const data = await ctx.prisma.articles.update({
+                where: { id: input.id },
+                data: {
                     title: input.title,
-                    author: { connect: { id: ctx.user.id } },
                     tags: input.tags,
                     brief: input.brief,
                     content: input.content,
@@ -238,6 +304,18 @@ export const articleRouter = router({
                             ),
                         },
                     },
+                    status: ["passed", "failed"].includes(
+                        currentArticle.status.status
+                    )
+                        ? {
+                              update: {
+                                  status: "pending_mod",
+                                  desc: "議題更新，等待審核中",
+                                  moderator: { connect: { id: moderator.id } },
+                                  registeredModDate: new Date(),
+                              },
+                          }
+                        : undefined,
                 },
             });
 

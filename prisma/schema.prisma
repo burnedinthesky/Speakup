@@ -206,7 +206,7 @@ enum ArticleModStates {
 model ArticleModStatus {
     id                Int              @id @default(autoincrement())
     status            ArticleModStates @default(pending_mod)
-    desc              String           @default("正在等候審核")
+    desc              String           @default("因議題初次發布，等待審核中")
     article           Articles         @relation(fields: [articlesId], references: [id], onDelete: Cascade)
     articlesId        String           @unique
     moderator         User?            @relation(fields: [moderatorId], references: [id], onDelete: SetNull)
