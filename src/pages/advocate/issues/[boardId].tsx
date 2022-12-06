@@ -110,6 +110,7 @@ const BoardEditor = ({ article }: { article: AvcArticle }) => {
                                 status: "fetched",
                                 url: ref.link,
                             }))}
+                            modStatus={article.modStatus}
                             blockStyles={blockStyles}
                             setBlockStyles={setBlockStyles}
                             focusSelection={(val) => {
@@ -207,8 +208,10 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         references: issue.references,
         viewCount: issue.viewCount,
         argumentCount: issue._count.arguments,
-        status: status.status,
-        status_desc: status.desc,
+        modStatus: {
+            state: issue.status?.status as ArticleStatus,
+            desc: issue.status?.desc as string,
+        },
         modPending: 0,
     };
 
