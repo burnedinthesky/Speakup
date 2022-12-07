@@ -2,6 +2,11 @@ import { TRPCError } from "@trpc/server";
 import { createHash } from "crypto";
 
 import { z } from "zod";
+import {
+    ArticleTagValsToSlugs,
+    ArticleTagValues,
+    TypeArticleTagSlugs,
+} from "../../types/article.types";
 import { FeedArgument, FeedArticle, FeedComment } from "../../types/user.types";
 
 import { sendgrid } from "../../utils/sendgrid";
@@ -278,6 +283,7 @@ export const userRouter = router({
                 },
                 data: {
                     emailVerified: new Date(),
+                    tagPreference: { create: {} },
                 },
             });
 
@@ -432,10 +438,32 @@ export const userRouter = router({
         .input(
             z.object({
                 birthDate: z.date(),
+                interestedTags: z.array(z.string()),
                 gender: z.enum(["m", "f", "o"]),
             })
         )
         .mutation(async ({ ctx, input }) => {
+            if (
+                input.interestedTags.some(
+                    (tag) => !ArticleTagValues.includes(tag)
+                )
+            )
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message: "Invalid interested tags",
+                });
+
+            const tagPrefUpdateQuery = {} as Record<
+                TypeArticleTagSlugs,
+                Record<"multiply", number>
+            >;
+
+            input.interestedTags.forEach((tag) => {
+                tagPrefUpdateQuery[ArticleTagValsToSlugs(tag)] = {
+                    multiply: 8,
+                };
+            });
+
             await ctx.prisma.user.update({
                 where: {
                     id: ctx.user.id,
@@ -444,6 +472,9 @@ export const userRouter = router({
                     onBoarded: true,
                     birthday: input.birthDate,
                     gender: input.gender,
+                    tagPreference: {
+                        update: tagPrefUpdateQuery,
+                    },
                 },
             });
         }),
@@ -492,8 +523,6 @@ export const userRouter = router({
             })
         )
         .query(async ({ ctx, input }) => {
-            await new Promise((resolve) => setTimeout(resolve, 3000));
-
             const cursor = input.cursor
                 ? input.cursor
                 : {

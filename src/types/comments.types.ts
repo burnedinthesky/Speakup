@@ -2,6 +2,7 @@ export type CommentAuthor = {
     id: string;
     name: string;
     profileImg: string | null;
+    reputation: number;
 };
 
 export type Stances = "sup" | "agn" | "neu";

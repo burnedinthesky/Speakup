@@ -14,7 +14,8 @@ import DesktopBlockProperties from "../../../components/Advocate/Issues/Editor/D
 import {
     ArticleBlock,
     ArticleBlockTypes,
-    ArticleTags,
+    ArticleTagValues,
+    TypeArticleTagValues,
 } from "../../../types/article.types";
 import {
     ArticleStatus,
@@ -109,6 +110,7 @@ const BoardEditor = ({ article }: { article: AvcArticle }) => {
                                 status: "fetched",
                                 url: ref.link,
                             }))}
+                            modStatus={article.modStatus}
                             blockStyles={blockStyles}
                             setBlockStyles={setBlockStyles}
                             focusSelection={(val) => {
@@ -201,13 +203,15 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         brief: issue.brief,
         author: issue.author,
         title: issue.title,
-        tags: issue.tags as ArticleTags[],
+        tags: issue.tags as TypeArticleTagValues[],
         content: issue.content as ArticleBlock[],
         references: issue.references,
         viewCount: issue.viewCount,
         argumentCount: issue._count.arguments,
-        status: status.status,
-        status_desc: status.desc,
+        modStatus: {
+            state: issue.status?.status as ArticleStatus,
+            desc: issue.status?.desc as string,
+        },
         modPending: 0,
     };
 

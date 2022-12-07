@@ -1,5 +1,10 @@
+import Link from "next/link";
 import { forwardRef } from "react";
-import { FeedArgument, FeedArticle, FeedComment } from "../../types/user.types";
+import {
+    FeedArgument,
+    FeedArticle,
+    FeedComment,
+} from "../../../types/user.types";
 
 interface FeedBlockProps {
     data: FeedArgument | FeedComment | FeedArticle;
@@ -33,7 +38,14 @@ const FeedBlock = forwardRef<HTMLDivElement, FeedBlockProps>(
                     </div>
                 )}
                 {data.feedType === "article" && (
-                    <p className="mt-2 text-neutral-700">發布了{data.title}</p>
+                    <p className="mt-2 text-neutral-700">
+                        發布了{" "}
+                        <Link href={`/discussion/${data.id}`}>
+                            <span className="text-primary-800">
+                                {data.title}
+                            </span>
+                        </Link>
+                    </p>
                 )}
             </div>
         );

@@ -1,25 +1,30 @@
 import { useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
 
+import { trpc } from "../../../../utils/trpc";
+import { showNotification } from "@mantine/notifications";
+
 import { useRouter } from "next/router";
 
-import { trpc } from "../../../../utils/trpc";
-
-import { showNotification } from "@mantine/notifications";
-import { checkArticleData } from "../../../../lib/advocate/articleEditor";
-
-import { Button, LoadingOverlay, Textarea, TextInput } from "@mantine/core";
+import { Button, LoadingOverlay, Textarea } from "@mantine/core";
 
 import ArticleContent from "./ArticleContent";
 import ArticleReferences from "./ArticleReferences";
+import MobileBlockProperties from "./MobileBlockProperties";
+
 import { articlePropertiesAtom } from "../../../../atoms/advocate/articleEditorAtoms";
-import {
+
+import type {
     ArticleBlock,
     ArticleBlockTypes,
 } from "../../../../types/article.types";
-import { RawRefLinks } from "../../../../types/advocate/article.types";
-import MobileBlockProperties from "./MobileBlockProperties";
+import type {
+    ArticleStatus,
+    RawRefLinks,
+} from "../../../../types/advocate/article.types";
 import { showErrorNotification } from "../../../../lib/errorHandling";
+import { checkArticleData } from "../../../../lib/advocate/articleEditor";
+import ArticleStatusBanner from "./ArticleStatusBanner";
 
 export interface ContentErrors {
     title: string | null;
@@ -37,6 +42,10 @@ interface ArticleEditorProps {
     initialTitle?: string;
     initialContent?: string[];
     initialRefLinks?: RawRefLinks[];
+    modStatus?: {
+        state: ArticleStatus;
+        desc?: string;
+    };
     blockStyles: ArticleBlockTypes[];
     setBlockStyles: (
         fn: (cur: ArticleBlockTypes[]) => ArticleBlockTypes[]
@@ -54,6 +63,7 @@ const ArticleEditor = ({
     initialTitle,
     initialContent,
     initialRefLinks,
+    modStatus,
     blockStyles,
     setBlockStyles,
     focusSelection,
@@ -89,29 +99,41 @@ const ArticleEditor = ({
         refLinks: null,
     });
 
-    const updateArticleMutation =
-        trpc.advocate.articles.upsertArticle.useMutation({
-            onSuccess: (data) => {
-                showNotification({
-                    title: "更新成功",
-                    message: "我們正在為您重整資料",
-                });
-                if (data.id !== articleId)
-                    router.push(`/advocate/issues/${data.id}`);
-                else router.reload();
-            },
-            onError: (error) => {
-                if (error.message === "Article with title exists")
-                    setContentErrors((cur) => ({
-                        ...cur,
-                        title: "本標題與其他議題重複",
-                    }));
-                else
-                    showErrorNotification({
-                        message: "發生錯誤，請再試一次",
-                    });
-            },
+    const onMutationSuccess = (id: string) => {
+        showNotification({
+            title: "更新成功",
+            message: "我們正在為您重整資料",
         });
+        if (id !== articleId) router.push(`/advocate/issues/${id}`);
+        else router.reload();
+    };
+
+    const onMutationFailed = (error: any) => {
+        if (error.message === "Article with title exists")
+            setContentErrors((cur) => ({
+                ...cur,
+                title: "本標題與其他議題重複",
+            }));
+        else
+            showErrorNotification({
+                message: "發生錯誤，請再試一次",
+            });
+    };
+
+    const createArticleMutation =
+        trpc.advocate.articles.createArticle.useMutation({
+            onSuccess: (data) => onMutationSuccess(data.id),
+            onError: (error) => onMutationFailed(error),
+        });
+    const updateArticleMutation =
+        trpc.advocate.articles.updateArticle.useMutation({
+            onSuccess: (data) => onMutationSuccess(data.id),
+            onError: (error) => onMutationFailed(error),
+        });
+
+    const pushChanges = articleId
+        ? updateArticleMutation
+        : createArticleMutation;
 
     const submitData = () => {
         setContentErrors({
@@ -151,7 +173,7 @@ const ArticleEditor = ({
             return;
         }
 
-        updateArticleMutation.mutate({
+        pushChanges.mutate({
             id: articleId,
             title: titleText,
             brief: articleProperties.brief,
@@ -233,7 +255,7 @@ const ArticleEditor = ({
 
     return (
         <div className="relative w-full pb-20">
-            <LoadingOverlay visible={updateArticleMutation.isLoading} />
+            <LoadingOverlay visible={pushChanges.isLoading} />
             <Textarea
                 classNames={{
                     input: "text-3xl font-bold",
@@ -254,6 +276,12 @@ const ArticleEditor = ({
                 error={contentErrors.title}
                 autosize
             />
+            {modStatus && (
+                <ArticleStatusBanner
+                    state={modStatus.state}
+                    desc={modStatus.desc}
+                />
+            )}
             <ArticleContent
                 articleContent={articleContent}
                 setArticleContent={setArticleContent}

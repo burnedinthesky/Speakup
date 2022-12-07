@@ -1,13 +1,13 @@
 import { ReactNode, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Head from "next/head";
-import Introduction from "../../../components/Onboarding/Introduction";
-import UserInfo from "../../../components/Onboarding/UserInfo";
-import InterestedTopics from "../../../components/Onboarding/InterestedTopics";
-import Comments from "../../../components/Onboarding/Comments";
-import AllDone from "../../../components/Onboarding/AllDone";
+import Introduction from "../../components/Onboarding/Introduction";
+import UserInfo from "../../components/Onboarding/UserInfo";
+import InterestedTopics from "../../components/Onboarding/InterestedTopics";
+import Comments from "../../components/Onboarding/Comments";
+import AllDone from "../../components/Onboarding/AllDone";
 import { useRouter } from "next/router";
-import { trpc } from "../../../utils/trpc";
+import { trpc } from "../../utils/trpc";
 import { showNotification } from "@mantine/notifications";
 
 export interface OnboardingData {
@@ -67,6 +67,7 @@ const UserOnboarding = () => {
 
         onboardMutation.mutate({
             birthDate: onBoardingInfo.userInfo.birthTime,
+            interestedTags: onBoardingInfo.interestedTopics.topics,
             gender: onBoardingInfo.userInfo.gender,
         });
     };

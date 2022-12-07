@@ -1,13 +1,13 @@
 import { z } from "zod";
-import { TRPCError } from "@trpc/server";
 import { Argument, Stances } from "../../types/comments.types";
 
 import { prisma } from "../../utils/prisma";
 import { ArgumentThread, User } from "@prisma/client";
 import { loggedInProcedure, publicProcedure, router } from "../trpc";
+import { updateUserReputation } from "../lib/updateReputation";
 
-const appendArticleUpdate = async (id: string) => {
-    await prisma.articles.update({
+const appendArticleUpdate = (id: string) => {
+    return prisma.articles.update({
         where: { id },
         data: {
             requiresArgIndex: true,
@@ -20,6 +20,7 @@ interface argumentDBFormat {
         id: string;
         name: string;
         profileImg: string | null;
+        reputation: number;
     };
     content: string;
     stance: string;
@@ -78,7 +79,12 @@ export const argumentsRouter = router({
                     id: true,
                     content: true,
                     author: {
-                        select: { id: true, name: true, profileImg: true },
+                        select: {
+                            id: true,
+                            name: true,
+                            profileImg: true,
+                            reputation: true,
+                        },
                     },
                     stance: true,
                     _count: {
@@ -98,7 +104,10 @@ export const argumentsRouter = router({
                 },
             });
 
-            await appendArticleUpdate(input.articleId);
+            await Promise.all([
+                appendArticleUpdate(input.articleId),
+                updateUserReputation({ userId: ctx.user.id, amount: 50 }),
+            ]);
 
             return formatIntoArgument(arg, ctx.user.id);
         }),
@@ -182,7 +191,12 @@ export const argumentsRouter = router({
                     id: true,
                     content: true,
                     author: {
-                        select: { id: true, name: true, profileImg: true },
+                        select: {
+                            id: true,
+                            name: true,
+                            profileImg: true,
+                            reputation: true,
+                        },
                     },
                     stance: true,
                     _count: {
@@ -315,10 +329,29 @@ export const argumentsRouter = router({
                 },
                 select: {
                     articleId: true,
+                    authorId: true,
                 },
             });
 
-            await appendArticleUpdate(updatedArg.articleId);
+            let updatedReputation = 0;
+            if (
+                !current.liked &&
+                !current.supported &&
+                connect.some((arg) => ["liked", "support"].includes(arg))
+            )
+                updatedReputation = 5;
+            else if (
+                (current.liked && disconnect.includes("liked")) ||
+                (current.supported && disconnect.includes("supported"))
+            )
+                updatedReputation = -5;
+            await Promise.all([
+                appendArticleUpdate(updatedArg.articleId),
+                updateUserReputation({
+                    userId: updatedArg.authorId,
+                    amount: updatedReputation,
+                }),
+            ]);
 
             return;
         }),
@@ -340,6 +373,11 @@ export const argumentsRouter = router({
                 where: {
                     id: input.id,
                 },
+            });
+
+            await updateUserReputation({
+                userId: ctx.user.id,
+                amount: -50,
             });
 
             return;

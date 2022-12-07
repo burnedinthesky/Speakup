@@ -1,7 +1,12 @@
 import { z } from "zod";
-import { Prisma } from "@prisma/client";
+import { Prisma, UserTagPreference } from "@prisma/client";
 import { articleIndex } from "../../utils/algolia";
-import { ArticleTagSlugsToVals } from "../../types/article.types";
+import {
+    ArticleTagSlugs,
+    ArticleTagSlugsToVals,
+    TypeArticleTagSlugs,
+    TypeArticleTagValues,
+} from "../../types/article.types";
 import {
     CollectionSet,
     HomeRecommendations,
@@ -10,6 +15,8 @@ import {
 
 import { TRPCError } from "@trpc/server";
 import { loggedInProcedure, router } from "../trpc";
+import { randomObjectSelection } from "../../lib/rndObjSelection";
+import { shuffle } from "lodash";
 
 const processArticles = (
     articles: {
@@ -42,48 +49,31 @@ const processArticles = (
 
 export const navigationRouter = router({
     home: loggedInProcedure.query(async ({ ctx }) => {
-        let userPrefs = ctx.user.tagPreference as {
-            slug: string;
-            pref: number;
-        }[];
+        let dbUserTagPref = ctx.user.tagPreference as UserTagPreference | null;
 
-        userPrefs = userPrefs.map((ele) => ({
-            ...ele,
-            pref: ele.pref ** 2,
-        }));
-
-        let takeTags: { slug: string; pref: number }[] = [];
-
-        for (let i = 0; i < 8; i++) {
-            let totalSum = 0;
-            userPrefs.forEach((tag) => {
-                totalSum += tag.pref;
+        if (dbUserTagPref === null)
+            throw new TRPCError({
+                code: "INTERNAL_SERVER_ERROR",
+                message:
+                    "Failed to retrieve user tag preference, please contact Speakup support",
             });
 
-            let targetTagCount = Math.random() * totalSum;
-            let curCounter = 0;
-            let tagSlug: string = "";
+        let userPrefs = (Object.keys(dbUserTagPref) as TypeArticleTagSlugs[])
+            .filter((pref) => ArticleTagSlugs.includes(pref))
+            .map((key) => ({
+                slug: key,
+                pref:
+                    ((dbUserTagPref as UserTagPreference)[key] as number) **
+                    1.5,
+            }));
 
-            userPrefs.forEach((tag) => {
-                curCounter += tag.pref;
-                if (targetTagCount >= 0 && curCounter > targetTagCount) {
-                    takeTags.push({
-                        slug: tag.slug,
-                        pref: tag.pref,
-                    });
-                    tagSlug = tag.slug;
-                    targetTagCount = -1;
-                }
-            });
-
-            userPrefs = userPrefs.filter((pref) => pref.slug !== tagSlug);
-        }
-
-        takeTags = takeTags.sort((a, b) => (a.pref > b.pref ? -1 : 1));
-
-        let takeTagVals = takeTags.map(
-            (ele) => ArticleTagSlugsToVals[ele.slug] as string
+        let takeTags = randomObjectSelection<string>(
+            userPrefs.map((pref) => pref.slug),
+            8,
+            userPrefs.map((pref) => pref.pref)
         );
+
+        let takeTagVals = takeTags.map((ele) => ArticleTagSlugsToVals(ele));
 
         const orderBy = Math.round(Math.random() * 4);
 
@@ -109,20 +99,54 @@ export const navigationRouter = router({
             take: 50,
         });
 
+        if (fetchedArticles.length === 0) {
+            fetchedArticles = await ctx.prisma.articles.findMany({
+                select: {
+                    id: true,
+                    title: true,
+                    tags: true,
+                    brief: true,
+                    author: { select: { name: true, profileImg: true } },
+                    content: true,
+                    viewCount: true,
+                    _count: { select: { arguments: true } },
+                },
+                orderBy: {
+                    arguments: orderBy === 0 ? { _count: "desc" } : undefined,
+                    articleScore: orderBy === 1 ? "desc" : undefined,
+                    createdTime: orderBy === 2 ? "desc" : undefined,
+                    viewCount: orderBy === 3 ? "desc" : undefined,
+                    articleReports:
+                        orderBy === 4 ? { _count: "asc" } : undefined,
+                },
+                take: 50,
+            });
+        }
+
         const ret: HomeRecommendations = {
             recommended: {
                 title: "為您推薦",
                 cards: [],
             },
         };
+
+        let tagsOrder = randomObjectSelection<TypeArticleTagValues>(
+            userPrefs.map((pref) => ArticleTagSlugsToVals(pref.slug)),
+            userPrefs.length,
+            userPrefs.map((pref) => pref.pref)
+        );
+
+        let tagsIndex = 0;
         let hasTags = 0;
 
-        for (let i = 0; i < 8 && hasTags < 4; i++) {
-            let tag = takeTagVals[i] as string;
-            let articlesWithTag = fetchedArticles.filter((article) =>
-                article.tags.includes(tag)
-            );
-            if (!articlesWithTag.length) continue;
+        while (tagsIndex < userPrefs.length && hasTags < 4) {
+            tagsIndex++;
+            let tag = tagsOrder[tagsIndex] as string;
+            let articlesWithTag = fetchedArticles.filter((article) => {
+                return article.tags.includes(tag);
+            });
+            if (articlesWithTag.length === 0) continue;
+
             hasTags++;
             ret[tag] = {
                 title: tag,
@@ -136,6 +160,9 @@ export const navigationRouter = router({
             );
         }
 
+        if (ret["recommended"]?.cards.length === 0)
+            throw new Error("Recommendations failed to generate");
+
         return ret;
     }),
     search: loggedInProcedure
@@ -148,9 +175,6 @@ export const navigationRouter = router({
         )
         .query(async ({ ctx, input }) => {
             const page = input.onPage ? input.onPage - 1 : 0;
-
-            console.log(input.keyword);
-            console.log(input.tags);
 
             let keyword: string | null | undefined = input.keyword;
             if (!input.keyword) keyword = input.tags?.join("");

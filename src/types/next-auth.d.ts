@@ -6,6 +6,7 @@ interface SessionUser {
     name: string;
     email: string;
     profileImg: string | null;
+    reputation: number;
     role: "USER" | "ADVOCATE" | "SENIOR_ADVOCATE" | "ADMIN";
 }
 
@@ -22,6 +23,7 @@ declare module "next-auth/jwt" {
         name: string;
         email: string;
         picture: string | null;
+        reputation: number;
         role: "USER" | "ADVOCATE" | "SENIOR_ADVOCATE" | "ADMIN";
         sub?: string;
     }

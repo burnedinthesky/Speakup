@@ -91,15 +91,18 @@ model User {
     role       UserRole  @default(USER)
     onBoarded  Boolean   @default(false)
 
-    tagPreference Json @default("[{\"slug\": \"ent\", \"pref\": 0.1}, {\"slug\": \"env\", \"pref\": 0.1}, {\"slug\": \"jus\", \"pref\": 0.1}, {\"slug\": \"cnd\", \"pref\": 0.1}, {\"slug\": \"eco\", \"pref\": 0.1}, {\"slug\": \"min\", \"pref\": 0.1}, {\"slug\": \"mda\", \"pref\": 0.1}, {\"slug\": \"med\", \"pref\": 0.1}, {\"slug\": \"eth\", \"pref\": 0.1}, {\"slug\": \"pol\", \"pref\": 0.1}, {\"slug\": \"edu\", \"pref\": 0.1}, {\"slug\": \"fam\", \"pref\": 0.1}, {\"slug\": \"fem\", \"pref\": 0.1}, {\"slug\": \"lib\", \"pref\": 0.1}, {\"slug\": \"rel\", \"pref\": 0.1}, {\"slug\": \"tec\", \"pref\": 0.1}, {\"slug\": \"plc\", \"pref\": 0.1}, {\"slug\": \"scm\", \"pref\": 0.1}, {\"slug\": \"spr\", \"pref\": 0.1}]")
+    accounts          Account[]
+    sessions          Session[]
+    credEmailVerToken CredEmailVerToken?
+    credEmailLimiter  CredEmailLimiter?
 
-    accounts Account[]
-    sessions Session[]
+    actionLogs    Log_UserActions[]
+    reputation    Int                @default(0)
+    tagPreference UserTagPreference?
 
-    actionLogs Log_UserActions[]
-    articles   Articles[]
-    arguments  Argument[]        @relation("postedArguments")
-    comments   Comments[]        @relation("postedComments")
+    articles  Articles[]
+    arguments Argument[] @relation("postedArguments")
+    comments  Comments[] @relation("postedComments")
 
     likedArguments     Argument[] @relation("likedArguments")
     dislikedArguments  Argument[] @relation("supportedArguments")
@@ -109,29 +112,42 @@ model User {
     dislikedComments  Comments[] @relation("supportedComments")
     supportedComments Comments[] @relation("dislikedComments")
 
-    privateUser       PrivateUser?
-    articleViews      ArticleViews[]
-    collections       Collections[]
-    collectionSet     CollectionSet[]
-    credEmailVerToken CredEmailVerToken?
-    credEmailLimiter  CredEmailLimiter?
-    argumentReports   ArgumentReports[]
-    commentReports    CommentReports[]
-    articleReports    ArticleReports[]
+    articleViews  ArticleViews[]
+    collections   Collections[]
+    collectionSet CollectionSet[]
+
+    argumentReports ArgumentReports[]
+    articleReports  ArticleReports[]
+    commentReports  CommentReports[]
+
+    pendModArticles ArticleModStatus[]
 }
 
-enum PrivateUserRole {
-    USER
-    SYSTEMADMIN
-}
+model UserTagPreference {
+    id Int @id @unique @default(autoincrement())
 
-model PrivateUser {
-    id           String @id @unique @default(uuid())
-    UserInstance User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-    userId       String @unique
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId String @unique
 
-    role      PrivateUserRole @default(USER)
-    authToken String?         @unique @db.VarChar(64)
+    ent Float @default(0.1)
+    env Float @default(0.1)
+    jus Float @default(0.1)
+    cnd Float @default(0.1)
+    eco Float @default(0.1)
+    min Float @default(0.1)
+    mda Float @default(0.1)
+    med Float @default(0.1)
+    eth Float @default(0.1)
+    pol Float @default(0.1)
+    edu Float @default(0.1)
+    fam Float @default(0.1)
+    fem Float @default(0.1)
+    lib Float @default(0.1)
+    rel Float @default(0.1)
+    tec Float @default(0.1)
+    plc Float @default(0.1)
+    scm Float @default(0.1)
+    spr Float @default(0.1)
 }
 
 model CollectionSet {
@@ -183,14 +199,19 @@ model Articles {
 enum ArticleModStates {
     pending_mod
     passed
+    report_pending_mod
+    failed
 }
 
 model ArticleModStatus {
-    id         Int              @id @default(autoincrement())
-    status     ArticleModStates @default(pending_mod)
-    desc       String           @default("正在等候審核")
-    article    Articles         @relation(fields: [articlesId], references: [id], onDelete: Cascade)
-    articlesId String           @unique
+    id                Int              @id @default(autoincrement())
+    status            ArticleModStates @default(pending_mod)
+    desc              String           @default("因議題初次發布，等待審核中")
+    article           Articles         @relation(fields: [articlesId], references: [id], onDelete: Cascade)
+    articlesId        String           @unique
+    moderator         User?            @relation(fields: [moderatorId], references: [id], onDelete: SetNull)
+    moderatorId       String?
+    registeredModDate DateTime?
 }
 
 model ArticleViews {
