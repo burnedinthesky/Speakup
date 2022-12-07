@@ -1,7 +1,7 @@
 import { ActionIcon, TextInput } from "@mantine/core";
 import { PlusIcon, TrashIcon } from "@heroicons/react/outline";
 
-import ReferenceCard from "../../../Discussion/Article/ReferenceCard";
+import ReferenceCard from "../../../Article/ReferenceCard";
 
 import type { AppendUrlState, ContentErrors } from "./ArticleEditor";
 import type { RawRefLinks } from "../../../../types/advocate/article.types";

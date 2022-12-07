@@ -71,7 +71,7 @@ const SearchBar = () => {
                 </Popover.Target>
                 <Popover.Dropdown>
                     <div className="w-full rounded-full text-primary-800">
-                        <h2 className="text-xl">限制搜尋標籤</h2>
+                        <h2 className="text-xl">使用標籤搜尋</h2>
                         <div className="mt-3 flex flex-wrap gap-2.5 ">
                             {ArticleTagValues.map((tag, i) => (
                                 <button

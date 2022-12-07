@@ -1,8 +1,8 @@
 import { atom } from "recoil";
-import { ArticleTags } from "../../types/article.types";
+import type { TypeArticleTagValues } from "../../types/article.types";
 
 interface data {
-    tags: ArticleTags[];
+    tags: TypeArticleTagValues[];
     brief: string;
     errors: {
         tags: string | null;

@@ -35,6 +35,7 @@ export default NextAuth({
                         email: true,
                         profileImg: true,
                         role: true,
+                        reputation: true,
                         password: true,
                     },
                 });
@@ -69,6 +70,7 @@ export default NextAuth({
                 token.picture = user.profileImg;
                 token.role = user.role;
                 token.id = user.id;
+                token.reputation = user.reputation;
             }
 
             return token;
@@ -80,6 +82,7 @@ export default NextAuth({
                     name: token.name,
                     email: token.email,
                     profileImg: token.picture,
+                    reputation: token.reputation,
                     role: token.role,
                 };
             }

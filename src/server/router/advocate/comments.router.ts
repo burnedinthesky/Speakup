@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { ToModComments } from "../../../types/advocate/comments.types";
+import { updateUserReputation } from "../../lib/updateReputation";
 import { avcProcedure, router } from "../../trpc";
 
 export const commentsRouter = router({
@@ -194,11 +195,12 @@ export const commentsRouter = router({
             const instance = input.instance.toUpperCase() as "FIRST" | "SECOND";
 
             if (input.type === "argument") {
-                await ctx.prisma.argument.findFirstOrThrow({
+                const argument = await ctx.prisma.argument.findFirstOrThrow({
                     where: {
                         id: input.id,
                         article: { author: { id: ctx.user.id } },
                     },
+                    select: { authorId: true },
                 });
                 await ctx.prisma.argument.update({
                     where: { id: input.id },
@@ -213,15 +215,21 @@ export const commentsRouter = router({
                         reason: input.reasons,
                     },
                 });
+                await updateUserReputation({
+                    userId: argument.authorId,
+                    amount: -300,
+                });
                 return true;
             }
-            await ctx.prisma.comments.findFirstOrThrow({
+
+            const comment = await ctx.prisma.comments.findFirstOrThrow({
                 where: {
                     id: input.id,
                     inArgument: {
                         article: { author: { id: ctx.user.id } },
                     },
                 },
+                select: { authorId: true },
             });
             await ctx.prisma.comments.update({
                 where: { id: input.id },
@@ -235,6 +243,10 @@ export const commentsRouter = router({
                     instance: instance,
                     reason: input.reasons,
                 },
+            });
+            await updateUserReputation({
+                userId: comment.authorId,
+                amount: -300,
             });
             return true;
         }),

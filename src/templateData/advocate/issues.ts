@@ -6,8 +6,10 @@ export const SampleAvcArticle: AvcArticle = {
     tags: ["教育"],
     brief: "Culpa quis occaecat anim eiusmod Lorem consectetur voluptate consectetur sit sit elit consectetur laboris. Nostrud amet cillum ipsum labore non pariatur enim elit labore officia cupidatat nulla minim. Do tempor consectetur aute ea labore deserunt labore laboris. Enim velit nulla ea adipisicing tempor nulla velit quis minim tempor ad est ea. Reprehenderit ullamco aliquip et mollit minim aute aliqua. Irure incididunt amet laborum fugiat do consequat in labore exercitation elit. Esse mollit duis irure nostrud exercitation.",
     modPending: 13432,
-    status: "passed",
-    status_desc: "",
+    modStatus: {
+        state: "passed",
+        desc: "",
+    },
     content: [
         {
             type: "h1",

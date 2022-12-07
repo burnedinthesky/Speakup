@@ -1,5 +1,4 @@
 import { NavCardData } from "../types/navigation.types";
-import { SampleArticle } from "./issues";
 
 export const SampleNavCardData: NavCardData = {
     id: "cl90vkxcc0000v5tlvac9c1i2",

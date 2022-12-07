@@ -16,6 +16,9 @@ async function getUserFromRequest(req: NextApiRequest) {
         where: {
             email: token.email,
         },
+        include: {
+            tagPreference: true,
+        },
     });
 
     return user ? user : null;

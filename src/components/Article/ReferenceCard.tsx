@@ -1,5 +1,5 @@
 import { Image } from "@mantine/core";
-import type { ReferencesLink } from "../../../types/article.types";
+import type { ReferencesLink } from "../../types/article.types";
 
 interface ReferenceCardProps {
     data: ReferencesLink;

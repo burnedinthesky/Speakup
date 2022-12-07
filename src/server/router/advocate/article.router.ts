@@ -1,10 +1,12 @@
+import { avcProcedure, router } from "../../trpc";
+
 import z from "zod";
 import { TRPCError } from "@trpc/server";
 import { getLinkPreview } from "link-preview-js";
-import { AvcArticleCard } from "../../../types/advocate/article.types";
-import { ReferencesLink } from "../../../types/article.types";
-import { ArticleModStatus, Prisma } from "@prisma/client";
-import { avcProcedure, router } from "../../trpc";
+
+import type { ArticleModStatus } from "@prisma/client";
+import type { AvcArticleCard } from "../../../types/advocate/article.types";
+import type { ReferencesLink } from "../../../types/article.types";
 
 type LinkPreviewPromise = Promise<
     | {
@@ -132,7 +134,7 @@ export const articleRouter = router({
                     status = {
                         articlesId: item.id,
                         status: "pending_mod",
-                        desc: "正在等候審核",
+                        desc: "因議題初次發布或被更新，因此正在等候審核中",
                     } as ArticleModStatus;
 
                 return {
@@ -152,7 +154,80 @@ export const articleRouter = router({
             };
         }),
 
-    upsertArticle: avcProcedure
+    createArticle: avcProcedure
+        .input(
+            z.object({
+                id: z.string().or(z.undefined()),
+                title: z.string(),
+                tags: z.array(z.string()).min(1).max(4),
+                brief: z.string().min(30).max(80),
+                content: z.array(
+                    z.object({
+                        type: z.enum(["h1", "h2", "h3", "p", "spoiler"]),
+                        content: z.string(),
+                    })
+                ),
+                references: z.array(z.string()),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+            let references: ReferencesLink[];
+            try {
+                references = await fetchLinksPreview(input.references);
+            } catch (e) {
+                throw new TRPCError({
+                    code: "TIMEOUT",
+                    message: "Failed to load references",
+                });
+            }
+
+            const articleWTitle = await ctx.prisma.articles.findFirst({
+                where: {
+                    title: input.title,
+                },
+            });
+            if (articleWTitle)
+                throw new TRPCError({
+                    code: "CONFLICT",
+                    message: "Article with title exists",
+                });
+
+            const moderator = await ctx.prisma.user.findFirst({
+                where: { role: { in: ["SENIOR_ADVOCATE", "ADMIN"] } },
+                orderBy: {
+                    pendModArticles: { _count: "asc" },
+                },
+            });
+
+            if (!moderator)
+                throw new TRPCError({
+                    code: "INTERNAL_SERVER_ERROR",
+                    message: "Senior Advocate not found",
+                });
+
+            const data = await ctx.prisma.articles.create({
+                data: {
+                    title: input.title,
+                    author: { connect: { id: ctx.user.id } },
+                    tags: input.tags,
+                    brief: input.brief,
+                    content: input.content,
+                    references: { createMany: { data: references } },
+                    status: {
+                        create: {
+                            moderator: { connect: { id: moderator.id } },
+                            registeredModDate: new Date(),
+                        },
+                    },
+                },
+            });
+
+            return {
+                id: data.id,
+            };
+        }),
+
+    updateArticle: avcProcedure
         .input(
             z.object({
                 id: z.string().or(z.undefined()),
@@ -181,54 +256,56 @@ export const articleRouter = router({
 
             let prevRefLinks: string[];
 
-            if (input.id) {
-                const currentArticle =
-                    await ctx.prisma.articles.findFirstOrThrow({
-                        where: {
-                            id: input.id,
-                            authorId: ctx.user.id,
-                        },
-                        select: {
-                            references: { select: { link: true } },
-                        },
-                    });
-
-                prevRefLinks = currentArticle.references.map((ref) => ref.link);
-            } else {
-                const articleWTitle = await ctx.prisma.articles.findFirst({
-                    where: {
-                        title: input.title,
-                    },
-                });
-                if (articleWTitle)
-                    throw new TRPCError({
-                        code: "CONFLICT",
-                        message: "Article with title exists",
-                    });
-            }
-
-            const data = await ctx.prisma.articles.upsert({
+            const currentArticle = await ctx.prisma.articles.findFirstOrThrow({
                 where: {
                     id: input.id,
-                    title: input.id ? undefined : input.title,
+                    authorId: ctx.user.id,
                 },
+                select: {
+                    references: { select: { id: true, link: true } },
+                    status: { select: { status: true } },
+                },
+            });
 
-                create: {
-                    title: input.title,
-                    author: { connect: { id: ctx.user.id } },
-                    tags: input.tags,
-                    brief: input.brief,
-                    content: input.content,
-                    references: { createMany: { data: references } },
-                    status: { create: {} },
+            prevRefLinks = currentArticle.references.map((ref) => ref.link);
+            let deleteRefIds: bigint[] = [];
+            currentArticle.references.forEach((refLink) => {
+                if (!input.references.includes(refLink.link)) {
+                    deleteRefIds.push(refLink.id);
+                }
+            });
+
+            if (!currentArticle.status)
+                throw new TRPCError({
+                    code: "INTERNAL_SERVER_ERROR",
+                    message:
+                        "Article mod status not found, please contact Speakup support",
+                });
+
+            const moderator = await ctx.prisma.user.findFirst({
+                where: { role: { in: ["SENIOR_ADVOCATE", "ADMIN"] } },
+                orderBy: {
+                    pendModArticles: { _count: "asc" },
                 },
-                update: {
+            });
+
+            if (!moderator)
+                throw new TRPCError({
+                    code: "INTERNAL_SERVER_ERROR",
+                    message: "Senior Advocate not found",
+                });
+
+            const data = await ctx.prisma.articles.update({
+                where: { id: input.id },
+                data: {
                     title: input.title,
-                    author: { connect: { id: ctx.user.id } },
                     tags: input.tags,
                     brief: input.brief,
                     content: input.content,
                     references: {
+                        deleteMany: {
+                            id: { in: deleteRefIds },
+                        },
                         createMany: {
                             skipDuplicates: true,
                             data: references.filter(
@@ -236,11 +313,119 @@ export const articleRouter = router({
                             ),
                         },
                     },
+                    status: ["passed", "failed"].includes(
+                        currentArticle.status.status
+                    )
+                        ? {
+                              update: {
+                                  status: "pending_mod",
+                                  desc: "議題更新，等待審核中",
+                                  moderator: { connect: { id: moderator.id } },
+                                  registeredModDate: new Date(),
+                              },
+                          }
+                        : undefined,
                 },
             });
 
             return {
                 id: data.id,
             };
+        }),
+
+    pendingModeration: avcProcedure.query(async ({ ctx }) => {
+        const pending_mod = await ctx.prisma.articleModStatus.findMany({
+            where: { moderatorId: ctx.user.id },
+            select: {
+                article: {
+                    select: { id: true, title: true },
+                },
+                registeredModDate: true,
+            },
+            orderBy: { registeredModDate: "asc" },
+        });
+
+        let updateDateQueries: Promise<any>[] = [];
+
+        const ret = pending_mod.map((atc) => {
+            let currentTime = new Date();
+            if (!atc.registeredModDate) {
+                updateDateQueries.push(
+                    ctx.prisma.articleModStatus.update({
+                        where: { articlesId: atc.article.id },
+                        data: { registeredModDate: currentTime },
+                    })
+                );
+            }
+
+            let registeredModDate = atc.registeredModDate
+                ? atc.registeredModDate
+                : currentTime;
+
+            let remainingDays =
+                7 -
+                Math.floor(
+                    (new Date().getTime() - registeredModDate.getTime()) /
+                        1000 /
+                        86400
+                );
+
+            return {
+                id: atc.article.id,
+                title: atc.article.title,
+                remainingDays: remainingDays,
+            };
+        });
+
+        await Promise.all(updateDateQueries);
+
+        return ret;
+    }),
+
+    moderationPassed: avcProcedure
+        .input(
+            z.object({
+                id: z.string(),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+            await ctx.prisma.articleModStatus.findFirstOrThrow({
+                where: { articlesId: input.id, moderatorId: ctx.user.id },
+            });
+
+            await ctx.prisma.articleModStatus.update({
+                where: { articlesId: input.id },
+                data: {
+                    desc: "",
+                    registeredModDate: null,
+                    status: "passed",
+                    moderator: { disconnect: true },
+                },
+            });
+        }),
+
+    moderationFailed: avcProcedure
+        .input(
+            z.object({
+                id: z.string(),
+                reason: z.string().min(50),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+            await ctx.prisma.articleModStatus.findFirstOrThrow({
+                where: { articlesId: input.id, moderatorId: ctx.user.id },
+            });
+
+            await ctx.prisma.articleModStatus.update({
+                where: {
+                    articlesId: input.id,
+                },
+                data: {
+                    status: "failed",
+                    desc: input.reason,
+                    registeredModDate: null,
+                    moderator: { disconnect: true },
+                },
+            });
         }),
 });
