@@ -15,6 +15,7 @@ import { CheckIcon, XIcon } from "@heroicons/react/outline";
 import IssuePassPanel from "../../../../components/Advocate/Issues/Moderation/IssuePass";
 import { useState } from "react";
 import IssueFailedPanel from "../../../../components/Advocate/Issues/Moderation/IssueFailed";
+import { UnpubedArticle } from "../../../../types/advocate/article.types";
 
 const BoardEditor = ({ article }: { article: Article }) => {
     const [activeTab, setActiveTab] = useState<string | null>("pass");
@@ -80,7 +81,7 @@ export default BoardEditor;
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const boardId = context?.params?.boardId as string;
 
-    const issue = await prisma.articles.findUnique({
+    const issue = await prisma.avcArticle.findUnique({
         where: {
             id: boardId,
         },
@@ -98,23 +99,27 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
                     link: true,
                 },
             },
-            viewCount: true,
             author: {
                 select: {
                     name: true,
                     profileImg: true,
                 },
             },
-            _count: { select: { arguments: true } },
+            articleInstance: {
+                select: {
+                    viewCount: true,
+                    _count: { select: { arguments: true } },
+                },
+            },
             status: true,
         },
     });
 
-    if (!issue) {
+    if (!issue || ["passed", "failed"].includes(issue.status?.status ?? "")) {
         return { notFound: true };
     }
 
-    const data: Article = {
+    const data: UnpubedArticle = {
         id: issue.id,
         brief: issue.brief,
         author: issue.author,
@@ -122,8 +127,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         tags: issue.tags as TypeArticleTagValues[],
         content: issue.content as ArticleBlock[],
         references: issue.references,
-        viewCount: issue.viewCount,
-        argumentCount: issue._count.arguments,
+        viewCount: issue.articleInstance?.viewCount ?? null,
+        argumentCount: issue.articleInstance?._count.arguments ?? null,
     };
 
     return {

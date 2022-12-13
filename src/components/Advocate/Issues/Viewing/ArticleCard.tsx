@@ -27,13 +27,17 @@ const ArticleCard = forwardRef<HTMLDivElement, ArticleCardProps>(
                             ))}
                         </div>
                         <Badge leftSection={<ChatAlt2Icon className="w-3" />}>
-                            {formatter.format(issue.argumentCount)}
+                            {issue.argumentCount
+                                ? formatter.format(issue.argumentCount)
+                                : "-"}
                         </Badge>
                         <StatusBadge status={issue.status} />
                         <Badge
                             leftSection={<ExclamationIcon className="w-3" />}
                         >
-                            {formatter.format(issue.modPending)}
+                            {issue.modPending
+                                ? formatter.format(issue.modPending)
+                                : "-"}
                         </Badge>
                     </div>
                 </div>

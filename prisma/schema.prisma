@@ -100,9 +100,10 @@ model User {
     reputation    Int                @default(0)
     tagPreference UserTagPreference?
 
-    articles  Articles[]
-    arguments Argument[] @relation("postedArguments")
-    comments  Comments[] @relation("postedComments")
+    articles    Articles[]
+    avcArticles AvcArticle[]
+    arguments   Argument[]   @relation("postedArguments")
+    comments    Comments[]   @relation("postedComments")
 
     likedArguments     Argument[] @relation("likedArguments")
     dislikedArguments  Argument[] @relation("supportedArguments")
@@ -177,7 +178,7 @@ model Articles {
     title String   @unique
     tags  String[]
 
-    author   User   @relation(fields: [authorId], references: [id])
+    author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
     authorId String
 
     brief      String
@@ -188,12 +189,35 @@ model Articles {
     collections    Collections[]
     articleReports ArticleReports[]
 
-    createdTime  DateTime          @default(now())
-    viewCount    Int               @default(0)
-    articleScore Float             @default(20)
-    status       ArticleModStatus?
+    createdTime  DateTime @default(now())
+    viewCount    Int      @default(0)
+    articleScore Float    @default(20)
 
     requiresArgIndex Boolean @default(true)
+
+    avcArticle   AvcArticle @relation(fields: [avcArticleId], references: [id], onDelete: Cascade)
+    avcArticleId String     @unique
+}
+
+model AvcArticle {
+    id String @id @default(cuid())
+
+    title String   @unique
+    tags  String[]
+
+    author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+    authorId String @unique
+
+    brief      String
+    content    Json
+    references ArticleReferences[]
+
+    createdTime DateTime @default(now())
+
+    articleInstance Articles?
+
+    status             ArticleModStatus?
+    articleModStatusId Int?
 }
 
 enum ArticleModStates {
@@ -207,8 +231,8 @@ model ArticleModStatus {
     id                Int              @id @default(autoincrement())
     status            ArticleModStates @default(pending_mod)
     desc              String           @default("因議題初次發布，等待審核中")
-    article           Articles         @relation(fields: [articlesId], references: [id], onDelete: Cascade)
-    articlesId        String           @unique
+    article           AvcArticle       @relation(fields: [articleId], references: [id], onDelete: Cascade)
+    articleId         String           @unique
     moderator         User?            @relation(fields: [moderatorId], references: [id], onDelete: SetNull)
     moderatorId       String?
     registeredModDate DateTime?
@@ -224,13 +248,15 @@ model ArticleViews {
 }
 
 model ArticleReferences {
-    id          BigInt   @id @default(autoincrement())
-    link        String
-    title       String
-    description String
-    img         String?
-    Articles    Articles @relation(fields: [articlesId], references: [id], onDelete: Cascade)
-    articlesId  String
+    id           BigInt      @id @default(autoincrement())
+    link         String
+    title        String
+    description  String
+    img          String?
+    Articles     Articles?   @relation(fields: [articlesId], references: [id], onDelete: Cascade)
+    articlesId   String?
+    AvcArticle   AvcArticle? @relation(fields: [avcArticleId], references: [id])
+    avcArticleId String?
 }
 
 model ArticleReports {
