@@ -3,7 +3,7 @@
     "version": "0.1.0",
     "private": true,
     "scripts": {
-        "dev": "concurrently --kill-others \"next dev\" \"dotenv -e .env.development.local -- npx prisma studio --browser none\"",
+        "dev": "concurrently --kill-others \"NODE_OPTIONS='--inspect' next dev\" \"dotenv -e .env.development.local -- npx prisma studio --browser none\"",
         "build": "next build",
         "start": "next start",
         "lint": "next lint",
