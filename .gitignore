@@ -40,3 +40,5 @@ yarn-error.log*
 
 .vscode
 /legacy-fe
+.env.preview
+.env.production
