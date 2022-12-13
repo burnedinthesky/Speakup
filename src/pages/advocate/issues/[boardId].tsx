@@ -157,7 +157,7 @@ export default BoardEditor;
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const boardId = context?.params?.boardId as string;
 
-    const issue = await prisma.articles.findUnique({
+    const issue = await prisma.avcArticle.findUnique({
         where: {
             id: boardId,
         },
@@ -175,14 +175,18 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
                     link: true,
                 },
             },
-            viewCount: true,
             author: {
                 select: {
                     name: true,
                     profileImg: true,
                 },
             },
-            _count: { select: { arguments: true } },
+            articleInstance: {
+                select: {
+                    viewCount: true,
+                    _count: { select: { arguments: true } },
+                },
+            },
             status: true,
         },
     });
@@ -190,13 +194,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     if (!issue) {
         return { notFound: true };
     }
-
-    console.log(issue.references);
-
-    const status = issue.status as {
-        status: ArticleStatus;
-        desc: string;
-    };
 
     const data: AvcArticle = {
         id: issue.id,
@@ -206,8 +203,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         tags: issue.tags as TypeArticleTagValues[],
         content: issue.content as ArticleBlock[],
         references: issue.references,
-        viewCount: issue.viewCount,
-        argumentCount: issue._count.arguments,
+        viewCount: issue.articleInstance?.viewCount ?? null,
+        argumentCount: issue.articleInstance?._count.arguments ?? null,
         modStatus: {
             state: issue.status?.status as ArticleStatus,
             desc: issue.status?.desc as string,
