@@ -22,3 +22,13 @@ jobs:
                   curl --request POST \
                   --url 'https://speakup.place/api/privileged/index/arguments' \
                   --header 'Authorization: Bearer ${{ secrets.ADMIN_KEY }}'
+            - name: Index preview search
+              run: |
+                  curl --request POST \
+                  --url 'https://speakup-preview.vercel.app/api/privileged/index/search' \
+                  --header 'Authorization: Bearer ${{ secrets.ADMIN_KEY }}'
+            - name: Index preview arguments
+              run: |
+                  curl --request POST \
+                  --url 'https://speakup-prewview.vercel.app/api/privileged/index/arguments' \
+                  --header 'Authorization: Bearer ${{ secrets.ADMIN_KEY }}'
