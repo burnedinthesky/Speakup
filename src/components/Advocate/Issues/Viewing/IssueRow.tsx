@@ -30,13 +30,15 @@ const IssueRow = forwardRef<HTMLDivElement, IssueRowProps>(({ issue }, ref) => {
                 ))}
             </TableCell>
             <TableCell textAlignment="text-center">
-                {formatter.format(issue.argumentCount)}
+                {issue.argumentCount
+                    ? formatter.format(issue.argumentCount)
+                    : "-"}
             </TableCell>
             <TableCell textAlignment="text-center">
                 <StatusBadge status={issue.status} />
             </TableCell>
             <TableCell textAlignment="text-center">
-                {formatter.format(issue.modPending)}
+                {issue.modPending ? formatter.format(issue.modPending) : "-"}
             </TableCell>
             <TableCell textAlignment="text-center">
                 <div className="hidden" ref={ref}></div>
