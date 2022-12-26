@@ -3,7 +3,7 @@ import { forwardRef } from "react";
 import Link from "next/link";
 import { TableCell, TableRow } from "@tremor/react";
 import { Badge } from "@mantine/core";
-import { CheckIcon, ClockIcon, PencilIcon } from "@heroicons/react/outline";
+import { PencilIcon } from "@heroicons/react/outline";
 
 import { AvcArticleCard } from "../../../../types/advocate/article.types";
 import StatusBadge from "./StatusBadge";
@@ -30,9 +30,7 @@ const IssueRow = forwardRef<HTMLDivElement, IssueRowProps>(({ issue }, ref) => {
                 ))}
             </TableCell>
             <TableCell textAlignment="text-center">
-                {issue.argumentCount
-                    ? formatter.format(issue.argumentCount)
-                    : "-"}
+                {issue.argumentCount ? formatter.format(issue.argumentCount) : "-"}
             </TableCell>
             <TableCell textAlignment="text-center">
                 <StatusBadge status={issue.status} />
