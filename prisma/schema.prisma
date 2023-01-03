@@ -206,7 +206,7 @@ model AvcArticle {
     tags  String[]
 
     author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
-    authorId String @unique
+    authorId String
 
     brief      String
     content    Json
