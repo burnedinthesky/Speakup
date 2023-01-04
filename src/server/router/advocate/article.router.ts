@@ -159,7 +159,6 @@ export const articleRouter = router({
 	createArticle: avcProcedure
 		.input(
 			z.object({
-				id: z.string().or(z.undefined()),
 				title: z.string(),
 				tags: z.array(z.string()).min(1).max(4),
 				brief: z.string().min(30).max(80),

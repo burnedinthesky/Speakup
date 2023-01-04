@@ -1,52 +1,58 @@
+import { useRecoilState } from "recoil";
 import { Select } from "@mantine/core";
+import {
+	articleContentAtom,
+	articleEditorInfoAtom,
+} from "../../../../atoms/advocate/articleEditorAtoms";
 import { ArticleBlockTypes } from "../../../../types/article.types";
 
-interface BlockPropertiesProps {
-    blockStyles: ArticleBlockTypes[];
-    setBlockStyles: (
-        fn: (cur: ArticleBlockTypes[]) => ArticleBlockTypes[]
-    ) => void;
-    focusedBlock: number;
-    setOverrideBlur: (val: number | null) => void;
-    setQueuedBlur: (val: boolean) => void;
-}
+const DesktopBlockProperties = () => {
+	const [articleContent, setArticleContent] =
+		useRecoilState(articleContentAtom);
+	const [editorInfo, setEditorInfo] = useRecoilState(articleEditorInfoAtom);
 
-const DesktopBlockProperties = ({
-    blockStyles,
-    setBlockStyles,
-    focusedBlock,
-    setOverrideBlur,
-    setQueuedBlur,
-}: BlockPropertiesProps) => {
-    return (
-        <div className="mt-28 w-full">
-            <Select
-                label="段落型態"
-                data={[
-                    { value: "h1", label: "大標" },
-                    { value: "h2", label: "中標" },
-                    { value: "h3", label: "小標" },
-                    { value: "p", label: "段落" },
-                ]}
-                value={blockStyles[focusedBlock]}
-                onChange={(val: string) => {
-                    const updateVal = val as ArticleBlockTypes;
-                    setBlockStyles((current) =>
-                        current.map((block, i) =>
-                            i === focusedBlock ? updateVal : block
-                        )
-                    );
-                }}
-                onFocus={() => {
-                    setOverrideBlur(focusedBlock);
-                }}
-                onBlur={() => {
-                    setQueuedBlur(true);
-                }}
-                size="sm"
-            />
-        </div>
-    );
+	return (
+		<div className="mt-28 w-full">
+			<Select
+				label="段落型態"
+				data={[
+					{ value: "h1", label: "大標" },
+					{ value: "h2", label: "中標" },
+					{ value: "h3", label: "小標" },
+					{ value: "p", label: "段落" },
+				]}
+				value={
+					editorInfo.focusedBlock !== null
+						? articleContent[editorInfo.focusedBlock]?.type
+						: undefined
+				}
+				onChange={(val: string) => {
+					const updateVal = val as ArticleBlockTypes;
+					setArticleContent((cur) =>
+						cur.map((block, i) =>
+							i === editorInfo.focusedBlock
+								? { ...block, type: updateVal }
+								: block,
+						),
+					);
+				}}
+				onFocus={() => {
+					setEditorInfo((cur) => ({
+						...cur,
+						focusedBlock: editorInfo.focusedBlock,
+						overrideBlur: cur.queuedBlur,
+					}));
+				}}
+				onBlur={() => {
+					setEditorInfo((cur) => ({
+						...cur,
+						queuedBlur: true,
+					}));
+				}}
+				size="sm"
+			/>
+		</div>
+	);
 };
 
 export default DesktopBlockProperties;
