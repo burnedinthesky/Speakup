@@ -232,7 +232,7 @@ export const articleRouter = router({
 	updateArticle: avcProcedure
 		.input(
 			z.object({
-				id: z.string().or(z.undefined()),
+				id: z.string(),
 				title: z.string(),
 				tags: z.array(z.string()).min(1).max(4),
 				brief: z.string().min(30).max(80),
@@ -333,6 +333,21 @@ export const articleRouter = router({
 			};
 		}),
 
+	deleteArticle: avcProcedure
+		.input(z.object({ id: z.string() }))
+		.mutation(async ({ ctx, input }) => {
+			await ctx.prisma.avcArticle.findFirstOrThrow({
+				where: {
+					id: input.id,
+					authorId: ctx.user.id,
+				},
+			});
+
+			await ctx.prisma.avcArticle.delete({
+				where: { id: input.id },
+			});
+		}),
+
 	pendingModeration: avcProcedure.query(async ({ ctx }) => {
 		const pending_mod = await ctx.prisma.articleModStatus.findMany({
 			where: { moderatorId: ctx.user.id },
@@ -384,11 +399,7 @@ export const articleRouter = router({
 	}),
 
 	moderationPassed: avcProcedure
-		.input(
-			z.object({
-				id: z.string(),
-			}),
-		)
+		.input(z.object({ id: z.string() }))
 		.mutation(async ({ ctx, input }) => {
 			const modStatus = await ctx.prisma.articleModStatus.findFirstOrThrow({
 				where: { articleId: input.id, moderatorId: ctx.user.id },
