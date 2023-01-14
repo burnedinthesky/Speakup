@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { trpc } from "../../../utils/trpc";
+import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 
 import Link from "next/link";
@@ -7,12 +6,14 @@ import Link from "next/link";
 import { Button } from "@mantine/core";
 import { PlusIcon } from "@heroicons/react/outline";
 
-import { AppShell } from "../../../components/Advocate/AppShell";
-import IssueRow from "../../../components/Advocate/Issues/Viewing/IssueRow";
-import IssueRowLoading from "../../../components/Advocate/Issues/Viewing/IssueRowLoading";
-import ArticleCard from "../../../components/Advocate/Issues/Viewing/ArticleCard";
+import { AppShell } from "components/Advocate/AppShell";
+import IssueRow from "components/Advocate/Issues/Viewing/IssueRow";
+import IssueRowLoading from "components/Advocate/Issues/Viewing/IssueRowLoading";
+import ArticleCard from "components/Advocate/Issues/Viewing/ArticleCard";
 import useScreenSize from "hooks/common/useScreenSize";
-import ArticleCardLoading from "../../../components/Advocate/Issues/Viewing/ArticleCardLoading";
+import ArticleCardLoading from "components/Advocate/Issues/Viewing/ArticleCardLoading";
+
+import { trpc } from "utils/trpc";
 
 const Issues = () => {
 	const { data, isLoading, hasNextPage, fetchNextPage } =

@@ -1,9 +1,10 @@
 import { GetServerSideProps } from "next";
 import { getToken } from "next-auth/jwt";
-import { prisma } from "../../../utils/prisma";
 
-import { AppShell } from "../../../components/Advocate/AppShell";
-import ArticleComments from "../../../components/Advocate/Comments/ArticleComments";
+import { AppShell } from "components/Advocate/AppShell";
+import ArticleComments from "components/Advocate/Comments/ArticleComments";
+
+import { prisma } from "utils/prisma";
 
 interface FetchedArticles {
 	articles: { id: string; title: string }[];

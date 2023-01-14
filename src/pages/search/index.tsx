@@ -5,8 +5,9 @@ import { SearchIcon } from "@heroicons/react/outline";
 import { TextInput } from "@mantine/core";
 import { CheckCircleIcon } from "@heroicons/react/solid";
 
-import { ArticleTagValues } from "../../types/article.types";
-import { AppShell } from "../../components/AppShell";
+import { AppShell } from "components/AppShell";
+
+import { ArticleTagValues } from "types/article.types";
 
 const SearchMenu = () => {
 	const [searchKeyword, setSearchKeyword] = useState("");

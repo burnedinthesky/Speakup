@@ -1,9 +1,6 @@
 import { atom } from "recoil";
-import { RawRefLinks } from "../../types/advocate/article.types";
-import type {
-	ArticleBlock,
-	TypeArticleTagValues,
-} from "../../types/article.types";
+import { RawRefLinks } from "types/advocate/article.types";
+import type { ArticleBlock, TypeArticleTagValues } from "types/article.types";
 
 interface Editor {
 	isSubmitting: boolean;

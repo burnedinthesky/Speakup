@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { showNotification } from "@mantine/notifications";
+import { signIn, useSession } from "next-auth/react";
+import { useRouter } from "next/router";
+import { useForm } from "@mantine/form";
 
 import Link from "next/link";
 import {
@@ -10,10 +12,8 @@ import {
 } from "@mantine/core";
 import { InboxIcon, LockClosedIcon } from "@heroicons/react/outline";
 
-import { useForm } from "@mantine/form";
-import { useRouter } from "next/router";
-import { signIn, useSession } from "next-auth/react";
-import { SignInPageIDs } from "../../types/auth.types";
+import { showNotification } from "@mantine/notifications";
+import type { SignInPageIDs } from "types/auth.types";
 
 interface PageProps {
 	setDisplayPage: (value: SignInPageIDs) => void;

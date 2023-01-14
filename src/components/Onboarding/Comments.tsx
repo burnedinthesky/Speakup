@@ -1,9 +1,4 @@
-import {
-	ArrowCircleUpIcon,
-	ArrowNarrowLeftIcon,
-	ArrowNarrowRightIcon,
-} from "@heroicons/react/outline";
-import { Button } from "@mantine/core";
+import { ArrowCircleUpIcon } from "@heroicons/react/outline";
 
 const Comments = () => {
 	return (

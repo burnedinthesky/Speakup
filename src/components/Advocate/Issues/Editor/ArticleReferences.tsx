@@ -3,12 +3,12 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import { ActionIcon, TextInput } from "@mantine/core";
 import { PlusIcon, TrashIcon } from "@heroicons/react/outline";
 
-import ReferenceCard from "../../../Article/ReferenceCard";
+import ReferenceCard from "components/Article/ReferenceCard";
 
 import {
 	articleEditorInfoAtom,
 	articlePropertiesAtom,
-} from "../../../../atoms/advocate/articleEditorAtoms";
+} from "atoms/advocate/articleEditorAtoms";
 import type { AppendUrlState } from "./ArticleEditor";
 
 function isValidHttpUrl(url: string) {

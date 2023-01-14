@@ -1,16 +1,16 @@
 import { useState, useEffect } from "react";
-import { trpc } from "../utils/trpc";
 
 import Head from "next/head";
 
-import { AppShell } from "../components/AppShell";
-
+import { AppShell } from "components/AppShell";
 import {
 	DesktopLoadingScreen,
 	MobileLoadingScreen,
-} from "../components/Navigation/Home/LoadingScreens";
-import MobileHome from "../components/Navigation/Home/MobileHome";
-import DesktopHome from "../components/Navigation/Home/DesktopHome";
+} from "components/Navigation/Home/LoadingScreens";
+import MobileHome from "components/Navigation/Home/MobileHome";
+import DesktopHome from "components/Navigation/Home/DesktopHome";
+
+import { trpc } from "utils/trpc";
 import { showNotification } from "@mantine/notifications";
 
 const UserHome = () => {

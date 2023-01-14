@@ -1,31 +1,24 @@
 import { useState, useEffect } from "react";
 import { useRecoilState, useResetRecoilState, useSetRecoilState } from "recoil";
-
-import useScreenBreakpoint from "../../../hooks/common/useScreenBreakpoint";
+import useScreenBreakpoint from "hooks/common/useScreenBreakpoint";
 
 import { Drawer, LoadingOverlay } from "@mantine/core";
 
-import { AppShell } from "../../../components/Advocate/AppShell";
-import ArticleEditor from "../../../components/Advocate/Issues/Editor/ArticleEditor";
-import ArticleProperties from "../../../components/Advocate/Issues/Editor/ArticleProperties";
-import DesktopBlockProperties from "../../../components/Advocate/Issues/Editor/DesktopBlockProperties";
+import { AppShell } from "components/Advocate/AppShell";
+import ArticleEditor from "components/Advocate/Issues/Editor/ArticleEditor";
+import ArticleProperties from "components/Advocate/Issues/Editor/ArticleProperties";
+import DesktopBlockProperties from "components/Advocate/Issues/Editor/DesktopBlockProperties";
 
-import { GetServerSideProps } from "next";
-import { prisma } from "../../../utils/prisma";
+import { prisma } from "utils/prisma";
 
-import {
-	ArticleBlock,
-	TypeArticleTagValues,
-} from "../../../types/article.types";
-import {
-	ArticleStatus,
-	AvcArticle,
-} from "../../../types/advocate/article.types";
 import {
 	articleContentAtom,
 	articleEditorInfoAtom,
 	articlePropertiesAtom,
-} from "../../../atoms/advocate/articleEditorAtoms";
+} from "atoms/advocate/articleEditorAtoms";
+import type { GetServerSideProps } from "next";
+import type { ArticleStatus, AvcArticle } from "types/advocate/article.types";
+import type { ArticleBlock, TypeArticleTagValues } from "types/article.types";
 
 interface SelectorWrapperProps {
 	opened: boolean;

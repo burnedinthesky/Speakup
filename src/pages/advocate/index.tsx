@@ -1,4 +1,4 @@
-import { AppShell } from "../../components/Advocate/AppShell";
+import { AppShell } from "components/Advocate/AppShell";
 
 const Issues = () => {
 	return (

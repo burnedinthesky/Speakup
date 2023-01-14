@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 
 import Head from "next/head";
 import { motion, AnimatePresence } from "framer-motion";
 
-import SignUpPage from "../../components/Auth/SignUpForm";
-import { SignUpPageIDs } from "../../types/auth.types";
-import VerifyEmailPage from "../../components/Auth/VerifyEmailForm";
-import { useRouter } from "next/router";
+import SignUpPage from "components/Auth/SignUpForm";
+import VerifyEmailPage from "components/Auth/VerifyEmailForm";
+import type { SignUpPageIDs } from "types/auth.types";
 
 const SignUp = () => {
 	const router = useRouter();

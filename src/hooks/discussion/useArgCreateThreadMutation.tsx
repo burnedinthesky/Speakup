@@ -1,34 +1,25 @@
 import { showNotification } from "@mantine/notifications";
-import { ArgumentThread } from "../../types/comments.types";
-import { trpc } from "../../utils/trpc";
-
-interface useArgCreateThreadMutationProps {
-    setAddedThreads: (
-        setValueFunc: (prevState: ArgumentThread[]) => ArgumentThread[]
-    ) => void;
-    selectedThread: number | null;
-}
+import { ArgumentThread } from "types/comments.types";
+import { trpc } from "utils/trpc";
 
 const useArgCreateThreadMutation = (
-    completeFn: (data?: ArgumentThread) => void
+	completeFn: (data?: ArgumentThread) => void,
 ) => {
-    const trpcUtils = trpc.useContext();
+	const createThreadMutation = trpc.arguments.createNewThread.useMutation({
+		onSettled: (data, error) => {
+			if (error) {
+				showNotification({
+					color: "red",
+					title: "發生錯誤",
+					message: "請再試一次",
+				});
+			}
 
-    const createThreadMutation = trpc.arguments.createNewThread.useMutation({
-        onSettled: (data, error) => {
-            if (error) {
-                showNotification({
-                    color: "red",
-                    title: "發生錯誤",
-                    message: "請再試一次",
-                });
-            }
+			completeFn(data);
+		},
+	});
 
-            completeFn(data);
-        },
-    });
-
-    return createThreadMutation;
+	return createThreadMutation;
 };
 
 export default useArgCreateThreadMutation;

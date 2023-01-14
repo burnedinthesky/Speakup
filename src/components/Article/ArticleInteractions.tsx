@@ -1,13 +1,13 @@
 import { useState } from "react";
+import { useRouter } from "next/router";
+import { useSetRecoilState } from "recoil";
 
 import { FlagIcon, ShareIcon } from "@heroicons/react/outline";
 
 import ShareDialog from "./ShareDialog";
 import AddToCollection from "../Navigation/Collections/AddToCollection";
 
-import { useRouter } from "next/router";
-import { useSetRecoilState } from "recoil";
-import { openDisccusionModal } from "../../atoms/discussionModal";
+import { openDisccusionModal } from "atoms/discussionModal";
 
 interface ArticleInteractionProps {
 	articleId: string;

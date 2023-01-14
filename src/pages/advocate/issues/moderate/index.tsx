@@ -1,4 +1,4 @@
-import { trpc } from "../../../../utils/trpc";
+import { trpc } from "utils/trpc";
 
 import Link from "next/link";
 import {
@@ -10,12 +10,10 @@ import {
 	TableCell,
 } from "@tremor/react";
 import { Button } from "@mantine/core";
-
-import { AppShell } from "../../../../components/Advocate/AppShell";
+import { AppShell } from "components/Advocate/AppShell";
 
 const PendingModIssues = () => {
-	const { data, isLoading } =
-		trpc.advocate.articles.pendingModeration.useQuery();
+	const { data } = trpc.advocate.articles.pendingModeration.useQuery();
 
 	return (
 		<AppShell title="Speakup - 議題審核" highlight="issueMod">

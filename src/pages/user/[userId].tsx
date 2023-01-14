@@ -1,12 +1,15 @@
-import { GetServerSideProps } from "next";
-import { prisma } from "../../utils/prisma";
-import { AppShell } from "../../components/AppShell";
-import { Avatar } from "@mantine/core";
-import UserFeed from "../../components/User/Feed/UserFeed";
-import { QuestionMarkCircleIcon } from "@heroicons/react/solid";
 import { useState } from "react";
-import ReputationExpModal from "../../components/User/Feed/ReputationExpModal";
-import ReputationBar from "../../components/User/Reputation/ReputationBar";
+
+import { Avatar } from "@mantine/core";
+import { QuestionMarkCircleIcon } from "@heroicons/react/solid";
+
+import { AppShell } from "components/AppShell";
+import UserFeed from "components/User/Feed/UserFeed";
+import ReputationExpModal from "components/User/Feed/ReputationExpModal";
+import ReputationBar from "components/User/Reputation/ReputationBar";
+
+import { prisma } from "utils/prisma";
+import type { GetServerSideProps } from "next";
 
 interface UserData {
 	id: string;

@@ -1,16 +1,18 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import Head from "next/head";
-
-import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/outline";
-import Introduction from "../../components/Onboarding/Introduction";
-import UserInfo, { UserInfoData } from "../../components/Onboarding/UserInfo";
-import InterestedTopics from "../../components/Onboarding/InterestedTopics";
-import Comments from "../../components/Onboarding/Comments";
-import AllDone from "../../components/Onboarding/AllDone";
-import { trpc } from "../../utils/trpc";
 import { useRouter } from "next/router";
-import { showErrorNotification } from "../../lib/errorHandling";
+
+import Head from "next/head";
+import { motion } from "framer-motion";
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/outline";
+
+import Introduction from "components/Onboarding/Introduction";
+import UserInfo, { UserInfoData } from "components/Onboarding/UserInfo";
+import InterestedTopics from "components/Onboarding/InterestedTopics";
+import Comments from "components/Onboarding/Comments";
+import AllDone from "components/Onboarding/AllDone";
+
+import { trpc } from "utils/trpc";
+import { showErrorNotification } from "lib/errorHandling";
 
 export interface OnboardingData {
 	userInfo: {

@@ -1,3 +1,6 @@
+import { useRouter } from "next/router";
+
+import { Avatar, Menu } from "@mantine/core";
 import {
 	CogIcon,
 	ChevronDownIcon,
@@ -5,10 +8,9 @@ import {
 	MicrophoneIcon,
 	UserCircleIcon,
 } from "@heroicons/react/outline";
-import { Avatar, Menu } from "@mantine/core";
-import { useRouter } from "next/router";
+
 import { signOut, useSession } from "next-auth/react";
-import { CheckAvcClearance } from "../../../types/advocate/user.types";
+import { CheckAvcClearance } from "lib/advocate/auth";
 
 const AccountOptions = () => {
 	const router = useRouter();

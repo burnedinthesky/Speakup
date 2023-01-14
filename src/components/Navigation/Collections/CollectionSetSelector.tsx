@@ -1,11 +1,11 @@
 import { useState } from "react";
+
+import { Badge } from "@mantine/core";
 import { ChevronUpIcon, PlusCircleIcon } from "@heroicons/react/outline";
 
-import MobileDrawer from "../../Common/Overlays/MobileDrawer";
 import CollectionSetCard from "./CollectionSetCard";
 import CreateColSetModal from "./CreateCollectionsSetModal";
 import ColSetDrawer from "./ColSetDrawer";
-import { Badge } from "@mantine/core";
 
 interface CollectionSetSelectorProps {
 	sets: {

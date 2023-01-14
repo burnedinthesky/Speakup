@@ -1,16 +1,16 @@
 import { MouseEvent, useEffect, useState } from "react";
 import { GetStaticProps } from "next";
-import { prisma } from "../../utils/prisma";
+import { prisma } from "utils/prisma";
 
-import { AppShell } from "../../components/AppShell";
-import ArticleViewer from "../../components/Article/ArticleViewer";
-import CommentField from "../../components/Discussion/Comments/CommentField";
+import { AppShell } from "components/AppShell";
+import ArticleViewer from "components/Article/ArticleViewer";
+import CommentField from "components/Discussion/Comments/CommentField";
 
-import StanceSelector from "../../components/Discussion/Selectors/StanceSelector";
-import SortSelector from "../../components/Discussion/Selectors/SortSelector";
+import StanceSelector from "components/Discussion/Selectors/StanceSelector";
+import SortSelector from "components/Discussion/Selectors/SortSelector";
 
-import { Article } from "../../types/article.types";
-import { trpc } from "../../utils/trpc";
+import { Article } from "types/article.types";
+import { trpc } from "utils/trpc";
 
 interface DiscussionProps {
 	article: Article;

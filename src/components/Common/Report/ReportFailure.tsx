@@ -1,7 +1,8 @@
-import { Button } from "@mantine/core";
 import { useRef } from "react";
 import { useSetRecoilState } from "recoil";
-import { openDisccusionModal } from "../../../atoms/discussionModal";
+
+import { Button } from "@mantine/core";
+import { openDisccusionModal } from "atoms/discussionModal";
 
 const ReportFailure = () => {
 	const ReportResultRef = useRef<HTMLDivElement>(null);

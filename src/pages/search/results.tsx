@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+
 import { showNotification } from "@mantine/notifications";
-
-import { AppShell } from "../../components/AppShell";
-import NavCard from "../../components/Navigation/NavCard";
-
-import { trpc } from "../../utils/trpc";
 import { Pagination } from "@mantine/core";
+
+import { AppShell } from "components/AppShell";
+import NavCard from "components/Navigation/NavCard";
+
+import { trpc } from "utils/trpc";
 
 interface SearchParams {
 	keyword: string | null;

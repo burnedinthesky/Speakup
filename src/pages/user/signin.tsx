@@ -4,9 +4,9 @@ import { useRouter } from "next/router";
 import Head from "next/head";
 import { motion, AnimatePresence } from "framer-motion";
 
-import RequestResetPwdPage from "../../components/Auth/ResetPasswordForm";
-import { SignInPageIDs } from "../../types/auth.types";
-import SignInPage from "../../components/Auth/SignInForm";
+import RequestResetPwdPage from "components/Auth/ResetPasswordForm";
+import { SignInPageIDs } from "types/auth.types";
+import SignInPage from "components/Auth/SignInForm";
 
 const SignIn = () => {
 	const router = useRouter();

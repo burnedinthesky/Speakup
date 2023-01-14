@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
-import { Modal } from "@mantine/core";
 import { useRecoilState } from "recoil";
-import { openDisccusionModal } from "../../../atoms/discussionModal";
+
+import { Modal } from "@mantine/core";
+import { motion, AnimatePresence } from "framer-motion";
 
 import ReportMenu from "./ReportMenu";
-import { motion, AnimatePresence } from "framer-motion";
 import ReportSuccess from "./ReportSuccess";
 import ReportFailure from "./ReportFailure";
-import { trpc } from "../../../utils/trpc";
+
+import { trpc } from "utils/trpc";
+import { openDisccusionModal } from "atoms/discussionModal";
 
 function ReportModal() {
 	const [data, setData] = useRecoilState(openDisccusionModal);

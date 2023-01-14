@@ -1,9 +1,9 @@
 import { useSession } from "next-auth/react";
 
-import { Header, Navbar } from "../../AppShell";
+import { Header, Navbar } from "components/AppShell";
 import CardTrack from "./CardTrack";
 
-import { HomeRecommendations } from "../../../types/navigation.types";
+import type { HomeRecommendations } from "types/navigation.types";
 
 interface DesktopHomeProps {
 	data: HomeRecommendations;

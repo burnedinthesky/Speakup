@@ -1,7 +1,8 @@
-import { Chip, NativeSelect, NumberInput } from "@mantine/core";
 import { useEffect, useRef, useState } from "react";
-import { checkUserInfo } from "../../lib/onboardValidation";
-import { PageDataStages } from "../../pages/user/onboarding";
+
+import { Chip, NativeSelect, NumberInput } from "@mantine/core";
+import { checkUserInfo } from "lib/onboardValidation";
+import type { PageDataStages } from "pages/user/onboarding";
 
 export interface UserInfoData {
 	birthYear: number | undefined;

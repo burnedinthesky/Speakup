@@ -1,8 +1,9 @@
+import { useSession } from "next-auth/react";
+
 import Head from "next/head";
 import Header from "./Header";
 import Navbar from "./Navbar";
 import Footbar from "./Footbar";
-import { useSession } from "next-auth/react";
 
 interface AppShellProps {
 	children?: JSX.Element;

@@ -1,5 +1,5 @@
 import { PlusCircleIcon } from "@heroicons/react/outline";
-import MobileDrawer from "../../Common/Overlays/MobileDrawer";
+import MobileDrawer from "components/Common/Overlays/MobileDrawer";
 import CollectionSetCard from "./CollectionSetCard";
 import CreateColSetModal from "./CreateCollectionsSetModal";
 

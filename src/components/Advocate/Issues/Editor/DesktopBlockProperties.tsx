@@ -1,10 +1,11 @@
 import { useRecoilState } from "recoil";
+
 import { Select } from "@mantine/core";
 import {
 	articleContentAtom,
 	articleEditorInfoAtom,
-} from "../../../../atoms/advocate/articleEditorAtoms";
-import { ArticleBlockTypes } from "../../../../types/article.types";
+} from "atoms/advocate/articleEditorAtoms";
+import type { ArticleBlockTypes } from "types/article.types";
 
 const DesktopBlockProperties = () => {
 	const [articleContent, setArticleContent] =

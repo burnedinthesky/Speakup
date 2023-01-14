@@ -1,5 +1,3 @@
-import { Header, Footbar, Navbar } from "../../AppShell";
-
 const MobileLoadingScreen = () => (
 	<div className="mt-28">
 		<div className="h-36 w-96 animate-pulse rounded-xl bg-neutral-200" />

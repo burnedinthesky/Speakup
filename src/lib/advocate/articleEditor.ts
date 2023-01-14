@@ -1,5 +1,5 @@
-import { RawRefLinks } from "../../types/advocate/article.types";
-import { ArticleBlock } from "../../types/article.types";
+import { RawRefLinks } from "types/advocate/article.types";
+import { ArticleBlock } from "types/article.types";
 
 interface Data {
 	title: string;

@@ -7,8 +7,8 @@ import { cloneDeep } from "lodash";
 import {
 	articleContentAtom,
 	articleEditorInfoAtom,
-} from "../../../../atoms/advocate/articleEditorAtoms";
-import { ArticleBlockTypes } from "../../../../types/article.types";
+} from "atoms/advocate/articleEditorAtoms";
+import { ArticleBlockTypes } from "types/article.types";
 
 const MobileBlockProperties = () => {
 	const [articleContent, setArticleContent] =

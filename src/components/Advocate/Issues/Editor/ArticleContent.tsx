@@ -10,8 +10,8 @@ import {
 	articleContentAtom,
 	articleEditorInfoAtom,
 	articlePropertiesAtom,
-} from "../../../../atoms/advocate/articleEditorAtoms";
-import type { ArticleBlockTypes } from "../../../../types/article.types";
+} from "atoms/advocate/articleEditorAtoms";
+import type { ArticleBlockTypes } from "types/article.types";
 
 const BlockTypeStyles = {
 	h1: "text-2xl mt-4",

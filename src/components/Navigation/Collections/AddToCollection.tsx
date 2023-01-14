@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react";
-import { trpc } from "../../../utils/trpc";
+import useUpsertCollectionMutation from "hooks/navigation/useUpsertCollectionMutation";
+import useDeleteCollectionMutation from "hooks/navigation/useDeleteCollectionMutation";
+import useScreenSize from "hooks/common/useScreenSize";
 
 import { Loader, LoadingOverlay, Popover } from "@mantine/core";
 import { BookmarkIcon, PlusIcon, XIcon } from "@heroicons/react/outline";
 
 import ColSetSelector from "./ColSetSelector";
-import useUpsertCollectionMutation from "../../../hooks/navigation/useUpsertCollectionMutation";
-import useDeleteCollectionMutation from "../../../hooks/navigation/useDeleteCollectionMutation";
 import CreateColSetModal from "./CreateCollectionsSetModal";
-import MobileDrawer from "../../Common/Overlays/MobileDrawer";
-import useScreenSize from "hooks/common/useScreenSize";
+import MobileDrawer from "components/Common/Overlays/MobileDrawer";
+
+import { trpc } from "utils/trpc";
 
 interface Styles {
 	bookmarkIcon?: string;

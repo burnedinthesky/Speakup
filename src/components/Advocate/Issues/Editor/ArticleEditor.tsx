@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
 
-import useSubmitArticle from "../../../../hooks/advocate/useSubmitArticle";
+import useSubmitArticle from "hooks/advocate/useSubmitArticle";
 
 import { Button, Textarea } from "@mantine/core";
 
@@ -15,11 +15,8 @@ import { showNotification } from "@mantine/notifications";
 import {
 	articleEditorInfoAtom,
 	articlePropertiesAtom,
-} from "../../../../atoms/advocate/articleEditorAtoms";
-import type {
-	ArticleStatus,
-	RawRefLinks,
-} from "../../../../types/advocate/article.types";
+} from "atoms/advocate/articleEditorAtoms";
+import type { ArticleStatus, RawRefLinks } from "types/advocate/article.types";
 
 export interface ContentErrors {
 	title: string | null;

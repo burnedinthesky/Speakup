@@ -1,10 +1,10 @@
 import { z } from "zod";
-import { Argument, Stances } from "../../types/comments.types";
+import { Argument, Stances } from "types/comments.types";
 
-import { prisma } from "../../utils/prisma";
+import { prisma } from "utils/prisma";
 import { ArgumentThread, User } from "@prisma/client";
 import { loggedInProcedure, publicProcedure, router } from "../trpc";
-import { updateUserReputation } from "../../lib/server/updateReputation";
+import { updateUserReputation } from "lib/server/updateReputation";
 
 const appendArticleUpdate = (id: string) => {
 	return prisma.articles.update({

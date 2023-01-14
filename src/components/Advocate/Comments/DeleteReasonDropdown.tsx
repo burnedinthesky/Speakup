@@ -1,4 +1,5 @@
 import { useState } from "react";
+
 import { Button, Checkbox } from "@mantine/core";
 import { ReportConfigs } from "components/Common/Report/ReportMenu/reportConfigs";
 import ReportedReason from "./ReportedReason";

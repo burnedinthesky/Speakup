@@ -1,19 +1,17 @@
 import { useEffect } from "react";
-
 import { useRouter } from "next/router";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 
-import { checkArticleData } from "../../lib/advocate/articleEditor";
-import { showErrorNotification } from "../../lib/errorHandling";
-
-import { trpc } from "../../utils/trpc";
+import { trpc } from "utils/trpc";
 import { showNotification } from "@mantine/notifications";
 
+import { checkArticleData } from "lib/advocate/articleEditor";
+import { showErrorNotification } from "lib/errorHandling";
 import {
 	articleContentAtom,
 	articleEditorInfoAtom,
 	articlePropertiesAtom,
-} from "../../atoms/advocate/articleEditorAtoms";
+} from "atoms/advocate/articleEditorAtoms";
 
 const useSubmitArticle = ({ articleId }: { articleId: string | null }) => {
 	const router = useRouter();

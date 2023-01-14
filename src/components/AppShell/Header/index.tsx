@@ -1,9 +1,9 @@
 import Link from "next/link";
-
-import SearchBar from "../../Navigation/Search/SearchBar";
-import AccountOptions from "./AccountOptions";
 import { useSession } from "next-auth/react";
-import SignupModal from "../../Auth/SignupModal";
+
+import SearchBar from "components/Navigation/Search/SearchBar";
+import SignupModal from "components/Auth/SignupModal";
+import AccountOptions from "./AccountOptions";
 
 const Header = () => {
 	const { data: session } = useSession();

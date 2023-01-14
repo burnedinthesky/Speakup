@@ -1,12 +1,12 @@
-import { avcProcedure, router } from "../../trpc";
+import { avcProcedure, router } from "server/trpc";
 
 import z from "zod";
 import { TRPCError } from "@trpc/server";
 import { getLinkPreview } from "link-preview-js";
 
 import type { ArticleModStatus, Prisma } from "@prisma/client";
-import type { AvcArticleCard } from "../../../types/advocate/article.types";
-import type { ReferencesLink } from "../../../types/article.types";
+import type { AvcArticleCard } from "types/advocate/article.types";
+import type { ReferencesLink } from "types/article.types";
 
 type LinkPreviewPromise = Promise<
 	| {

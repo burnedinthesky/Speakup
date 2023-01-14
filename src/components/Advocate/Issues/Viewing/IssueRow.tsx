@@ -9,11 +9,11 @@ import {
 	Popover,
 } from "@mantine/core";
 import { PencilIcon, TrashIcon } from "@heroicons/react/outline";
-
-import { AvcArticleCard } from "../../../../types/advocate/article.types";
 import StatusBadge from "./StatusBadge";
-import { trpc } from "../../../../utils/trpc";
-import { showErrorNotification } from "../../../../lib/errorHandling";
+
+import { trpc } from "utils/trpc";
+import { showErrorNotification } from "lib/errorHandling";
+import type { AvcArticleCard } from "types/advocate/article.types";
 
 interface IssueRowProps {
 	issue: AvcArticleCard;

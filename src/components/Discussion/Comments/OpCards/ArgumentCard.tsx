@@ -8,11 +8,11 @@ import ExtendedMenu from "../OpCardComponents/ExtendedMenu";
 
 import ThreadsMenu from "../Threads/ThreadsMenu";
 
-import { Argument } from "../../../../types/comments.types";
-import useLoggedInAction from "../../../../hooks/authProtected/useLoggedInAction";
+import { Argument } from "types/comments.types";
+import useLoggedInAction from "hooks/authProtected/useLoggedInAction";
 import { useSession } from "next-auth/react";
 import { Avatar } from "@mantine/core";
-import PfLinkedUsername from "../../../User/Profile/PfLinkedUsername";
+import PfLinkedUsername from "User/Profile/PfLinkedUsername";
 
 interface ArgumentCardProps {
 	data: Argument;

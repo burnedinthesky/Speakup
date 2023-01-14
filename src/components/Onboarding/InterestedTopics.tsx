@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
-import {
-	ArrowNarrowLeftIcon,
-	ArrowNarrowRightIcon,
-} from "@heroicons/react/outline";
-import { Button, Chip } from "@mantine/core";
-import { ArticleTagValues } from "../../types/article.types";
-import { PageDataStages } from "../../pages/user/onboarding";
-import { checkInterestedTopics } from "../../lib/onboardValidation";
+
+import { Chip } from "@mantine/core";
+import { checkInterestedTopics } from "lib/onboardValidation";
+
+import { ArticleTagValues } from "types/article.types";
+import type { PageDataStages } from "pages/user/onboarding";
 
 interface PageProps {
 	pageStatus: PageDataStages;

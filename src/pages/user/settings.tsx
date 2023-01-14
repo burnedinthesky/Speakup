@@ -1,9 +1,10 @@
-import { Button, Modal } from "@mantine/core";
-import { useSession } from "next-auth/react";
 import { useState } from "react";
-import { AppShell } from "../../components/AppShell";
-import SettingsField from "../../components/Settings/SettingsField";
-import UpdatePasswordForm from "../../components/Settings/UpdatePasswordForm";
+import { useSession } from "next-auth/react";
+
+import { Button, Modal } from "@mantine/core";
+import { AppShell } from "components/AppShell";
+import SettingsField from "components/Settings/SettingsField";
+import UpdatePasswordForm from "components/Settings/UpdatePasswordForm";
 
 const Settings = () => {
 	const { data: session } = useSession();

@@ -3,10 +3,10 @@ import { useState, forwardRef } from "react";
 import { CommentReactionButtons } from "../OpCardComponents/CommentReactionButtons";
 import ExtendedMenu from "../OpCardComponents/ExtendedMenu";
 
-import { Comment } from "../../../../types/comments.types";
+import { Comment } from "types/comments.types";
 import { Avatar, Badge } from "@mantine/core";
 import { ChatAlt2Icon } from "@heroicons/react/outline";
-import PfLinkedUsername from "../../../User/Profile/PfLinkedUsername";
+import PfLinkedUsername from "User/Profile/PfLinkedUsername";
 
 interface CommentCardProps {
 	data: Comment;

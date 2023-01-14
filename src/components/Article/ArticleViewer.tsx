@@ -9,8 +9,8 @@ import ArticleInteractions from "./ArticleInteractions";
 import ReferenceCard from "./ReferenceCard";
 import ReportModal from "components/Common/Report/ReportModal";
 
-import type { Article, ArticleBlockStyles } from "../../types/article.types";
-import { openDisccusionModal } from "../../atoms/discussionModal";
+import { openDisccusionModal } from "atoms/discussionModal";
+import type { Article, ArticleBlockStyles } from "types/article.types";
 
 interface ArticleViewerProps {
 	article: Article;

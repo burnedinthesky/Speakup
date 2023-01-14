@@ -1,17 +1,9 @@
 import Link from "next/link";
-import {
-	HomeIcon,
-	SearchIcon,
-	BookmarkIcon,
-	BellIcon,
-	UserCircleIcon,
-} from "@heroicons/react/outline";
-
+import { HomeIcon, SearchIcon, BookmarkIcon } from "@heroicons/react/outline";
 import {
 	HomeIcon as HomeIconSolid,
 	SearchIcon as SearchIconSolid,
 	BookmarkIcon as BookmarkIconSolid,
-	UserCircleIcon as UserCircleIconSolid,
 } from "@heroicons/react/solid";
 
 import AccountOptions from "./Header/AccountOptions";

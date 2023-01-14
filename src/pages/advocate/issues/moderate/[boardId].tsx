@@ -1,21 +1,21 @@
-import { prisma } from "../../../../utils/prisma";
-import { GetServerSideProps } from "next";
-
-import { AppShell } from "../../../../components/Advocate/AppShell";
-
-import ArticleViewer from "../../../../components/Article/ArticleViewer";
+import { useState } from "react";
 
 import {
 	Article,
 	ArticleBlock,
 	TypeArticleTagValues,
-} from "../../../../types/article.types";
+} from "types/article.types";
 import { Tabs } from "@mantine/core";
 import { CheckIcon, XIcon } from "@heroicons/react/outline";
-import IssuePassPanel from "../../../../components/Advocate/Issues/Moderation/IssuePass";
-import { useState } from "react";
-import IssueFailedPanel from "../../../../components/Advocate/Issues/Moderation/IssueFailed";
-import { UnpubedArticle } from "../../../../types/advocate/article.types";
+
+import { AppShell } from "components/Advocate/AppShell";
+import ArticleViewer from "components/Article/ArticleViewer";
+import IssuePassPanel from "components/Advocate/Issues/Moderation/IssuePass";
+import IssueFailedPanel from "components/Advocate/Issues/Moderation/IssueFailed";
+
+import { prisma } from "utils/prisma";
+import type { GetServerSideProps } from "next";
+import type { UnpubedArticle } from "types/advocate/article.types";
 
 const BoardEditor = ({ article }: { article: Article }) => {
 	const [activeTab, setActiveTab] = useState<string | null>("pass");
