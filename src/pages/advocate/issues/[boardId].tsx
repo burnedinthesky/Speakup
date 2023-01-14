@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useRecoilState, useResetRecoilState, useSetRecoilState } from "recoil";
 
-import useScreenBreakpoint from "../../../common/hooks/useScreenBreakpoint";
+import useScreenBreakpoint from "../../../hooks/common/useScreenBreakpoint";
 
 import { Drawer, LoadingOverlay } from "@mantine/core";
 

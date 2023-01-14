@@ -11,7 +11,7 @@ import { AppShell } from "../../../components/Advocate/AppShell";
 import IssueRow from "../../../components/Advocate/Issues/Viewing/IssueRow";
 import IssueRowLoading from "../../../components/Advocate/Issues/Viewing/IssueRowLoading";
 import ArticleCard from "../../../components/Advocate/Issues/Viewing/ArticleCard";
-import useScreenSize from "../../../common/hooks/useScreenSize";
+import useScreenSize from "hooks/common/useScreenSize";
 import ArticleCardLoading from "../../../components/Advocate/Issues/Viewing/ArticleCardLoading";
 
 const Issues = () => {

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { ToModComments } from "../../../types/advocate/comments.types";
-import { updateUserReputation } from "../../lib/updateReputation";
+import { updateUserReputation } from "../../../lib/server/updateReputation";
 import { avcProcedure, router } from "../../trpc";
 
 export const commentsRouter = router({
