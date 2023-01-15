@@ -20,25 +20,14 @@ const AccountOptions = () => {
 		<Menu position="bottom-end">
 			<Menu.Target>
 				<button>
-					<div className="block lg:hidden">
-						<Avatar
-							src={session?.user.profileImg}
-							radius="xl"
-							size="sm"
-							color="cyan"
-						>
-							{session?.user.name[0]}
-						</Avatar>
-					</div>
-					<div className="hidden items-center gap-2 rounded-3xl bg-primary-400 py-2 px-3 text-neutral-800 lg:flex">
-						<Avatar src={session?.user.profileImg} radius="xl" size="sm">
-							{session?.user.name[0]}
-						</Avatar>
-						<p className="ml-2 mr-1 whitespace-nowrap text-white">
-							{session?.user?.name}
-						</p>
-						<ChevronDownIcon className="h-4 w-4 text-white" />
-					</div>
+					<Avatar
+						src={session?.user.profileImg}
+						radius="xl"
+						size={30}
+						color="cyan"
+					>
+						{session?.user.name[0]}
+					</Avatar>
 				</button>
 			</Menu.Target>
 			<Menu.Dropdown>

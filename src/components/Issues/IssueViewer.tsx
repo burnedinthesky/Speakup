@@ -14,14 +14,14 @@ interface IssueViewerProps {
 
 const IssueViewer = ({ issue }: IssueViewerProps) => {
 	return (
-		<div className="w-full p-4 bg-white rounded-md">
+		<div className="w-full p-4 lg:p-5 bg-white rounded-md">
 			<h1 className="text-xl font-semibold text-gray-900 lg:text-2xl">
 				{issue.title}
 			</h1>
 			<div className="flex mt-2 gap-3 text-primary-600">
 				{issue.tags.map((tag) => (
 					<div
-						className="px-3 py-0.5 lg:py-1 rounded-full border border-primary-600 "
+						className="px-3 py-0.5 lg:py-1 rounded-full border lg:border-[1.5px] border-primary-600 "
 						key={tag}
 					>
 						<p className="text-[11px] lg:text-xs">#{tag}</p>

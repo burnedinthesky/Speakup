@@ -1,13 +1,16 @@
+import { AppShell, Header } from "components/AppShell";
 import IssueViewer from "components/Issues/IssueViewer";
 import { SampleIssue } from "templateData/issues";
 
 const EventsPage = () => {
+	const event = SampleIssue;
+
 	return (
-		<div className="fixed top-0 left-0 right-0 bottom-0 overflow-y-auto scrollbar-hide bg-gray-100">
-			<div className="w-full max-w-2xl mx-auto mt-16 px-4">
-				<IssueViewer issue={SampleIssue} />
+		<AppShell title={`Speakup - ${event.title}`}>
+			<div className="w-full max-w-2xl mx-auto mt-16 px-4 ">
+				<IssueViewer issue={event} />
 			</div>
-		</div>
+		</AppShell>
 	);
 };
 

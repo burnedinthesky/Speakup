@@ -4,41 +4,24 @@ import { useSession } from "next-auth/react";
 import SearchBar from "components/Navigation/Search/SearchBar";
 import SignupModal from "components/Auth/SignupModal";
 import AccountOptions from "./AccountOptions";
+import { BellIcon } from "@heroicons/react/outline";
 
 const Header = () => {
 	const { data: session } = useSession();
 
 	return (
 		<>
-			<div className="fixed top-0 z-20 h-14 w-screen bg-primary-700 px-6 xl:px-14">
-				<div className="flex h-full w-full items-center justify-center lg:hidden">
+			<div className="fixed top-0 z-20 h-12 w-screen bg-white shadow flex justify-center lg:justify-between items-center px-8 xl:px-14">
+				<div>
 					<Link href="/home">
-						<img
-							className="my-auto h-8 -translate-x-1 lg:h-10"
-							src="/assets/logo-white.svg"
-							alt="logo"
-						/>
+						<img className="h-7" src="/assets/logo-cyan.svg" alt="Speakup" />
 					</Link>
 				</div>
 
-				<div className="hidden items-center justify-between lg:flex">
-					<div className="flex h-14 w-screen items-center gap-14">
-						<Link href="/home">
-							<img
-								className="my-auto h-10"
-								src="/assets/logo-white.svg"
-								alt="logo"
-							/>
-						</Link>
-						{session && (
-							<div className=" w-7/12 max-w-2xl xl:w-5/12">
-								<SearchBar />
-							</div>
-						)}
-					</div>
+				<div className="hidden items-center gap-3 lg:flex">
+					<BellIcon className="w-7 text-primary-600" />
 					{session && (
 						<div className="flex h-9 items-center justify-end gap-5 ">
-							{/* <DesktopNotifications /> */}
 							<AccountOptions />
 						</div>
 					)}

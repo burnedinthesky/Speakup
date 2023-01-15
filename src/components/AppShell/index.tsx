@@ -3,7 +3,7 @@ import { useSession } from "next-auth/react";
 import Head from "next/head";
 import Header from "./Header";
 import Navbar from "./Navbar";
-import Footbar from "./Footbar";
+import FootNav from "./FootNav";
 
 interface AppShellProps {
 	children?: JSX.Element;
@@ -33,18 +33,14 @@ const AppShell = ({
 				className={
 					rootDivStyle
 						? rootDivStyle
-						: `fixed top-0 left-0 h-screen w-screen bg-neutral-100 scrollbar-hide overflow-x-hidden`
+						: `fixed top-0 left-0 right-0 bottom-0 bg-gray-100 scrollbar-hide overflow-x-hidden overflow-y-auto 
+						`
 				}
 			>
 				<Header />
 				{session && (
 					<>
-						<Navbar
-							retractable={
-								navbarRetractable !== undefined ? navbarRetractable : false
-							}
-						/>
-						<Footbar highlight={highlight} />
+						<FootNav highlight={highlight} />
 					</>
 				)}
 				{children}
@@ -53,4 +49,4 @@ const AppShell = ({
 	);
 };
 
-export { AppShell, Header, Navbar, Footbar };
+export { AppShell, Header, Navbar, FootNav };
