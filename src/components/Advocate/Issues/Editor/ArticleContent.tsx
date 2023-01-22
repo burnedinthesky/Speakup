@@ -10,7 +10,7 @@ import {
 	articleContentAtom,
 	articleEditorInfoAtom,
 	articlePropertiesAtom,
-} from "atoms/advocate/articleEditorAtoms";
+} from "lib/atoms/advocate/articleEditorAtoms";
 import type { ArticleBlockTypes } from "types/article.types";
 
 const BlockTypeStyles = {

@@ -15,7 +15,7 @@ import { showNotification } from "@mantine/notifications";
 import {
 	articleEditorInfoAtom,
 	articlePropertiesAtom,
-} from "atoms/advocate/articleEditorAtoms";
+} from "lib/atoms/advocate/articleEditorAtoms";
 import type { ArticleStatus, RawRefLinks } from "types/advocate/article.types";
 
 export interface ContentErrors {

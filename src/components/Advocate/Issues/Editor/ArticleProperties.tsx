@@ -5,7 +5,7 @@ import { MultiSelect, Textarea } from "@mantine/core";
 import {
 	articleEditorInfoAtom,
 	articlePropertiesAtom,
-} from "atoms/advocate/articleEditorAtoms";
+} from "lib/atoms/advocate/articleEditorAtoms";
 
 import { ArticleTagValues, TypeArticleTagValues } from "types/article.types";
 
