@@ -11,7 +11,7 @@ const Header = () => {
 
 	return (
 		<>
-			<div className="fixed top-0 z-20 h-12 w-screen bg-white shadow flex justify-center lg:justify-between items-center px-8 xl:px-14">
+			<div className="fixed top-0 z-20 h-12 w-screen bg-white shadow flex lg:hidden justify-center lg:justify-between items-center px-8 xl:px-14">
 				<div>
 					<Link href="/home">
 						<img className="h-7" src="/assets/logo-cyan.svg" alt="Speakup" />

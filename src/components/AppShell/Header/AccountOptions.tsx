@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 
-import { Avatar, Menu } from "@mantine/core";
+import { Avatar, Menu, PopoverBaseProps } from "@mantine/core";
 import {
 	CogIcon,
 	ChevronDownIcon,
@@ -12,12 +12,16 @@ import {
 import { signOut, useSession } from "next-auth/react";
 import { CheckAvcClearance } from "lib/advocate/auth";
 
-const AccountOptions = () => {
+interface AccountOptionProps {
+	menuPosition?: PopoverBaseProps["position"];
+}
+
+const AccountOptions = ({ menuPosition }: AccountOptionProps) => {
 	const router = useRouter();
 	const { data: session } = useSession();
 
 	return (
-		<Menu position="bottom-end">
+		<Menu position={menuPosition ?? "bottom-end"}>
 			<Menu.Target>
 				<button>
 					<Avatar

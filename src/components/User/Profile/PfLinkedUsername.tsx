@@ -1,7 +1,7 @@
 import { useDisclosure } from "@mantine/hooks";
 
 import Link from "next/link";
-import { Button, Loader, Popover } from "@mantine/core";
+import { Avatar, Button, Loader, Popover } from "@mantine/core";
 
 import { trpc } from "utils/trpc";
 import { repNumToColor } from "lib/reputation";
@@ -9,12 +9,14 @@ import { repNumToColor } from "lib/reputation";
 interface PfLinkedUsernameProps {
 	id: string;
 	username: string;
+	profile?: string;
 	reputation: number;
 }
 
 const PfLinkedUsername = ({
 	id,
 	username,
+	profile,
 	reputation,
 }: PfLinkedUsernameProps) => {
 	const [opened, { close, open }] = useDisclosure(false);
@@ -28,23 +30,22 @@ const PfLinkedUsername = ({
 		<Popover opened={opened} onClose={close} position="right">
 			<Popover.Target>
 				<button
-					className="flex flex-nowrap items-center gap-1"
+					className="flex flex-grow-0 flex-nowrap items-center gap-2"
 					onClick={() => {
 						if (!data) refetch();
 						if (opened) close();
 						else open();
 					}}
 				>
-					<h3
-						className="text-base"
+					<Avatar size={16} src={profile} radius="xl" color="cyan">
+						{username[0]}
+					</Avatar>
+					<p
+						className="text-sm"
 						style={{ color: repNumToColor(reputation, "hexDark") }}
 					>
 						{username}
-					</h3>
-					{/* <div
-                        className=" h-2 w-2 rounded-full"
-                        style={{ backgroundColor: repNumToColor(0) }}
-                    /> */}
+					</p>
 				</button>
 			</Popover.Target>
 			<Popover.Dropdown>

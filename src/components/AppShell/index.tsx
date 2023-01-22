@@ -10,7 +10,6 @@ interface AppShellProps {
 	title: string;
 	rootDivStyle?: string;
 	highlight?: "home" | "search" | "collections";
-	navbarRetractable?: boolean;
 }
 
 const AppShell = ({
@@ -18,7 +17,6 @@ const AppShell = ({
 	title,
 	rootDivStyle,
 	highlight,
-	navbarRetractable,
 }: AppShellProps) => {
 	const { data: session } = useSession();
 
@@ -38,11 +36,9 @@ const AppShell = ({
 				}
 			>
 				<Header />
-				{session && (
-					<>
-						<FootNav highlight={highlight} />
-					</>
-				)}
+				<Navbar />
+				<FootNav highlight={highlight} />
+				{session && <></>}
 				{children}
 			</div>
 		</>
