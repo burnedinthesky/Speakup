@@ -44,6 +44,7 @@
         "dayjs": "^1.11.6",
         "dotenv-cli": "^6.0.0",
         "framer-motion": "^8.4.3",
+        "immer": "^9.0.18",
         "link-preview-js": "^3.0.4",
         "lodash": "^4.17.21",
         "next": "^13.0.2",
@@ -58,7 +59,8 @@
         "request-ip": "^3.3.0",
         "superjson": "^1.9.1",
         "tailwind-scrollbar-hide": "^1.1.7",
-        "zod": "^3.17.3"
+        "zod": "^3.17.3",
+        "zustand": "^4.3.2"
     },
     "devDependencies": {
         "@tailwindcss/line-clamp": "^0.4.2",
