@@ -9,7 +9,7 @@ import ArticleInteractions from "./ArticleInteractions";
 import ReferenceCard from "./ReferenceCard";
 import ReportModal from "components/Common/Report/ReportModal";
 
-import { openDisccusionModal } from "atoms/discussionModal";
+import { openDisccusionModal } from "lib/atoms/discussionModal";
 import type { Article, ArticleBlockStyles } from "types/article.types";
 
 interface ArticleViewerProps {

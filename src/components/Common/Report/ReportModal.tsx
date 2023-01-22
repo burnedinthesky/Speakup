@@ -9,7 +9,7 @@ import ReportSuccess from "./ReportSuccess";
 import ReportFailure from "./ReportFailure";
 
 import { trpc } from "utils/trpc";
-import { openDisccusionModal } from "atoms/discussionModal";
+import { openDisccusionModal } from "lib/atoms/discussionModal";
 
 function ReportModal() {
 	const [data, setData] = useRecoilState(openDisccusionModal);

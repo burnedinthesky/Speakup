@@ -8,7 +8,7 @@ import ReferenceCard from "components/Article/ReferenceCard";
 import {
 	articleEditorInfoAtom,
 	articlePropertiesAtom,
-} from "atoms/advocate/articleEditorAtoms";
+} from "lib/atoms/advocate/articleEditorAtoms";
 import type { AppendUrlState } from "./ArticleEditor";
 
 function isValidHttpUrl(url: string) {

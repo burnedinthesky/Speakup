@@ -51,7 +51,7 @@ const Speakup = ({ Component, pageProps }: AppProps<AppPropsInterface>) => {
 					}}
 				>
 					<NotificationsProvider>
-						<Component {...pageProps} />;
+						<Component {...pageProps} />
 					</NotificationsProvider>
 				</MantineProvider>
 			</RecoilRoot>

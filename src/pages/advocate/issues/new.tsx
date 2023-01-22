@@ -14,7 +14,7 @@ import {
 	articleContentAtom,
 	articleEditorInfoAtom,
 	articlePropertiesAtom,
-} from "atoms/advocate/articleEditorAtoms";
+} from "lib/atoms/advocate/articleEditorAtoms";
 
 interface SelectorWrapperProps {
 	opened: boolean;

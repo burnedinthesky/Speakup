@@ -15,7 +15,7 @@ import {
 	articleContentAtom,
 	articleEditorInfoAtom,
 	articlePropertiesAtom,
-} from "atoms/advocate/articleEditorAtoms";
+} from "lib/atoms/advocate/articleEditorAtoms";
 import type { GetServerSideProps } from "next";
 import type { ArticleStatus, AvcArticle } from "types/advocate/article.types";
 import type { ArticleBlock, TypeArticleTagValues } from "types/article.types";

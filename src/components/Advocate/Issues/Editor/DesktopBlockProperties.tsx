@@ -4,7 +4,7 @@ import { Select } from "@mantine/core";
 import {
 	articleContentAtom,
 	articleEditorInfoAtom,
-} from "atoms/advocate/articleEditorAtoms";
+} from "lib/atoms/advocate/articleEditorAtoms";
 import type { ArticleBlockTypes } from "types/article.types";
 
 const DesktopBlockProperties = () => {

@@ -3,7 +3,7 @@ import { useRecoilState } from "recoil";
 import { Modal } from "@mantine/core";
 import SignInPage from "./SignInForm";
 
-import { openSignupDialog } from "atoms/openSignupDialog";
+import { openSignupDialog } from "lib/atoms/openSignupDialog";
 
 const SignupModal = () => {
 	const [opened, setOpened] = useRecoilState(openSignupDialog);

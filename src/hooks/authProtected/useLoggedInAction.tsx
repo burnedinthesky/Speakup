@@ -1,6 +1,6 @@
 import { useSession } from "next-auth/react";
 import { useSetRecoilState } from "recoil";
-import { openSignupDialog } from "atoms/openSignupDialog";
+import { openSignupDialog } from "lib/atoms/openSignupDialog";
 
 const useLoggedInAction = () => {
 	const { data: session } = useSession();

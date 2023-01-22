@@ -7,7 +7,7 @@ import { FlagIcon, ShareIcon } from "@heroicons/react/outline";
 import ShareDialog from "./ShareDialog";
 import AddToCollection from "../Navigation/Collections/AddToCollection";
 
-import { openDisccusionModal } from "atoms/discussionModal";
+import { openDisccusionModal } from "lib/atoms/discussionModal";
 
 interface ArticleInteractionProps {
 	articleId: string;

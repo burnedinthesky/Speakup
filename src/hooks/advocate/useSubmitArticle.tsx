@@ -11,7 +11,7 @@ import {
 	articleContentAtom,
 	articleEditorInfoAtom,
 	articlePropertiesAtom,
-} from "atoms/advocate/articleEditorAtoms";
+} from "lib/atoms/advocate/articleEditorAtoms";
 
 const useSubmitArticle = ({ articleId }: { articleId: string | null }) => {
 	const router = useRouter();

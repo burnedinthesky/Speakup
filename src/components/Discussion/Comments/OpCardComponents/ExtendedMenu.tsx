@@ -8,7 +8,7 @@ import {
 	DotsVerticalIcon,
 } from "@heroicons/react/outline";
 import { useSetRecoilState } from "recoil";
-import { openDisccusionModal } from "atoms/discussionModal";
+import { openDisccusionModal } from "lib/atoms/discussionModal";
 
 interface ExtendedMenuProps {
 	dataId: number;
