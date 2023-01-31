@@ -13,7 +13,7 @@ export type User = {
 export type Author = {
 	id: string;
 	name: string;
-	image: string;
+	image?: string;
 };
 
 export type FeedArgument = {

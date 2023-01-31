@@ -16,6 +16,11 @@ export interface Debate {
 	news: NewsLink[];
 }
 
-export interface UIDebate extends Debate {
+export interface UserScfDebate extends Debate {
+	userUpvoted: boolean;
+	userDownvoted: boolean;
+}
+
+export interface UIDebate extends UserScfDebate {
 	typing: string[];
 }

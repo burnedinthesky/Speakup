@@ -1,11 +1,22 @@
-import { PlusIcon } from "@heroicons/react/outline";
+import { useState } from "react";
+import NewDebateButton from "./NewDebateButton";
+import NewDebateInput from "./NewDebateInput";
 
 const NewDebate = () => {
+	const [inputOpen, setInputOpen] = useState<boolean>(false);
+
 	return (
-		<button className="w-full h-10 flex items-center justify-center bg-white rounded-md gap-2 text-primary-600 hover:translate-y-1 transition-transform">
-			<PlusIcon className="w-6" />
-			<p>開始辯論</p>
-		</button>
+		<div
+			className={`w-full bg-white rounded-md   ${
+				inputOpen ? "py-3 px-4" : "hover:bg-gray-50 py-1"
+			}`}
+		>
+			{inputOpen ? (
+				<NewDebateInput toggleOpen={setInputOpen} />
+			) : (
+				<NewDebateButton toggleOpen={setInputOpen} />
+			)}
+		</div>
 	);
 };
 
