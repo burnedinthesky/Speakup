@@ -1,0 +1,16 @@
+{
+    "name": "database",
+    "dependencies": {
+        "@prisma/client": "^4.9.0"
+    },
+    "devDependencies": {
+        "prisma": "^4.8.0"
+    },
+    "scripts": {
+        "dev": "prisma studio --browser none",
+        "db:generate": "prisma generate",
+        "db:migrate": "prisma migrate dev"
+    },
+    "main": "./index.ts",
+    "types": "./index.ts"
+}
