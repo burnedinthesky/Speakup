@@ -10,7 +10,7 @@ import { trpc } from "../utils/trpc";
 
 import "../styles/globals.css";
 
-import { MantineTheme } from "@/lib/Mantine/ProviderConfig";
+import { MantineTheme } from "@/lib/mantine/ProviderConfig";
 // import "@tremor/react/dist/esm/tremor.css";
 
 interface AppPropsInterface {

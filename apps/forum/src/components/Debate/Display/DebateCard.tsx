@@ -1,12 +1,13 @@
+import { useRouter } from "next/router";
+
 import { ActionIcon, Loader, Spoiler } from "@mantine/core";
 
-import DownvoteIcon from "@/components/Common/Icons/DownvoteIcon";
-import UpvoteIcon from "@/components/Common/Icons/UpvoteIcon";
 import PfLinkedUsername from "@/components/User/Profile/PfLinkedUsername";
+import UpvoteIcon from "@/components/Common/Icons/UpvoteIcon";
+import DownvoteIcon from "@/components/Common/Icons/DownvoteIcon";
 
-import { UIDebate } from "@/types/debate.types";
 import { useDebateStore } from "@/lib/stores/debateStores";
-import { useRouter } from "next/router";
+import { UIDebate } from "@/types/debate.types";
 
 interface DebateCardProps {
 	debate: UIDebate;
@@ -62,6 +63,7 @@ const DebateCard = ({ debate }: DebateCardProps) => {
 					{/* <NewspaperIcon className="w-[22px] md:w-6" /> */}
 				</div>
 			</div>
+
 			<Spoiler
 				maxHeight={130}
 				classNames={{

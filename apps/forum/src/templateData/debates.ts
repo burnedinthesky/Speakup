@@ -1,4 +1,4 @@
-import { UserScfDebate } from "types/debate.types";
+import { UserScfDebate } from "@/types/debate.types";
 
 export const SampleDebate: UserScfDebate = {
 	id: "asdf",

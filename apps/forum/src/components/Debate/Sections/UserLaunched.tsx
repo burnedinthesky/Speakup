@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { UserCircleIcon } from "@heroicons/react/outline";
 
-import DebateCard from "../DebateCard";
+import DebateCard from "../Display/DebateCard";
 import { useDebateStore } from "@/lib/stores/debateStores";
 import { GetRandomDebate } from "@/templateData/debates";
 

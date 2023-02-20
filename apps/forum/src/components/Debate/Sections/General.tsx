@@ -5,7 +5,7 @@ import {
 	SortDescendingIcon,
 } from "@heroicons/react/outline";
 
-import DebateCard from "../DebateCard";
+import DebateCard from "../Display/DebateCard";
 import { useDebateStore } from "@/lib/stores/debateStores";
 
 const GeneralDebates = () => {
