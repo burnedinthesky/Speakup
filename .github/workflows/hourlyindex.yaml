@@ -1,7 +1,7 @@
 name: Hourly data index
 on:
-    schedule:
-        - cron: "*/60 * * * *"
+    # schedule:
+    #     - cron: "*/60 * * * *"
     workflow_dispatch:
         inputs:
             logLevel:
